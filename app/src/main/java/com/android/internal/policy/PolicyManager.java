@@ -54,6 +54,8 @@ public final class PolicyManager {
 
     // The static methods to spawn new policy-specific objects
     public static Window makeNewWindow(Context context) {
+        //sPolicy 的实际类型是com.android.internal.policy.impl.Policy
+        //而在Policy 中，makeNewWindow（）返回的就是一个PhoneWindow对象
         return sPolicy.makeNewWindow(context);
     }
 

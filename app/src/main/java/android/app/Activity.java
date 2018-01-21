@@ -2138,6 +2138,8 @@ public class Activity extends ContextThemeWrapper
      * @see #setContentView(View, LayoutParams)
      */
     public void setContentView(int layoutResID) {
+        //getWindow()虽然看起来得到的是Window 对象mWindow，其实是一个PhoneWindow对象，
+        //因为在attach()中，mWindow = new PhoneWindow(this, window);
         getWindow().setContentView(layoutResID);
         initWindowDecorActionBar();
     }
@@ -5867,7 +5869,7 @@ public class Activity extends ContextThemeWrapper
 
         mFragments.attachActivity(this, mContainer, null);
 
-        mWindow = PolicyManager.makeNewWindow(this);
+        mWindow = PolicyManager.makeNewWindow(this); //得到的就是一个PhoneWindow对象，
         mWindow.setCallback(this);
         mWindow.setOnWindowDismissedCallback(this);
         mWindow.getLayoutInflater().setPrivateFactory(this);
