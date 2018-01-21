@@ -40,7 +40,7 @@ import android.view.accessibility.AccessibilityEvent;
  * instance of this class should be used as the top-level view added to the
  * window manager. It provides standard UI policies such as a background, title
  * area, default key processing, etc.
- *
+ * <p>
  * <p>The only existing implementation of this abstract class is
  * android.policy.PhoneWindow, which you should instantiate when needing a
  * Window.  Eventually that class will be refactored and a factory method
@@ -48,22 +48,38 @@ import android.view.accessibility.AccessibilityEvent;
  * implementation.
  */
 public abstract class Window {
-    /** Flag for the "options panel" feature.  This is enabled by default. */
+    /**
+     * Flag for the "options panel" feature.  This is enabled by default.
+     */
     public static final int FEATURE_OPTIONS_PANEL = 0;
-    /** Flag for the "no title" feature, turning off the title at the top
-     *  of the screen. */
+    /**
+     * Flag for the "no title" feature, turning off the title at the top
+     * of the screen.
+     */
     public static final int FEATURE_NO_TITLE = 1;
-    /** Flag for the progress indicator feature */
+    /**
+     * Flag for the progress indicator feature
+     */
     public static final int FEATURE_PROGRESS = 2;
-    /** Flag for having an icon on the left side of the title bar */
+    /**
+     * Flag for having an icon on the left side of the title bar
+     */
     public static final int FEATURE_LEFT_ICON = 3;
-    /** Flag for having an icon on the right side of the title bar */
+    /**
+     * Flag for having an icon on the right side of the title bar
+     */
     public static final int FEATURE_RIGHT_ICON = 4;
-    /** Flag for indeterminate progress */
+    /**
+     * Flag for indeterminate progress
+     */
     public static final int FEATURE_INDETERMINATE_PROGRESS = 5;
-    /** Flag for the context menu.  This is enabled by default. */
+    /**
+     * Flag for the context menu.  This is enabled by default.
+     */
     public static final int FEATURE_CONTEXT_MENU = 6;
-    /** Flag for custom title. You cannot combine this feature with other title features. */
+    /**
+     * Flag for custom title. You cannot combine this feature with other title features.
+     */
     public static final int FEATURE_CUSTOM_TITLE = 7;
     /**
      * Flag for enabling the Action Bar.
@@ -80,11 +96,11 @@ public abstract class Window {
      * over how the Action Bar is displayed, such as letting application content scroll beneath
      * an Action Bar with a transparent background or otherwise displaying a transparent/translucent
      * Action Bar over application content.
-     *
+     * <p>
      * <p>This mode is especially useful with {@link View#SYSTEM_UI_FLAG_FULLSCREEN
      * View.SYSTEM_UI_FLAG_FULLSCREEN}, which allows you to seamlessly hide the
      * action bar in conjunction with other screen decorations.
-     *
+     * <p>
      * <p>As of {@link android.os.Build.VERSION_CODES#JELLY_BEAN}, when an
      * ActionBar is in this mode it will adjust the insets provided to
      * {@link View#fitSystemWindows(android.graphics.Rect) View.fitSystemWindows(Rect)}
@@ -104,7 +120,7 @@ public abstract class Window {
     /**
      * Flag for requesting that window content changes should be animated using a
      * TransitionManager.
-     *
+     * <p>
      * <p>The TransitionManager is set using
      * {@link #setTransitionManager(TransitionManager)}. If none is set,
      * a default TransitionManager will be used.</p>
@@ -118,41 +134,60 @@ public abstract class Window {
      * ActivityOptions bundle created with
      * {@link android.app.ActivityOptions#makeSceneTransitionAnimation(android.app.Activity,
      * android.util.Pair[])} or {@link android.app.ActivityOptions#makeSceneTransitionAnimation(
-     * android.app.Activity, View, String)}.
+     *android.app.Activity, View, String)}.
      */
     public static final int FEATURE_ACTIVITY_TRANSITIONS = 13;
 
     /**
      * Max value used as a feature ID
+     *
      * @hide
      */
     public static final int FEATURE_MAX = FEATURE_ACTIVITY_TRANSITIONS;
 
-    /** Flag for setting the progress bar's visibility to VISIBLE */
+    /**
+     * Flag for setting the progress bar's visibility to VISIBLE
+     */
     public static final int PROGRESS_VISIBILITY_ON = -1;
-    /** Flag for setting the progress bar's visibility to GONE */
+    /**
+     * Flag for setting the progress bar's visibility to GONE
+     */
     public static final int PROGRESS_VISIBILITY_OFF = -2;
-    /** Flag for setting the progress bar's indeterminate mode on */
+    /**
+     * Flag for setting the progress bar's indeterminate mode on
+     */
     public static final int PROGRESS_INDETERMINATE_ON = -3;
-    /** Flag for setting the progress bar's indeterminate mode off */
+    /**
+     * Flag for setting the progress bar's indeterminate mode off
+     */
     public static final int PROGRESS_INDETERMINATE_OFF = -4;
-    /** Starting value for the (primary) progress */
+    /**
+     * Starting value for the (primary) progress
+     */
     public static final int PROGRESS_START = 0;
-    /** Ending value for the (primary) progress */
+    /**
+     * Ending value for the (primary) progress
+     */
     public static final int PROGRESS_END = 10000;
-    /** Lowest possible value for the secondary progress */
+    /**
+     * Lowest possible value for the secondary progress
+     */
     public static final int PROGRESS_SECONDARY_START = 20000;
-    /** Highest possible value for the secondary progress */
+    /**
+     * Highest possible value for the secondary progress
+     */
     public static final int PROGRESS_SECONDARY_END = 30000;
 
     /**
      * The transitionName for the status bar background View when a custom background is used.
+     *
      * @see Window#setStatusBarColor(int)
      */
     public static final String STATUS_BAR_BACKGROUND_TRANSITION_NAME = "android:status:background";
 
     /**
      * The transitionName for the navigation bar background View when a custom background is used.
+     *
      * @see Window#setNavigationBarColor(int)
      */
     public static final String NAVIGATION_BAR_BACKGROUND_TRANSITION_NAME =
@@ -160,6 +195,7 @@ public abstract class Window {
 
     /**
      * The default features enabled.
+     *
      * @deprecated use {@link #getDefaultFeatures(Context)} instead.
      */
     @Deprecated
@@ -204,7 +240,7 @@ public abstract class Window {
 
     // The current window attributes.
     private final WindowManager.LayoutParams mWindowAttributes =
-        new WindowManager.LayoutParams();
+            new WindowManager.LayoutParams();
 
     /**
      * API from a Window back to its caller.  This allows the client to
@@ -218,7 +254,6 @@ public abstract class Window {
          * standard key processing.
          *
          * @param event The key event.
-         *
          * @return boolean Return true if this event was consumed.
          */
         public boolean dispatchKeyEvent(KeyEvent event);
@@ -241,7 +276,6 @@ public abstract class Window {
          * standard touch screen processing.
          *
          * @param event The touch screen event.
-         *
          * @return boolean Return true if this event was consumed.
          */
         public boolean dispatchTouchEvent(MotionEvent event);
@@ -253,7 +287,6 @@ public abstract class Window {
          * standard trackball processing.
          *
          * @param event The trackball event.
-         *
          * @return boolean Return true if this event was consumed.
          */
         public boolean dispatchTrackballEvent(MotionEvent event);
@@ -265,7 +298,6 @@ public abstract class Window {
          * standard processing.
          *
          * @param event The generic motion event.
-         *
          * @return boolean Return true if this event was consumed.
          */
         public boolean dispatchGenericMotionEvent(MotionEvent event);
@@ -274,7 +306,6 @@ public abstract class Window {
          * Called to process population of {@link AccessibilityEvent}s.
          *
          * @param event The event.
-         *
          * @return boolean Return true if event population was completed.
          */
         public boolean dispatchPopulateAccessibilityEvent(AccessibilityEvent event);
@@ -285,9 +316,7 @@ public abstract class Window {
          * a menu) will be created for you.
          *
          * @param featureId Which panel is being created.
-         *
          * @return view The top-level view to place in the panel.
-         *
          * @see #onPreparePanel
          */
         @Nullable
@@ -298,16 +327,15 @@ public abstract class Window {
          * called if onCreatePanelView() returns null, giving you a standard
          * menu in which you can place your items.  It is only called once for
          * the panel, the first time it is shown.
-         *
+         * <p>
          * <p>You can safely hold on to <var>menu</var> (and any items created
          * from it), making modifications to it as desired, until the next
          * time onCreatePanelMenu() is called for this feature.
          *
          * @param featureId The panel being created.
-         * @param menu The menu inside the panel.
-         *
+         * @param menu      The menu inside the panel.
          * @return boolean You must return true for the panel to be displayed;
-         *         if you return false it will not be shown.
+         * if you return false it will not be shown.
          */
         public boolean onCreatePanelMenu(int featureId, Menu menu);
 
@@ -316,13 +344,11 @@ public abstract class Window {
          * panel window is shown, every time it is shown.
          *
          * @param featureId The panel that is being displayed.
-         * @param view The View that was returned by onCreatePanelView().
-         * @param menu If onCreatePanelView() returned null, this is the Menu
-         *             being displayed in the panel.
-         *
+         * @param view      The View that was returned by onCreatePanelView().
+         * @param menu      If onCreatePanelView() returned null, this is the Menu
+         *                  being displayed in the panel.
          * @return boolean You must return true for the panel to be displayed;
-         *         if you return false it will not be shown.
-         *
+         * if you return false it will not be shown.
          * @see #onCreatePanelView
          */
         public boolean onPreparePanel(int featureId, View view, Menu menu);
@@ -333,9 +359,9 @@ public abstract class Window {
          * example, from the icon menu to the expanded menu).
          *
          * @param featureId The panel that the menu is in.
-         * @param menu The menu that is opened.
+         * @param menu      The menu that is opened.
          * @return Return true to allow the menu to open, or false to prevent
-         *         the menu from opening.
+         * the menu from opening.
          */
         public boolean onMenuOpened(int featureId, Menu menu);
 
@@ -343,17 +369,15 @@ public abstract class Window {
          * Called when a panel's menu item has been selected by the user.
          *
          * @param featureId The panel that the menu is in.
-         * @param item The menu item that was selected.
-         *
+         * @param item      The menu item that was selected.
          * @return boolean Return true to finish processing of selection, or
-         *         false to perform the normal menu handling (calling its
-         *         Runnable or sending a Message to its target Handler).
+         * false to perform the normal menu handling (calling its
+         * Runnable or sending a Message to its target Handler).
          */
         public boolean onMenuItemSelected(int featureId, MenuItem item);
 
         /**
          * This is called whenever the current window attributes change.
-         *
          */
         public void onWindowAttributesChanged(WindowManager.LayoutParams attrs);
 
@@ -396,8 +420,8 @@ public abstract class Window {
          * panel), this method will NOT be called.
          *
          * @param featureId The panel that is being displayed.
-         * @param menu If onCreatePanelView() returned null, this is the Menu
-         *            being displayed in the panel.
+         * @param menu      If onCreatePanelView() returned null, this is the Menu
+         *                  being displayed in the panel.
          */
         public void onPanelClosed(int featureId, Menu menu);
 
@@ -405,7 +429,6 @@ public abstract class Window {
          * Called when the user signals the desire to start a search.
          *
          * @return true if search launched, false if activity refuses (blocks)
-         *
          * @see android.app.Activity#onSearchRequested()
          */
         public boolean onSearchRequested();
@@ -439,7 +462,9 @@ public abstract class Window {
         public void onActionModeFinished(ActionMode mode);
     }
 
-    /** @hide */
+    /**
+     * @hide
+     */
     public interface OnWindowDismissedCallback {
         /**
          * Called when a window is dismissed. This informs the callback that the
@@ -488,8 +513,8 @@ public abstract class Window {
         mContainer = container;
         if (container != null) {
             // Embedded screens never have a title.
-            mFeatures |= 1<<FEATURE_NO_TITLE;
-            mLocalFeatures |= 1<<FEATURE_NO_TITLE;
+            mFeatures |= 1 << FEATURE_NO_TITLE;
+            mLocalFeatures |= 1 << FEATURE_NO_TITLE;
             container.mHasChildren = true;
         }
     }
@@ -498,7 +523,7 @@ public abstract class Window {
      * Return the container for this Window.
      *
      * @return Window The containing window, or null if this is a
-     *         top-level window.
+     * top-level window.
      */
     public final Window getContainer() {
         return mContainer;
@@ -508,12 +533,16 @@ public abstract class Window {
         return mHasChildren;
     }
 
-    /** @hide */
+    /**
+     * @hide
+     */
     public final void destroy() {
         mDestroyed = true;
     }
 
-    /** @hide */
+    /**
+     * @hide
+     */
     public final boolean isDestroyed() {
         return mDestroyed;
     }
@@ -537,21 +566,21 @@ public abstract class Window {
      * @param wm The window manager for adding new windows.
      */
     public void setWindowManager(WindowManager wm, IBinder appToken, String appName,
-            boolean hardwareAccelerated) {
+                                 boolean hardwareAccelerated) {
         mAppToken = appToken;
         mAppName = appName;
         mHardwareAccelerated = hardwareAccelerated
                 || SystemProperties.getBoolean(PROPERTY_HARDWARE_UI, false);
         if (wm == null) {
-            wm = (WindowManager)mContext.getSystemService(Context.WINDOW_SERVICE);
+            wm = (WindowManager) mContext.getSystemService(Context.WINDOW_SERVICE);
         }
-        mWindowManager = ((WindowManagerImpl)wm).createLocalWindowManager(this);
+        mWindowManager = ((WindowManagerImpl) wm).createLocalWindowManager(this);
     }
 
     void adjustLayoutParamsForSubWindow(WindowManager.LayoutParams wp) {
         CharSequence curTitle = wp.getTitle();
         if (wp.type >= WindowManager.LayoutParams.FIRST_SUB_WINDOW &&
-            wp.type <= WindowManager.LayoutParams.LAST_SUB_WINDOW) {
+                wp.type <= WindowManager.LayoutParams.LAST_SUB_WINDOW) {
             if (wp.token == null) {
                 View decor = peekDecorView();
                 if (decor != null) {
@@ -561,17 +590,17 @@ public abstract class Window {
             if (curTitle == null || curTitle.length() == 0) {
                 String title;
                 if (wp.type == WindowManager.LayoutParams.TYPE_APPLICATION_MEDIA) {
-                    title="Media";
+                    title = "Media";
                 } else if (wp.type == WindowManager.LayoutParams.TYPE_APPLICATION_MEDIA_OVERLAY) {
-                    title="MediaOvr";
+                    title = "MediaOvr";
                 } else if (wp.type == WindowManager.LayoutParams.TYPE_APPLICATION_PANEL) {
-                    title="Panel";
+                    title = "Panel";
                 } else if (wp.type == WindowManager.LayoutParams.TYPE_APPLICATION_SUB_PANEL) {
-                    title="SubPanel";
+                    title = "SubPanel";
                 } else if (wp.type == WindowManager.LayoutParams.TYPE_APPLICATION_ATTACHED_DIALOG) {
-                    title="AtchDlg";
+                    title = "AtchDlg";
                 } else {
-                    title=Integer.toString(wp.type);
+                    title = Integer.toString(wp.type);
                 }
                 if (mAppName != null) {
                     title += ":" + mAppName;
@@ -622,12 +651,16 @@ public abstract class Window {
         return mCallback;
     }
 
-    /** @hide */
+    /**
+     * @hide
+     */
     public final void setOnWindowDismissedCallback(OnWindowDismissedCallback dcb) {
         mOnWindowDismissedCallback = dcb;
     }
 
-    /** @hide */
+    /**
+     * @hide
+     */
     public final void dispatchOnWindowDismissed() {
         if (mOnWindowDismissedCallback != null) {
             mOnWindowDismissedCallback.onWindowDismissed();
@@ -664,9 +697,8 @@ public abstract class Window {
      * for both of these is MATCH_PARENT; you can change them to WRAP_CONTENT
      * or an absolute value to make a window that is not full-screen.
      *
-     * @param width The desired layout width of the window.
+     * @param width  The desired layout width of the window.
      * @param height The desired layout height of the window.
-     *
      * @see ViewGroup.LayoutParams#height
      * @see ViewGroup.LayoutParams#width
      */
@@ -683,12 +715,10 @@ public abstract class Window {
      * is only useful when using WRAP_CONTENT for the layout width or height.
      *
      * @param gravity The desired gravity constant.
-     *
      * @see Gravity
      * @see #setLayout
      */
-    public void setGravity(int gravity)
-    {
+    public void setGravity(int gravity) {
         final WindowManager.LayoutParams attrs = getAttributes();
         attrs.gravity = gravity;
         dispatchWindowAttributesChanged(attrs);
@@ -714,7 +744,6 @@ public abstract class Window {
      * @param format The new window format (see PixelFormat).  Use
      *               PixelFormat.UNKNOWN to allow the Window to select
      *               the format.
-     *
      * @see PixelFormat
      */
     public void setFormat(int format) {
@@ -763,6 +792,7 @@ public abstract class Window {
     /**
      * Convenience function to set the flag bits as specified in flags, as
      * per {@link #setFlags}.
+     *
      * @param flags The flag bits to be set.
      * @see #setFlags
      * @see #clearFlags
@@ -771,7 +801,9 @@ public abstract class Window {
         setFlags(flags, flags);
     }
 
-    /** @hide */
+    /**
+     * @hide
+     */
     public void addPrivateFlags(int flags) {
         setPrivateFlags(flags, flags);
     }
@@ -779,6 +811,7 @@ public abstract class Window {
     /**
      * Convenience function to clear the flag bits as specified in flags, as
      * per {@link #setFlags}.
+     *
      * @param flags The flag bits to be cleared.
      * @see #setFlags
      * @see #addFlags
@@ -791,7 +824,7 @@ public abstract class Window {
      * Set the flags of the window, as per the
      * {@link WindowManager.LayoutParams WindowManager.LayoutParams}
      * flags.
-     *
+     * <p>
      * <p>Note that some flags must be set before the window decoration is
      * created (by the first call to
      * {@link #setContentView(View, ViewGroup.LayoutParams)} or
@@ -802,13 +835,13 @@ public abstract class Window {
      * attribute.
      *
      * @param flags The new window flags (see WindowManager.LayoutParams).
-     * @param mask Which of the window flag bits to modify.
+     * @param mask  Which of the window flag bits to modify.
      * @see #addFlags
      * @see #clearFlags
      */
     public void setFlags(int flags, int mask) {
         final WindowManager.LayoutParams attrs = getAttributes();
-        attrs.flags = (attrs.flags&~mask) | (flags&mask);
+        attrs.flags = (attrs.flags & ~mask) | (flags & mask);
         mForcedWindowFlags |= mask;
         dispatchWindowAttributesChanged(attrs);
     }
@@ -871,7 +904,7 @@ public abstract class Window {
      * Retrieve the current window attributes associated with this panel.
      *
      * @return WindowManager.LayoutParams Either the existing window
-     *         attributes object, or a freshly created one if there is none.
+     * attributes object, or a freshly created one if there is none.
      */
     public final WindowManager.LayoutParams getAttributes() {
         return mWindowAttributes;
@@ -892,13 +925,17 @@ public abstract class Window {
         return mHasSoftInputMode;
     }
 
-    /** @hide */
+    /**
+     * @hide
+     */
     public void setCloseOnTouchOutside(boolean close) {
         mCloseOnTouchOutside = close;
         mSetCloseOnTouchOutside = true;
     }
 
-    /** @hide */
+    /**
+     * @hide
+     */
     public void setCloseOnTouchOutsideIfNotSet(boolean close) {
         if (!mSetCloseOnTouchOutside) {
             mCloseOnTouchOutside = close;
@@ -906,18 +943,24 @@ public abstract class Window {
         }
     }
 
-    /** @hide */
+    /**
+     * @hide
+     */
     @SystemApi
     public void setDisableWallpaperTouchEvents(boolean disable) {
         setPrivateFlags(disable
-                ? WindowManager.LayoutParams.PRIVATE_FLAG_DISABLE_WALLPAPER_TOUCH_EVENTS : 0,
+                        ? WindowManager.LayoutParams.PRIVATE_FLAG_DISABLE_WALLPAPER_TOUCH_EVENTS : 0,
                 WindowManager.LayoutParams.PRIVATE_FLAG_DISABLE_WALLPAPER_TOUCH_EVENTS);
     }
 
-    /** @hide */
+    /**
+     * @hide
+     */
     public abstract void alwaysReadCloseOnTouchAttr();
 
-    /** @hide */
+    /**
+     * @hide
+     */
     public boolean shouldCloseOnTouch(Context context, MotionEvent event) {
         if (mCloseOnTouchOutside && event.getAction() == MotionEvent.ACTION_DOWN
                 && isOutOfBounds(context, event) && peekDecorView() != null) {
@@ -932,8 +975,8 @@ public abstract class Window {
         final int slop = ViewConfiguration.get(context).getScaledWindowTouchSlop();
         final View decorView = getDecorView();
         return (x < -slop) || (y < -slop)
-                || (x > (decorView.getWidth()+slop))
-                || (y > (decorView.getHeight()+slop));
+                || (x > (decorView.getWidth() + slop))
+                || (y > (decorView.getHeight() + slop));
     }
 
     /**
@@ -947,19 +990,19 @@ public abstract class Window {
      * @return The features that are now set.
      */
     public boolean requestFeature(int featureId) {
-        final int flag = 1<<featureId;
+        final int flag = 1 << featureId;
         mFeatures |= flag;
-        mLocalFeatures |= mContainer != null ? (flag&~mContainer.mFeatures) : flag;
-        return (mFeatures&flag) != 0;
+        mLocalFeatures |= mContainer != null ? (flag & ~mContainer.mFeatures) : flag;
+        return (mFeatures & flag) != 0;
     }
 
     /**
      * @hide Used internally to help resolve conflicting features.
      */
     protected void removeFeature(int featureId) {
-        final int flag = 1<<featureId;
+        final int flag = 1 << featureId;
         mFeatures &= ~flag;
-        mLocalFeatures &= ~(mContainer != null ? (flag&~mContainer.mFeatures) : flag);
+        mLocalFeatures &= ~(mContainer != null ? (flag & ~mContainer.mFeatures) : flag);
     }
 
     public final void makeActive() {
@@ -973,8 +1016,7 @@ public abstract class Window {
         onActive();
     }
 
-    public final boolean isActive()
-    {
+    public final boolean isActive() {
         return mIsActive;
     }
 
@@ -1017,17 +1059,17 @@ public abstract class Window {
      * Set the screen content to an explicit view.  This view is placed
      * directly into the screen's view hierarchy.  It can itself be a complex
      * view hierarchy.
-     *
+     * <p>
      * <p>Note that calling this function "locks in" various characteristics
      * of the window that can not, from this point forward, be changed: the
      * features that have been requested with {@link #requestFeature(int)},
      * and certain window flags as described in {@link #setFlags(int, int)}.</p>
-     *
+     * <p>
      * <p>If {@link #FEATURE_CONTENT_TRANSITIONS} is set, the window's
      * TransitionManager will be used to animate content from the current
      * content View to view.</p>
      *
-     * @param view The desired content to display.
+     * @param view   The desired content to display.
      * @param params Layout parameters for the view.
      * @see #getTransitionManager()
      * @see #setTransitionManager(TransitionManager)
@@ -1040,7 +1082,7 @@ public abstract class Window {
      * to add an additional content view to the screen.  Added after any existing
      * ones in the screen -- existing views are NOT removed.
      *
-     * @param view The desired content to display.
+     * @param view   The desired content to display.
      * @param params Layout parameters for the view.
      */
     public abstract void addContentView(View view, ViewGroup.LayoutParams params);
@@ -1081,9 +1123,10 @@ public abstract class Window {
                                                  int keyCode,
                                                  KeyEvent event,
                                                  int flags);
+
     public abstract boolean performPanelIdentifierAction(int featureId,
-                                                 int id,
-                                                 int flags);
+                                                         int id,
+                                                         int flags);
 
     public abstract void closeAllPanels();
 
@@ -1107,7 +1150,8 @@ public abstract class Window {
      * @see View#setElevation(float)
      * @see android.R.styleable#Window_windowElevation
      */
-    public void setElevation(float elevation) {}
+    public void setElevation(float elevation) {
+    }
 
     /**
      * Sets whether window content should be clipped to the outline of the
@@ -1118,7 +1162,8 @@ public abstract class Window {
      * @see View#setClipToOutline(boolean)
      * @see android.R.styleable#Window_windowClipToOutline
      */
-    public void setClipToOutline(boolean clipToOutline) {}
+    public void setClipToOutline(boolean clipToOutline) {
+    }
 
     /**
      * Change the background of this window to a Drawable resource. Setting the
@@ -1148,11 +1193,10 @@ public abstract class Window {
      * identifier.  You must have called requestFeauture(featureId) before
      * calling this function.
      *
-     * @see Resources#getDrawable(int)
-     *
      * @param featureId The desired drawable feature to change, defined as a
-     * constant by Window.
-     * @param resId Resource identifier of the desired image.
+     *                  constant by Window.
+     * @param resId     Resource identifier of the desired image.
+     * @see Resources#getDrawable(int)
      */
     public abstract void setFeatureDrawableResource(int featureId, int resId);
 
@@ -1160,15 +1204,14 @@ public abstract class Window {
      * Set the value for a drawable feature of this window, from a URI. You
      * must have called requestFeature(featureId) before calling this
      * function.
-     *
+     * <p>
      * <p>The only URI currently supported is "content:", specifying an image
      * in a content provider.
      *
-     * @see android.widget.ImageView#setImageURI
-     *
      * @param featureId The desired drawable feature to change. Features are
-     * constants defined by Window.
-     * @param uri The desired URI.
+     *                  constants defined by Window.
+     * @param uri       The desired URI.
+     * @see android.widget.ImageView#setImageURI
      */
     public abstract void setFeatureDrawableUri(int featureId, Uri uri);
 
@@ -1178,7 +1221,7 @@ public abstract class Window {
      *
      * @param featureId The desired drawable feature to change. Features are
      *                  constants defined by Window.
-     * @param drawable A Drawable object to display.
+     * @param drawable  A Drawable object to display.
      */
     public abstract void setFeatureDrawable(int featureId, Drawable drawable);
 
@@ -1188,8 +1231,8 @@ public abstract class Window {
      *
      * @param featureId The desired drawable feature to change. Features are
      *                  constants defined by Window.
-     * @param alpha The alpha amount, 0 is completely transparent and 255 is
-     *              completely opaque.
+     * @param alpha     The alpha amount, 0 is completely transparent and 255 is
+     *                  completely opaque.
      */
     public abstract void setFeatureDrawableAlpha(int featureId, int alpha);
 
@@ -1200,8 +1243,8 @@ public abstract class Window {
      *
      * @param featureId The desired feature to change. Features are constants
      *                  defined by Window.
-     * @param value The value for the feature. The interpretation of this
-     *              value is feature-specific.
+     * @param value     The value for the feature. The interpretation of this
+     *                  value is feature-specific.
      */
     public abstract void setFeatureInt(int featureId, int value);
 
@@ -1216,7 +1259,6 @@ public abstract class Window {
      * Used by custom windows, such as Dialog, to pass the key press event
      * further down the view hierarchy. Application developers should
      * not need to implement or call this.
-     *
      */
     public abstract boolean superDispatchKeyEvent(KeyEvent event);
 
@@ -1224,7 +1266,6 @@ public abstract class Window {
      * Used by custom windows, such as Dialog, to pass the key shortcut press event
      * further down the view hierarchy. Application developers should
      * not need to implement or call this.
-     *
      */
     public abstract boolean superDispatchKeyShortcutEvent(KeyEvent event);
 
@@ -1232,7 +1273,6 @@ public abstract class Window {
      * Used by custom windows, such as Dialog, to pass the touch screen event
      * further down the view hierarchy. Application developers should
      * not need to implement or call this.
-     *
      */
     public abstract boolean superDispatchTouchEvent(MotionEvent event);
 
@@ -1240,7 +1280,6 @@ public abstract class Window {
      * Used by custom windows, such as Dialog, to pass the trackball event
      * further down the view hierarchy. Application developers should
      * not need to implement or call this.
-     *
      */
     public abstract boolean superDispatchTrackballEvent(MotionEvent event);
 
@@ -1248,7 +1287,6 @@ public abstract class Window {
      * Used by custom windows, such as Dialog, to pass the generic motion event
      * further down the view hierarchy. Application developers should
      * not need to implement or call this.
-     *
      */
     public abstract boolean superDispatchGenericMotionEvent(MotionEvent event);
 
@@ -1256,7 +1294,7 @@ public abstract class Window {
      * Retrieve the top-level window decor view (containing the standard
      * window frame/decorations and the client's content inside of that), which
      * can be added as a window to the window manager.
-     *
+     * <p>
      * <p><em>Note that calling this function for the first time "locks in"
      * various window characteristics as described in
      * {@link #setContentView(View, ViewGroup.LayoutParams)}.</em></p>
@@ -1285,19 +1323,19 @@ public abstract class Window {
      * that were given to requestFeature(), and are being handled by this
      * Window itself or its container.  That is, it is the set of
      * requested features that you can actually use.
-     *
+     * <p>
      * <p>To do: add a public version of this API that allows you to check for
      * features by their feature ID.
      *
      * @return int The feature bits.
      */
-    protected final int getFeatures()
-    {
+    protected final int getFeatures() {
         return mFeatures;
     }
 
     /**
      * Return the feature bits set by default on a window.
+     *
      * @param context The context used to access resources
      */
     public static int getDefaultFeatures(Context context) {
@@ -1332,8 +1370,7 @@ public abstract class Window {
      *
      * @return int The feature bits.
      */
-    protected final int getLocalFeatures()
-    {
+    protected final int getLocalFeatures() {
         return mLocalFeatures;
     }
 
@@ -1343,7 +1380,6 @@ public abstract class Window {
      * format with setFormat();
      *
      * @param format The new window format (see PixelFormat).
-     *
      * @see #setFormat
      * @see PixelFormat
      */
@@ -1356,7 +1392,9 @@ public abstract class Window {
         }
     }
 
-    /** @hide */
+    /**
+     * @hide
+     */
     protected boolean haveDimAmount() {
         return mHaveDimAmount;
     }
@@ -1367,8 +1405,9 @@ public abstract class Window {
 
     /**
      * Is a keypress one of the defined shortcut keys for this window.
+     *
      * @param keyCode the key code from {@link KeyEvent} to check.
-     * @param event the {@link KeyEvent} to use to help check.
+     * @param event   the {@link KeyEvent} to use to help check.
      */
     public abstract boolean isShortcutKey(int keyCode, KeyEvent event);
 
@@ -1388,7 +1427,7 @@ public abstract class Window {
      * sent to this window.
      *
      * @param controller The controller for the session which should receive
-     *            media keys and volume changes.
+     *                   media keys and volume changes.
      * @see android.app.Activity#setMediaController(MediaController)
      */
     public void setMediaController(MediaController controller) {
@@ -1407,24 +1446,29 @@ public abstract class Window {
 
     /**
      * Set extra options that will influence the UI for this window.
+     *
      * @param uiOptions Flags specifying extra options for this window.
      */
-    public void setUiOptions(int uiOptions) { }
+    public void setUiOptions(int uiOptions) {
+    }
 
     /**
      * Set extra options that will influence the UI for this window.
      * Only the bits filtered by mask will be modified.
+     *
      * @param uiOptions Flags specifying extra options for this window.
-     * @param mask Flags specifying which options should be modified. Others will remain unchanged.
+     * @param mask      Flags specifying which options should be modified. Others will remain unchanged.
      */
-    public void setUiOptions(int uiOptions, int mask) { }
+    public void setUiOptions(int uiOptions, int mask) {
+    }
 
     /**
      * Set the primary icon for this window.
      *
      * @param resId resource ID of a drawable to set
      */
-    public void setIcon(int resId) { }
+    public void setIcon(int resId) {
+    }
 
     /**
      * Set the default icon for this window.
@@ -1433,7 +1477,8 @@ public abstract class Window {
      *
      * @hide
      */
-    public void setDefaultIcon(int resId) { }
+    public void setDefaultIcon(int resId) {
+    }
 
     /**
      * Set the logo for this window. A logo is often shown in place of an
@@ -1442,7 +1487,8 @@ public abstract class Window {
      *
      * @param resId resource ID of a drawable to set
      */
-    public void setLogo(int resId) { }
+    public void setLogo(int resId) {
+    }
 
     /**
      * Set the default logo for this window.
@@ -1451,26 +1497,31 @@ public abstract class Window {
      *
      * @hide
      */
-    public void setDefaultLogo(int resId) { }
+    public void setDefaultLogo(int resId) {
+    }
 
     /**
      * Set focus locally. The window should have the
      * {@link WindowManager.LayoutParams#FLAG_LOCAL_FOCUS_MODE} flag set already.
-     * @param hasFocus Whether this window has focus or not.
+     *
+     * @param hasFocus    Whether this window has focus or not.
      * @param inTouchMode Whether this window is in touch mode or not.
      */
-    public void setLocalFocus(boolean hasFocus, boolean inTouchMode) { }
+    public void setLocalFocus(boolean hasFocus, boolean inTouchMode) {
+    }
 
     /**
      * Inject an event to window locally.
+     *
      * @param event A key or touch event to inject to this window.
      */
-    public void injectInputEvent(InputEvent event) { }
+    public void injectInputEvent(InputEvent event) {
+    }
 
     /**
      * Retrieve the {@link TransitionManager} responsible for  for default transitions
      * in this window. Requires {@link #FEATURE_CONTENT_TRANSITIONS}.
-     *
+     * <p>
      * <p>This method will return non-null after content has been initialized (e.g. by using
      * {@link #setContentView}) if {@link #FEATURE_CONTENT_TRANSITIONS} has been granted.</p>
      *
@@ -1495,7 +1546,7 @@ public abstract class Window {
     /**
      * Retrieve the {@link Scene} representing this window's current content.
      * Requires {@link #FEATURE_CONTENT_TRANSITIONS}.
-     *
+     * <p>
      * <p>This method will return null if the current content is not represented by a Scene.</p>
      *
      * @return Current Scene being shown or null
@@ -1515,7 +1566,8 @@ public abstract class Window {
      * @param transition The Transition to use to move Views into the initial Scene.
      * @attr ref android.R.styleable#Window_windowEnterTransition
      */
-    public void setEnterTransition(Transition transition) {}
+    public void setEnterTransition(Transition transition) {
+    }
 
     /**
      * Sets the Transition that will be used to move Views out of the scene when the Window is
@@ -1532,7 +1584,8 @@ public abstract class Window {
      *                   is preparing to close.
      * @attr ref android.R.styleable#Window_windowReturnTransition
      */
-    public void setReturnTransition(Transition transition) {}
+    public void setReturnTransition(Transition transition) {
+    }
 
     /**
      * Sets the Transition that will be used to move Views out of the scene when starting a
@@ -1546,7 +1599,8 @@ public abstract class Window {
      *                   new Activity.
      * @attr ref android.R.styleable#Window_windowExitTransition
      */
-    public void setExitTransition(Transition transition) {}
+    public void setExitTransition(Transition transition) {
+    }
 
     /**
      * Sets the Transition that will be used to move Views in to the scene when returning from
@@ -1562,7 +1616,8 @@ public abstract class Window {
      *                   previously-started Activity.
      * @attr ref android.R.styleable#Window_windowReenterTransition
      */
-    public void setReenterTransition(Transition transition) {}
+    public void setReenterTransition(Transition transition) {
+    }
 
     /**
      * Returns the transition used to move Views into the initial scene. The entering
@@ -1575,7 +1630,9 @@ public abstract class Window {
      * @return the Transition to use to move Views into the initial Scene.
      * @attr ref android.R.styleable#Window_windowEnterTransition
      */
-    public Transition getEnterTransition() { return null; }
+    public Transition getEnterTransition() {
+        return null;
+    }
 
     /**
      * Returns he Transition that will be used to move Views out of the scene when the Window is
@@ -1587,10 +1644,12 @@ public abstract class Window {
      * {@link View#VISIBLE} to {@link View#INVISIBLE}.
      *
      * @return The Transition to use to move Views out of the Scene when the Window
-     *         is preparing to close.
+     * is preparing to close.
      * @attr ref android.R.styleable#Window_windowReturnTransition
      */
-    public Transition getReturnTransition() { return null; }
+    public Transition getReturnTransition() {
+        return null;
+    }
 
     /**
      * Returns the Transition that will be used to move Views out of the scene when starting a
@@ -1604,7 +1663,9 @@ public abstract class Window {
      * new Activity.
      * @attr ref android.R.styleable#Window_windowExitTransition
      */
-    public Transition getExitTransition() { return null; }
+    public Transition getExitTransition() {
+        return null;
+    }
 
     /**
      * Returns the Transition that will be used to move Views in to the scene when returning from
@@ -1615,10 +1676,12 @@ public abstract class Window {
      * Requires {@link #FEATURE_ACTIVITY_TRANSITIONS}.
      *
      * @return The Transition to use to move Views into the scene when reentering from a
-     *         previously-started Activity.
+     * previously-started Activity.
      * @attr ref android.R.styleable#Window_windowReenterTransition
      */
-    public Transition getReenterTransition() { return null; }
+    public Transition getReenterTransition() {
+        return null;
+    }
 
     /**
      * Sets the Transition that will be used for shared elements transferred into the content
@@ -1631,7 +1694,8 @@ public abstract class Window {
      *                   Scene.
      * @attr ref android.R.styleable#Window_windowSharedElementEnterTransition
      */
-    public void setSharedElementEnterTransition(Transition transition) {}
+    public void setSharedElementEnterTransition(Transition transition) {
+    }
 
     /**
      * Sets the Transition that will be used for shared elements transferred back to a
@@ -1646,7 +1710,8 @@ public abstract class Window {
      *                   Scene.
      * @attr ref android.R.styleable#Window_windowSharedElementReturnTransition
      */
-    public void setSharedElementReturnTransition(Transition transition) {}
+    public void setSharedElementReturnTransition(Transition transition) {
+    }
 
     /**
      * Returns the Transition that will be used for shared elements transferred into the content
@@ -1655,7 +1720,9 @@ public abstract class Window {
      * @return Transition to use for sharend elements transferred into the content Scene.
      * @attr ref android.R.styleable#Window_windowSharedElementEnterTransition
      */
-    public Transition getSharedElementEnterTransition() { return null; }
+    public Transition getSharedElementEnterTransition() {
+        return null;
+    }
 
     /**
      * Returns the Transition that will be used for shared elements transferred back to a
@@ -1664,7 +1731,9 @@ public abstract class Window {
      * @return Transition to use for sharend elements transferred into the content Scene.
      * @attr ref android.R.styleable#Window_windowSharedElementReturnTransition
      */
-    public Transition getSharedElementReturnTransition() { return null; }
+    public Transition getSharedElementReturnTransition() {
+        return null;
+    }
 
     /**
      * Sets the Transition that will be used for shared elements after starting a new Activity
@@ -1677,7 +1746,8 @@ public abstract class Window {
      *                   prior to transferring to the launched Activity's Window.
      * @attr ref android.R.styleable#Window_windowSharedElementExitTransition
      */
-    public void setSharedElementExitTransition(Transition transition) {}
+    public void setSharedElementExitTransition(Transition transition) {
+    }
 
     /**
      * Sets the Transition that will be used for shared elements reentering from a started
@@ -1690,7 +1760,8 @@ public abstract class Window {
      *                   after the shared element has returned to the Window.
      * @attr ref android.R.styleable#Window_windowSharedElementReenterTransition
      */
-    public void setSharedElementReenterTransition(Transition transition) {}
+    public void setSharedElementReenterTransition(Transition transition) {
+    }
 
     /**
      * Returns the Transition to use for shared elements in the launching Window prior
@@ -1701,7 +1772,9 @@ public abstract class Window {
      * to transferring to the launched Activity's Window.
      * @attr ref android.R.styleable#Window_windowSharedElementExitTransition
      */
-    public Transition getSharedElementExitTransition() { return null; }
+    public Transition getSharedElementExitTransition() {
+        return null;
+    }
 
     /**
      * Returns the Transition that will be used for shared elements reentering from a started
@@ -1712,7 +1785,9 @@ public abstract class Window {
      * Activity after it has returned the shared element to it start location.
      * @attr ref android.R.styleable#Window_windowSharedElementReenterTransition
      */
-    public Transition getSharedElementReenterTransition() { return null; }
+    public Transition getSharedElementReenterTransition() {
+        return null;
+    }
 
     /**
      * Controls how the transition set in
@@ -1725,7 +1800,8 @@ public abstract class Window {
      *              wait until the exiting transition completes.
      * @attr ref android.R.styleable#Window_windowAllowEnterTransitionOverlap
      */
-    public void setAllowEnterTransitionOverlap(boolean allow) {}
+    public void setAllowEnterTransitionOverlap(boolean allow) {
+    }
 
     /**
      * Returns how the transition set in
@@ -1738,7 +1814,9 @@ public abstract class Window {
      * when it should wait until the exiting transition completes.
      * @attr ref android.R.styleable#Window_windowAllowEnterTransitionOverlap
      */
-    public boolean getAllowEnterTransitionOverlap() { return true; }
+    public boolean getAllowEnterTransitionOverlap() {
+        return true;
+    }
 
     /**
      * Controls how the transition set in
@@ -1751,10 +1829,12 @@ public abstract class Window {
      *              called Activity's exiting transition completes.
      * @attr ref android.R.styleable#Window_windowAllowReturnTransitionOverlap
      */
-    public void setAllowReturnTransitionOverlap(boolean allow) {}
+    public void setAllowReturnTransitionOverlap(boolean allow) {
+    }
 
     /**
      * TODO: remove this.
+     *
      * @hide
      */
     public void setAllowExitTransitionOverlap(boolean allow) {
@@ -1772,13 +1852,18 @@ public abstract class Window {
      * until the called Activity's exiting transition completes.
      * @attr ref android.R.styleable#Window_windowAllowReturnTransitionOverlap
      */
-    public boolean getAllowReturnTransitionOverlap() { return true; }
+    public boolean getAllowReturnTransitionOverlap() {
+        return true;
+    }
 
     /**
      * TODO: remove this.
+     *
      * @hide
      */
-    public boolean getAllowExitTransitionOverlap() { return getAllowReturnTransitionOverlap(); }
+    public boolean getAllowExitTransitionOverlap() {
+        return getAllowReturnTransitionOverlap();
+    }
 
     /**
      * Returns the duration, in milliseconds, of the window background fade
@@ -1788,10 +1873,12 @@ public abstract class Window {
      * 300 milliseconds.</p>
      *
      * @return The duration of the window background fade to opaque during enter transition.
-     * @see #getEnterTransition()
      * @attr ref android.R.styleable#Window_windowTransitionBackgroundFadeDuration
+     * @see #getEnterTransition()
      */
-    public long getTransitionBackgroundFadeDuration() { return 0; }
+    public long getTransitionBackgroundFadeDuration() {
+        return 0;
+    }
 
     /**
      * Sets the duration, in milliseconds, of the window background fade
@@ -1802,10 +1889,11 @@ public abstract class Window {
      *
      * @param fadeDurationMillis The duration of the window background fade to or from opaque
      *                           during enter transition.
-     * @see #setEnterTransition(Transition)
      * @attr ref android.R.styleable#Window_windowTransitionBackgroundFadeDuration
+     * @see #setEnterTransition(Transition)
      */
-    public void setTransitionBackgroundFadeDuration(long fadeDurationMillis) { }
+    public void setTransitionBackgroundFadeDuration(long fadeDurationMillis) {
+    }
 
     /**
      * Returns <code>true</code> when shared elements should use an Overlay during
@@ -1817,7 +1905,9 @@ public abstract class Window {
      * part of the normal View hierarchy.
      * @attr ref android.R.styleable#Window_windowSharedElementsUseOverlay
      */
-    public boolean getSharedElementsUseOverlay() { return true; }
+    public boolean getSharedElementsUseOverlay() {
+        return true;
+    }
 
     /**
      * Sets whether or not shared elements should use an Overlay during shared element transitions.
@@ -1828,7 +1918,8 @@ public abstract class Window {
      *                                 to transition within the normal View hierarchy.
      * @attr ref android.R.styleable#Window_windowSharedElementsUseOverlay
      */
-    public void setSharedElementsUseOverlay(boolean sharedElementsUseOverlay) { }
+    public void setSharedElementsUseOverlay(boolean sharedElementsUseOverlay) {
+    }
 
     /**
      * @return the color of the status bar.
@@ -1837,12 +1928,12 @@ public abstract class Window {
 
     /**
      * Sets the color of the status bar to {@param color}.
-     *
+     * <p>
      * For this to take effect,
      * the window must be drawing the system bar backgrounds with
      * {@link WindowManager.LayoutParams#FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS} and
      * {@link WindowManager.LayoutParams#FLAG_TRANSLUCENT_STATUS} must not be set.
-     *
+     * <p>
      * If {@param color} is not opaque, consider setting
      * {@link View#SYSTEM_UI_FLAG_LAYOUT_STABLE} and
      * {@link View#SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN}.
@@ -1859,12 +1950,12 @@ public abstract class Window {
 
     /**
      * Sets the color of the navigation bar to {@param color}.
-     *
+     * <p>
      * For this to take effect,
      * the window must be drawing the system bar backgrounds with
      * {@link WindowManager.LayoutParams#FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS} and
      * {@link WindowManager.LayoutParams#FLAG_TRANSLUCENT_NAVIGATION} must not be set.
-     *
+     * <p>
      * If {@param color} is not opaque, consider setting
      * {@link View#SYSTEM_UI_FLAG_LAYOUT_STABLE} and
      * {@link View#SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION}.

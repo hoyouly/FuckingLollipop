@@ -30,6 +30,7 @@ import android.util.AndroidRuntimeException;
 import android.util.ArraySet;
 import android.util.Log;
 import android.view.inputmethod.InputMethodManager;
+
 import com.android.internal.util.FastPrintWriter;
 
 import java.io.FileDescriptor;
@@ -40,14 +41,14 @@ import java.util.ArrayList;
 /**
  * Provides low-level communication with the system window manager for
  * operations that are not associated with any particular context.
- *
+ * <p>
  * This class is only used internally to implement global functions where
  * the caller already knows the display and relevant compatibility information
  * for the operation.  For most purposes, you should use {@link WindowManager} instead
  * since it is bound to a context.
  *
- * @see WindowManagerImpl
  * @hide
+ * @see WindowManagerImpl
  */
 public final class WindowManagerGlobal {
     private static final String TAG = "WindowManager";
@@ -202,7 +203,7 @@ public final class WindowManagerGlobal {
     }
 
     public void addView(View view, ViewGroup.LayoutParams params,
-            Display display, Window parentWindow) {
+                        Display display, Window parentWindow) {
         if (view == null) {
             throw new IllegalArgumentException("view must not be null");
         }
@@ -213,7 +214,7 @@ public final class WindowManagerGlobal {
             throw new IllegalArgumentException("Params must be WindowManager.LayoutParams");
         }
 
-        final WindowManager.LayoutParams wparams = (WindowManager.LayoutParams)params;
+        final WindowManager.LayoutParams wparams = (WindowManager.LayoutParams) params;
         if (parentWindow != null) {
             parentWindow.adjustLayoutParamsForSubWindow(wparams);
         } else {
@@ -233,7 +234,8 @@ public final class WindowManagerGlobal {
             // Start watching for system property changes.
             if (mSystemPropertyUpdater == null) {
                 mSystemPropertyUpdater = new Runnable() {
-                    @Override public void run() {
+                    @Override
+                    public void run() {
                         synchronized (mLock) {
                             for (int i = mRoots.size() - 1; i >= 0; --i) {
                                 mRoots.get(i).loadSystemProperties();
@@ -300,7 +302,7 @@ public final class WindowManagerGlobal {
             throw new IllegalArgumentException("Params must be WindowManager.LayoutParams");
         }
 
-        final WindowManager.LayoutParams wparams = (WindowManager.LayoutParams)params;
+        final WindowManager.LayoutParams wparams = (WindowManager.LayoutParams) params;
 
         view.setLayoutParams(wparams);
 
@@ -345,7 +347,7 @@ public final class WindowManagerGlobal {
                     if (who != null) {
                         WindowLeaked leak = new WindowLeaked(
                                 what + " " + who + " has leaked window "
-                                + root.getView() + " that was originally added here");
+                                        + root.getView() + " that was originally added here");
                         leak.setStackTrace(root.getLocation().getStackTrace());
                         Log.e(TAG, "", leak);
                     }
@@ -529,14 +531,16 @@ public final class WindowManagerGlobal {
         synchronized (mLock) {
             int count = mViews.size();
             config = new Configuration(config);
-            for (int i=0; i < count; i++) {
+            for (int i = 0; i < count; i++) {
                 ViewRootImpl root = mRoots.get(i);
                 root.requestUpdateConfiguration(config);
             }
         }
     }
 
-    /** @hide */
+    /**
+     * @hide
+     */
     public void changeCanvasOpacity(IBinder token, boolean opaque) {
         if (token == null) {
             return;

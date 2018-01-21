@@ -24,26 +24,26 @@ import android.os.IBinder;
  * operations that are bound to a particular context, display or parent window.
  * Instances of this object are sensitive to the compatibility info associated
  * with the running application.
- *
+ * <p>
  * This object implements the {@link ViewManager} interface,
  * allowing you to add any View subclass as a top-level window on the screen.
  * Additional window manager specific layout parameters are defined for
  * control over how windows are displayed.  It also implements the {@link WindowManager}
  * interface, allowing you to control the displays attached to the device.
- * 
+ * <p>
  * <p>Applications will not normally use WindowManager directly, instead relying
  * on the higher-level facilities in {@link android.app.Activity} and
  * {@link android.app.Dialog}.
- * 
+ * <p>
  * <p>Even for low-level window manager access, it is almost never correct to use
  * this class.  For example, {@link android.app.Activity#getWindowManager}
  * provides a window manager for adding windows that are associated with that
  * activity -- the window manager will not normally allow you to add arbitrary
  * windows that are not associated with an activity.
  *
+ * @hide
  * @see WindowManager
  * @see WindowManagerGlobal
- * @hide
  */
 public final class WindowManagerImpl implements WindowManager {
     private final WindowManagerGlobal mGlobal = WindowManagerGlobal.getInstance();

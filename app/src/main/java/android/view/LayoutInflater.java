@@ -44,23 +44,23 @@ import java.util.HashMap;
  * {@link Context#getSystemService} to retrieve a standard LayoutInflater instance
  * that is already hooked up to the current context and correctly configured
  * for the device you are running on.  For example:
- *
+ * <p>
  * <pre>LayoutInflater inflater = (LayoutInflater)context.getSystemService
  *      (Context.LAYOUT_INFLATER_SERVICE);</pre>
- * 
+ * <p>
  * <p>
  * To create a new LayoutInflater with an additional {@link Factory} for your
  * own views, you can use {@link #cloneInContext} to clone an existing
  * ViewFactory, and then call {@link #setFactory} on it to include your
  * Factory.
- * 
+ * <p>
  * <p>
  * For performance reasons, view inflation relies heavily on pre-processing of
  * XML files that is done at build time. Therefore, it is not currently possible
  * to use LayoutInflater with an XmlPullParser over a plain XML file at runtime;
  * it only works with an XmlPullParser returned from a compiled resource
  * (R.<em>something</em> file.)
- * 
+ *
  * @see Context#getSystemService
  */
 public abstract class LayoutInflater {
@@ -82,12 +82,12 @@ public abstract class LayoutInflater {
 
     final Object[] mConstructorArgs = new Object[2];
 
-    static final Class<?>[] mConstructorSignature = new Class[] {
+    static final Class<?>[] mConstructorSignature = new Class[]{
             Context.class, AttributeSet.class};
 
     private static final HashMap<String, Constructor<? extends View>> sConstructorMap =
             new HashMap<String, Constructor<? extends View>>();
-    
+
     private HashMap<String, Boolean> mFilterMap;
 
     private static final String TAG_MERGE = "merge";
@@ -96,44 +96,41 @@ public abstract class LayoutInflater {
     private static final String TAG_REQUEST_FOCUS = "requestFocus";
     private static final String TAG_TAG = "tag";
 
-    private static final int[] ATTRS_THEME = new int[] {
-            com.android.internal.R.attr.theme };
+    private static final int[] ATTRS_THEME = new int[]{
+            com.android.internal.R.attr.theme};
 
     /**
      * Hook to allow clients of the LayoutInflater to restrict the set of Views that are allowed
      * to be inflated.
-     * 
      */
     public interface Filter {
         /**
-         * Hook to allow clients of the LayoutInflater to restrict the set of Views 
+         * Hook to allow clients of the LayoutInflater to restrict the set of Views
          * that are allowed to be inflated.
-         * 
+         *
          * @param clazz The class object for the View that is about to be inflated
-         * 
          * @return True if this class is allowed to be inflated, or false otherwise
          */
         @SuppressWarnings("unchecked")
         boolean onLoadClass(Class clazz);
     }
-    
+
     public interface Factory {
         /**
          * Hook you can supply that is called when inflating from a LayoutInflater.
          * You can use this to customize the tag names available in your XML
          * layout files.
-         * 
+         * <p>
          * <p>
          * Note that it is good practice to prefix these custom names with your
          * package (i.e., com.coolcompany.apps) to avoid conflicts with system
          * names.
-         * 
-         * @param name Tag name to be inflated.
+         *
+         * @param name    Tag name to be inflated.
          * @param context The context the view is being created in.
-         * @param attrs Inflation attributes as specified in XML file.
-         * 
+         * @param attrs   Inflation attributes as specified in XML file.
          * @return View Newly created view. Return null for the default
-         *         behavior.
+         * behavior.
          */
         public View onCreateView(String name, Context context, AttributeSet attrs);
     }
@@ -144,14 +141,13 @@ public abstract class LayoutInflater {
          * that also supplies the parent that the view created view will be
          * placed in.
          *
-         * @param parent The parent that the created view will be placed
-         * in; <em>note that this may be null</em>.
-         * @param name Tag name to be inflated.
+         * @param parent  The parent that the created view will be placed
+         *                in; <em>note that this may be null</em>.
+         * @param name    Tag name to be inflated.
          * @param context The context the view is being created in.
-         * @param attrs Inflation attributes as specified in XML file.
-         *
+         * @param attrs   Inflation attributes as specified in XML file.
          * @return View Newly created view. Return null for the default
-         *         behavior.
+         * behavior.
          */
         public View onCreateView(View parent, String name, Context context, AttributeSet attrs);
     }
@@ -159,14 +155,14 @@ public abstract class LayoutInflater {
     private static class FactoryMerger implements Factory2 {
         private final Factory mF1, mF2;
         private final Factory2 mF12, mF22;
-        
+
         FactoryMerger(Factory f1, Factory2 f12, Factory f2, Factory2 f22) {
             mF1 = f1;
             mF2 = f2;
             mF12 = f12;
             mF22 = f22;
         }
-        
+
         public View onCreateView(String name, Context context, AttributeSet attrs) {
             View v = mF1.onCreateView(name, context, attrs);
             if (v != null) return v;
@@ -181,16 +177,16 @@ public abstract class LayoutInflater {
                     : mF2.onCreateView(name, context, attrs);
         }
     }
-    
+
     /**
      * Create a new LayoutInflater instance associated with a particular Context.
      * Applications will almost always want to use
      * {@link Context#getSystemService Context.getSystemService()} to retrieve
      * the standard {@link Context#LAYOUT_INFLATER_SERVICE Context.INFLATER_SERVICE}.
-     * 
+     *
      * @param context The Context in which this LayoutInflater will create its
-     * Views; most importantly, this supplies the theme from which the default
-     * values for their attributes are retrieved.
+     *                Views; most importantly, this supplies the theme from which the default
+     *                values for their attributes are retrieved.
      */
     protected LayoutInflater(Context context) {
         mContext = context;
@@ -200,8 +196,8 @@ public abstract class LayoutInflater {
      * Create a new LayoutInflater instance that is a copy of an existing
      * LayoutInflater, optionally with its Context changed.  For use in
      * implementing {@link #cloneInContext}.
-     * 
-     * @param original The original LayoutInflater to copy.
+     *
+     * @param original   The original LayoutInflater to copy.
      * @param newContext The new Context to use.
      */
     protected LayoutInflater(LayoutInflater original, Context newContext) {
@@ -211,7 +207,7 @@ public abstract class LayoutInflater {
         mPrivateFactory = original.mPrivateFactory;
         setFilter(original.mFilter);
     }
-    
+
     /**
      * Obtains the LayoutInflater from the given context.
      */
@@ -229,15 +225,14 @@ public abstract class LayoutInflater {
      * pointing to a different Context than the original.  This is used by
      * {@link ContextThemeWrapper} to create a new LayoutInflater to go along
      * with the new Context theme.
-     * 
+     *
      * @param newContext The new Context to associate with the new LayoutInflater.
-     * May be the same as the original Context if desired.
-     * 
+     *                   May be the same as the original Context if desired.
      * @return Returns a brand spanking new LayoutInflater object associated with
      * the given Context.
      */
     public abstract LayoutInflater cloneInContext(Context newContext);
-    
+
     /**
      * Return the context we are running in, for access to resources, class
      * loader, etc.
@@ -273,7 +268,7 @@ public abstract class LayoutInflater {
      * called on each element name as the xml is parsed. If the factory returns
      * a View, that is added to the hierarchy. If it returns null, the next
      * factory default {@link #onCreateView} method is called.
-     * 
+     * <p>
      * <p>If you have an existing
      * LayoutInflater and want to add your own factory to it, use
      * {@link #cloneInContext} to clone the existing instance and then you
@@ -333,15 +328,15 @@ public abstract class LayoutInflater {
     public Filter getFilter() {
         return mFilter;
     }
-    
+
     /**
      * Sets the {@link Filter} to by this LayoutInflater. If a view is attempted to be inflated
      * which is not allowed by the {@link Filter}, the {@link #inflate(int, ViewGroup)} call will
      * throw an {@link InflateException}. This filter will replace any previous filter set on this
      * LayoutInflater.
-     * 
+     *
      * @param filter The Filter which restricts the set of Views that are allowed to be inflated.
-     *        This filter will replace any previous filter set on this LayoutInflater.
+     *               This filter will replace any previous filter set on this LayoutInflater.
      */
     public void setFilter(Filter filter) {
         mFilter = filter;
@@ -353,13 +348,13 @@ public abstract class LayoutInflater {
     /**
      * Inflate a new view hierarchy from the specified xml resource. Throws
      * {@link InflateException} if there is an error.
-     * 
+     *
      * @param resource ID for an XML layout resource to load (e.g.,
-     *        <code>R.layout.main_page</code>)
-     * @param root Optional view to be the parent of the generated hierarchy.
+     *                 <code>R.layout.main_page</code>)
+     * @param root     Optional view to be the parent of the generated hierarchy.
      * @return The root View of the inflated hierarchy. If root was supplied,
-     *         this is the root View; otherwise it is the root of the inflated
-     *         XML file.
+     * this is the root View; otherwise it is the root of the inflated
+     * XML file.
      */
     public View inflate(int resource, ViewGroup root) {
         return inflate(resource, root, root != null);
@@ -373,13 +368,13 @@ public abstract class LayoutInflater {
      * reasons, view inflation relies heavily on pre-processing of XML files
      * that is done at build time. Therefore, it is not currently possible to
      * use LayoutInflater with an XmlPullParser over a plain XML file at runtime.
-     * 
+     *
      * @param parser XML dom node containing the description of the view
-     *        hierarchy.
-     * @param root Optional view to be the parent of the generated hierarchy.
+     *               hierarchy.
+     * @param root   Optional view to be the parent of the generated hierarchy.
      * @return The root View of the inflated hierarchy. If root was supplied,
-     *         this is the root View; otherwise it is the root of the inflated
-     *         XML file.
+     * this is the root View; otherwise it is the root of the inflated
+     * XML file.
      */
     public View inflate(XmlPullParser parser, ViewGroup root) {
         return inflate(parser, root, root != null);
@@ -388,19 +383,19 @@ public abstract class LayoutInflater {
     /**
      * Inflate a new view hierarchy from the specified xml resource. Throws
      * {@link InflateException} if there is an error.
-     * 
-     * @param resource ID for an XML layout resource to load (e.g.,
-     *        <code>R.layout.main_page</code>)
-     * @param root Optional view to be the parent of the generated hierarchy (if
-     *        <em>attachToRoot</em> is true), or else simply an object that
-     *        provides a set of LayoutParams values for root of the returned
-     *        hierarchy (if <em>attachToRoot</em> is false.)
+     *
+     * @param resource     ID for an XML layout resource to load (e.g.,
+     *                     <code>R.layout.main_page</code>)
+     * @param root         Optional view to be the parent of the generated hierarchy (if
+     *                     <em>attachToRoot</em> is true), or else simply an object that
+     *                     provides a set of LayoutParams values for root of the returned
+     *                     hierarchy (if <em>attachToRoot</em> is false.)
      * @param attachToRoot Whether the inflated hierarchy should be attached to
-     *        the root parameter? If false, root is only used to create the
-     *        correct subclass of LayoutParams for the root view in the XML.
+     *                     the root parameter? If false, root is only used to create the
+     *                     correct subclass of LayoutParams for the root view in the XML.
      * @return The root View of the inflated hierarchy. If root was supplied and
-     *         attachToRoot is true, this is root; otherwise it is the root of
-     *         the inflated XML file.
+     * attachToRoot is true, this is root; otherwise it is the root of
+     * the inflated XML file.
      */
     public View inflate(int resource, ViewGroup root, boolean attachToRoot) {
         final Resources res = getContext().getResources();
@@ -425,26 +420,26 @@ public abstract class LayoutInflater {
      * reasons, view inflation relies heavily on pre-processing of XML files
      * that is done at build time. Therefore, it is not currently possible to
      * use LayoutInflater with an XmlPullParser over a plain XML file at runtime.
-     * 
-     * @param parser XML dom node containing the description of the view
-     *        hierarchy.
-     * @param root Optional view to be the parent of the generated hierarchy (if
-     *        <em>attachToRoot</em> is true), or else simply an object that
-     *        provides a set of LayoutParams values for root of the returned
-     *        hierarchy (if <em>attachToRoot</em> is false.)
+     *
+     * @param parser       XML dom node containing the description of the view
+     *                     hierarchy.
+     * @param root         Optional view to be the parent of the generated hierarchy (if
+     *                     <em>attachToRoot</em> is true), or else simply an object that
+     *                     provides a set of LayoutParams values for root of the returned
+     *                     hierarchy (if <em>attachToRoot</em> is false.)
      * @param attachToRoot Whether the inflated hierarchy should be attached to
-     *        the root parameter? If false, root is only used to create the
-     *        correct subclass of LayoutParams for the root view in the XML.
+     *                     the root parameter? If false, root is only used to create the
+     *                     correct subclass of LayoutParams for the root view in the XML.
      * @return The root View of the inflated hierarchy. If root was supplied and
-     *         attachToRoot is true, this is root; otherwise it is the root of
-     *         the inflated XML file.
+     * attachToRoot is true, this is root; otherwise it is the root of
+     * the inflated XML file.
      */
     public View inflate(XmlPullParser parser, ViewGroup root, boolean attachToRoot) {
         synchronized (mConstructorArgs) {
             Trace.traceBegin(Trace.TRACE_TAG_VIEW, "inflate");
 
             final AttributeSet attrs = Xml.asAttributeSet(parser);
-            Context lastContext = (Context)mConstructorArgs[0];
+            Context lastContext = (Context) mConstructorArgs[0];
             mConstructorArgs[0] = mContext;
             View result = root;
 
@@ -462,7 +457,7 @@ public abstract class LayoutInflater {
                 }
 
                 final String name = parser.getName();
-                
+
                 if (DEBUG) {
                     System.out.println("**************************");
                     System.out.println("Creating root view: "
@@ -526,7 +521,7 @@ public abstract class LayoutInflater {
             } catch (IOException e) {
                 InflateException ex = new InflateException(
                         parser.getPositionDescription()
-                        + ": " + e.getMessage());
+                                + ": " + e.getMessage());
                 ex.initCause(e);
                 throw ex;
             } finally {
@@ -545,17 +540,16 @@ public abstract class LayoutInflater {
      * Low-level function for instantiating a view by name. This attempts to
      * instantiate a view class of the given <var>name</var> found in this
      * LayoutInflater's ClassLoader.
-     * 
+     * <p>
      * <p>
      * There are two things that can happen in an error case: either the
      * exception describing the error will be thrown, or a null will be
      * returned. You must deal with both possibilities -- the former will happen
      * the first time createView() is called for a class of a particular name,
      * the latter every time there-after for that class name.
-     * 
-     * @param name The full name of the class to be instantiated.
+     *
+     * @param name  The full name of the class to be instantiated.
      * @param attrs The XML attributes supplied for this instance.
-     * 
      * @return View The newly instantiated view, or null.
      */
     public final View createView(String name, String prefix, AttributeSet attrs)
@@ -570,7 +564,7 @@ public abstract class LayoutInflater {
                 // Class not found in the cache, see if it's real, and try to add it
                 clazz = mContext.getClassLoader().loadClass(
                         prefix != null ? (prefix + name) : name).asSubclass(View.class);
-                
+
                 if (mFilter != null && clazz != null) {
                     boolean allowed = mFilter.onLoadClass(clazz);
                     if (!allowed) {
@@ -588,7 +582,7 @@ public abstract class LayoutInflater {
                         // New class -- remember whether it is allowed
                         clazz = mContext.getClassLoader().loadClass(
                                 prefix != null ? (prefix + name) : name).asSubclass(View.class);
-                        
+
                         boolean allowed = clazz != null && mFilter.onLoadClass(clazz);
                         mFilterMap.put(name, allowed);
                         if (!allowed) {
@@ -654,10 +648,9 @@ public abstract class LayoutInflater {
      * given the xml element name. Override it to handle custom view objects. If
      * you override this in your subclass be sure to call through to
      * super.onCreateView(name) for names you do not recognize.
-     * 
-     * @param name The fully qualified class name of the View to be create.
+     *
+     * @param name  The fully qualified class name of the View to be create.
      * @param attrs An AttributeSet of attributes to apply to the View.
-     * 
      * @return View The View created.
      */
     protected View onCreateView(String name, AttributeSet attrs)
@@ -671,10 +664,9 @@ public abstract class LayoutInflater {
      * implementation simply calls {@link #onCreateView(String, AttributeSet)}.
      *
      * @param parent The future parent of the returned view.  <em>Note that
-     * this may be null.</em>
-     * @param name The fully qualified class name of the View to be create.
-     * @param attrs An AttributeSet of attributes to apply to the View.
-     *
+     *               this may be null.</em>
+     * @param name   The fully qualified class name of the View to be create.
+     * @param attrs  An AttributeSet of attributes to apply to the View.
      * @return View The View created.
      */
     protected View onCreateView(View parent, String name, AttributeSet attrs)
@@ -772,11 +764,11 @@ public abstract class LayoutInflater {
      * views, instantiate their children, and then call onFinishInflate().
      *
      * @param inheritContext Whether the root view should be inflated in its
-     *            parent's context. This should be true when called inflating
-     *            child views recursively, or false otherwise.
+     *                       parent's context. This should be true when called inflating
+     *                       child views recursively, or false otherwise.
      */
     void rInflate(XmlPullParser parser, View parent, final AttributeSet attrs,
-            boolean finishInflate, boolean inheritContext) throws XmlPullParserException,
+                  boolean finishInflate, boolean inheritContext) throws XmlPullParserException,
             IOException {
 
         final int depth = parser.getDepth();
@@ -790,7 +782,7 @@ public abstract class LayoutInflater {
             }
 
             final String name = parser.getName();
-            
+
             if (TAG_REQUEST_FOCUS.equals(name)) {
                 parseRequestFocus(parser, parent);
             } else if (TAG_TAG.equals(name)) {
@@ -852,7 +844,7 @@ public abstract class LayoutInflater {
     }
 
     private void parseInclude(XmlPullParser parser, View parent, AttributeSet attrs,
-            boolean inheritContext) throws XmlPullParserException, IOException {
+                              boolean inheritContext) throws XmlPullParserException, IOException {
         int type;
 
         if (parent instanceof ViewGroup) {
@@ -918,7 +910,7 @@ public abstract class LayoutInflater {
                         // Attempt to override the included layout's android:id with the
                         // one set on the <include /> tag itself.
                         TypedArray a = mContext.obtainStyledAttributes(attrs,
-                            com.android.internal.R.styleable.View, 0, 0);
+                                com.android.internal.R.styleable.View, 0, 0);
                         int id = a.getResourceId(com.android.internal.R.styleable.View_id, View.NO_ID);
                         // While we're at it, let's try to override android:visibility.
                         int visibility = a.getInt(com.android.internal.R.styleable.View_visibility, -1);
