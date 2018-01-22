@@ -227,6 +227,7 @@ public interface WindowManager extends ViewManager {
 
         /**
          * Start of window types that represent normal application windows.
+         * 开始应用程序窗口，第一个普通应用窗口
          */
         public static final int FIRST_APPLICATION_WINDOW = 1;
 
@@ -235,6 +236,8 @@ public interface WindowManager extends ViewManager {
          * of the overall application; all other application windows will
          * appear on top of it.
          * In multiuser systems shows only on the owning user's window.
+         * 所有程序窗口的base窗口，其他应用程序窗口都显示在它上面
+         * 所有 Activity 默认的窗口类型
          */
         public static final int TYPE_BASE_APPLICATION = 1;
 
@@ -242,6 +245,8 @@ public interface WindowManager extends ViewManager {
          * Window type: a normal application window.  The {@link #token} must be
          * an Activity token identifying who the window belongs to.
          * In multiuser systems shows only on the owning user's window.
+         * WindowManager 的 LayoutParams 的默认类型是 TYPE_APPLICATION。 Dialog 并没有设置type，所以也是默认的窗口类型即 TYPE_APPLICATION。
+         * 普通应用程序窗口，token必须设置为Activity的token来指定窗口属于谁
          */
         public static final int TYPE_APPLICATION = 2;
 
@@ -251,38 +256,49 @@ public interface WindowManager extends ViewManager {
          * this is used by the system to display something until the
          * application can show its own windows.
          * In multiuser systems shows on all users' windows.
+         * 应用程序启动时先显示此窗口，当真正的窗口配置完成后，关闭此窗口
          */
         public static final int TYPE_APPLICATION_STARTING = 3;
 
         /**
          * End of types of application windows.
+         * 最后一个应用窗口
          */
         public static final int LAST_APPLICATION_WINDOW = 99;
+
+
+        /**
+         * 子窗口不能单独存在，它需要附属在特定的父Window之中，例如popupWindow，它就是子窗口，类型一般为TYPE_APPLICATION_PANEL。
+         * 之所以称为子窗口，即它的父窗口显示时，子窗口才显示。父窗口不显示，它也不显示。追随父窗口。
+         */
 
         /**
          * Start of types of sub-windows.  The {@link #token} of these windows
          * must be set to the window they are attached to.  These types of
          * windows are kept next to their attached window in Z-order, and their
          * coordinate space is relative to their attached window.
+         * 第一个子窗口
          */
         public static final int FIRST_SUB_WINDOW = 1000;
 
         /**
          * Window type: a panel on top of an application window.  These windows
-         * appear on top of their attached window.
+         * appear on top of their attached window.  这些Window 出现在所连接的Window的顶部。
+         * 应用窗口的子窗口,popupWindow的默认类型
          */
         public static final int TYPE_APPLICATION_PANEL = FIRST_SUB_WINDOW;
 
         /**
          * Window type: window for showing media (such as video).  These windows
-         * are displayed behind their attached window.
+         * are displayed behind their attached window.  这些window 显示在其附属window后面。
+         * 媒体窗口
          */
         public static final int TYPE_APPLICATION_MEDIA = FIRST_SUB_WINDOW + 1;
 
         /**
          * Window type: a sub-panel on top of an application window.  These
          * windows are displayed on top their attached window and any
-         * {@link #TYPE_APPLICATION_PANEL} panels.
+         * {@link #TYPE_APPLICATION_PANEL} panels. TYPE_APPLICATION_PANE的子窗口
          */
         public static final int TYPE_APPLICATION_SUB_PANEL = FIRST_SUB_WINDOW + 2;
 
@@ -290,6 +306,7 @@ public interface WindowManager extends ViewManager {
          * Window type: like {@link #TYPE_APPLICATION_PANEL}, but layout
          * of the window happens as that of a top-level window, <em>not</em>
          * as a child of its container.
+         * 对话框，类似于面板窗口(OptionMenu,ContextMenu)
          */
         public static final int TYPE_APPLICATION_ATTACHED_DIALOG = FIRST_SUB_WINDOW + 3;
 
@@ -298,19 +315,27 @@ public interface WindowManager extends ViewManager {
          * These windows are displayed between TYPE_APPLICATION_MEDIA and the
          * application window.  They should be translucent to be useful.  This
          * is a big ugly hack so:
-         *
+         * 媒体信息，显示在媒体层和程序窗口之间，需要实现半透明效果
          * @hide
          */
         public static final int TYPE_APPLICATION_MEDIA_OVERLAY = FIRST_SUB_WINDOW + 4;
 
         /**
          * End of types of sub-windows.
+         * 最后一个子窗口
          */
         public static final int LAST_SUB_WINDOW = 1999;
 
+
+        /**
+         * 系统窗口跟应用窗口不同，不需要对应 Activity。跟子窗口不同，不需要有父窗口。
+         * 一般来讲，系统窗口应该由系统来创建的，例如发生异常，ANR时的提示框，又如系统状态栏，屏保等。
+         * 但是，Framework 还是定义了一些，可以被应用所创建的系统窗口，如 TYPE_ TOAST，TYPE _INPUT _ METHOD，TYPE _WALLPAPTER 等等。
+         */
         /**
          * Start of system-specific window types.  These are not normally
          * created by applications.
+         * 第一个系统窗口
          */
         public static final int FIRST_SYSTEM_WINDOW = 2000;
 
@@ -319,6 +344,7 @@ public interface WindowManager extends ViewManager {
          * window; it is placed at the top of the screen, and all other
          * windows are shifted down so they are below it.
          * In multiuser systems shows on all users' windows.
+         * 状态栏，只能有一个状态栏，位于屏幕顶端
          */
         public static final int TYPE_STATUS_BAR = FIRST_SYSTEM_WINDOW;
 
@@ -326,6 +352,7 @@ public interface WindowManager extends ViewManager {
          * Window type: the search bar.  There can be only one search bar
          * window; it is placed at the top of the screen.
          * In multiuser systems shows on all users' windows.
+         * 搜索栏
          */
         public static final int TYPE_SEARCH_BAR = FIRST_SYSTEM_WINDOW + 1;
 
@@ -335,6 +362,7 @@ public interface WindowManager extends ViewManager {
          * These windows are normally placed above all applications, but behind
          * the status bar.
          * In multiuser systems shows on all users' windows.
+         * 电话窗口，它用于电话交互
          */
         public static final int TYPE_PHONE = FIRST_SYSTEM_WINDOW + 2;
 
@@ -342,11 +370,12 @@ public interface WindowManager extends ViewManager {
          * Window type: system window, such as low power alert. These windows
          * are always on top of application windows.
          * In multiuser systems shows only on the owning user's window.
+         * 系统警告，出现在应用程序窗口之上
          */
         public static final int TYPE_SYSTEM_ALERT = FIRST_SYSTEM_WINDOW + 3;
 
         /**
-         * Window type: keyguard window.
+         * Window type: keyguard window.  锁屏窗口
          * In multiuser systems shows on all users' windows.
          *
          * @removed
@@ -356,6 +385,7 @@ public interface WindowManager extends ViewManager {
         /**
          * Window type: transient notifications.
          * In multiuser systems shows only on the owning user's window.
+         * 信息窗口，用于显示Toast
          */
         public static final int TYPE_TOAST = FIRST_SYSTEM_WINDOW + 5;
 
@@ -364,6 +394,7 @@ public interface WindowManager extends ViewManager {
          * on top of everything else.  These windows must not take input
          * focus, or they will interfere with the keyguard.
          * In multiuser systems shows only on the owning user's window.
+         * 系统顶层窗口，显示在其他内容之上，此窗口不能获得输入焦点，否则影响锁屏
          */
         public static final int TYPE_SYSTEM_OVERLAY = FIRST_SYSTEM_WINDOW + 6;
 
@@ -372,18 +403,21 @@ public interface WindowManager extends ViewManager {
          * the keyguard is active.  These windows must not take input
          * focus, or they will interfere with the keyguard.
          * In multiuser systems shows on all users' windows.
+         * 当锁屏时显示的来电显示窗口
          */
         public static final int TYPE_PRIORITY_PHONE = FIRST_SYSTEM_WINDOW + 7;
 
         /**
          * Window type: panel that slides out from the status bar
          * In multiuser systems shows on all users' windows.
+         * 系统对话框
          */
         public static final int TYPE_SYSTEM_DIALOG = FIRST_SYSTEM_WINDOW + 8;
 
         /**
          * Window type: dialogs that the keyguard shows
          * In multiuser systems shows on all users' windows.
+         * 锁屏时显示的对话框
          */
         public static final int TYPE_KEYGUARD_DIALOG = FIRST_SYSTEM_WINDOW + 9;
 
@@ -391,6 +425,7 @@ public interface WindowManager extends ViewManager {
          * Window type: internal system error windows, appear on top of
          * everything they can.
          * In multiuser systems shows only on the owning user's window.
+         * 系统内部错误提示
          */
         public static final int TYPE_SYSTEM_ERROR = FIRST_SYSTEM_WINDOW + 10;
 
@@ -399,6 +434,7 @@ public interface WindowManager extends ViewManager {
          * the normal UI.  Application windows may be resized or panned to keep
          * the input focus visible while this window is displayed.
          * In multiuser systems shows only on the owning user's window.
+         * 输入法窗口，显示于普通应用/子窗口之上
          */
         public static final int TYPE_INPUT_METHOD = FIRST_SYSTEM_WINDOW + 11;
 
@@ -406,6 +442,7 @@ public interface WindowManager extends ViewManager {
          * Window type: internal input methods dialog windows, which appear above
          * the current input method window.
          * In multiuser systems shows only on the owning user's window.
+         * 输入法中备选框对应的窗口
          */
         public static final int TYPE_INPUT_METHOD_DIALOG = FIRST_SYSTEM_WINDOW + 12;
 
@@ -413,12 +450,14 @@ public interface WindowManager extends ViewManager {
          * Window type: wallpaper window, placed behind any window that wants
          * to sit on top of the wallpaper.
          * In multiuser systems shows only on the owning user's window.
+         * 墙纸窗口
          */
         public static final int TYPE_WALLPAPER = FIRST_SYSTEM_WINDOW + 13;
 
         /**
          * Window type: panel that slides out from over the status bar
          * In multiuser systems shows on all users' windows.
+         * 滑动状态条后出现的窗口
          */
         public static final int TYPE_STATUS_BAR_PANEL = FIRST_SYSTEM_WINDOW + 14;
 
@@ -434,6 +473,7 @@ public interface WindowManager extends ViewManager {
          * In multiuser systems shows only on the owning user's window.
          *
          * @hide
+         * 安全系统覆盖窗口
          */
         public static final int TYPE_SECURE_SYSTEM_OVERLAY = FIRST_SYSTEM_WINDOW + 15;
 
@@ -574,6 +614,7 @@ public interface WindowManager extends ViewManager {
 
         /**
          * End of types of system windows.
+         * 最后一个系统窗口
          */
         public static final int LAST_SYSTEM_WINDOW = 2999;
 
@@ -632,6 +673,8 @@ public interface WindowManager extends ViewManager {
          * instead go to whatever focusable window is behind it.  This flag
          * will also enable {@link #FLAG_NOT_TOUCH_MODAL} whether or not that
          * is explicitly set.
+         * 表示Window不需要获取焦点，也不需要接收各种输入事件，
+         * 此标记会同时启用FLAG_NOT_TOUCH_MODAL，最终事件会直接传递给下层具有焦点的Window。
          * <p>
          * <p>Setting this flag also implies that the window will not need to
          * interact with
@@ -654,6 +697,8 @@ public interface WindowManager extends ViewManager {
          * outside of the window to be sent to the windows behind it.  Otherwise
          * it will consume all pointer events itself, regardless of whether they
          * are inside of the window.
+         * 系统会将当前Window区域以外的单击事件传递给底层的Window，当前Window区域以内的单击事件则自己处理，
+         * 这个标记很重要，一般来说都需要开启此标记，否则其他Window将无法接收到单击事件。
          */
         public static final int FLAG_NOT_TOUCH_MODAL = 0x00000020;
 
@@ -796,6 +841,7 @@ public interface WindowManager extends ViewManager {
          * {@link #FLAG_DISMISS_KEYGUARD} to automatically fully dismisss
          * non-secure keyguards.  This flag only applies to the top-most
          * full-screen window.
+         * 开启此模式可以让Window显示在锁屏的界面上。
          */
         public static final int FLAG_SHOW_WHEN_LOCKED = 0x00080000;
 
