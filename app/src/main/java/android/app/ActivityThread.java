@@ -2818,6 +2818,7 @@ public final class ActivityThread {
     }
 
     public final ActivityClientRecord performResumeActivity(IBinder token, boolean clearHide) {
+        // //把activity数据记录更新到ActivityClientRecord
         ActivityClientRecord r = mActivities.get(token);
         if (localLOGV) Slog.v(TAG, "Performing resume of " + r + " finished=" + r.activity.mFinished);
         if (r != null && !r.activity.mFinished) {
@@ -2894,7 +2895,7 @@ public final class ActivityThread {
             if (r.window == null && !a.mFinished && willBeVisible) {
                 r.window = r.activity.getWindow();
                 View decor = r.window.getDecorView();
-                decor.setVisibility(View.INVISIBLE);
+                decor.setVisibility(View.INVISIBLE);////不可见
                 ViewManager wm = a.getWindowManager();
                 WindowManager.LayoutParams l = r.window.getAttributes();
                 a.mDecor = decor;
@@ -2902,7 +2903,7 @@ public final class ActivityThread {
                 l.softInputMode |= forwardBit;
                 if (a.mVisibleFromClient) {
                     a.mWindowAdded = true;
-                    wm.addView(decor, l);
+                    wm.addView(decor, l);//把decor添加到窗口上（划重点）
                 }
 
                 // If the window has already been added, but during resume
@@ -2921,6 +2922,7 @@ public final class ActivityThread {
             if (!r.activity.mFinished && willBeVisible && r.activity.mDecor != null && !r.hideForNow) {
                 if (r.newConfig != null) {
                     if (DEBUG_CONFIGURATION) Slog.v(TAG, "Resuming activity " + r.activityInfo.name + " with newConfig " + r.newConfig);
+                    //屏幕参数发生了改变
                     performConfigurationChanged(r.activity, r.newConfig);
                     freeTextLayoutCachesIfNeeded(r.activity.mCurrentConfig.diff(r.newConfig));
                     r.newConfig = null;
@@ -2932,12 +2934,13 @@ public final class ActivityThread {
                     if (r.activity.mVisibleFromClient) {
                         ViewManager wm = a.getWindowManager();
                         View decor = r.window.getDecorView();
-                        wm.updateViewLayout(decor, l);
+                        wm.updateViewLayout(decor, l);//更新窗口状态
                     }
                 }
                 r.activity.mVisibleFromServer = true;
                 mNumVisibleActivities++;
                 if (r.activity.mVisibleFromClient) {
+                    //已经成功添加到窗口上了（绘制和事件接收），设置为可见
                     r.activity.makeVisible();
                 }
             }
@@ -2953,6 +2956,7 @@ public final class ActivityThread {
             // Tell the activity manager we have resumed.
             if (reallyResume) {
                 try {
+                    //通知ActivityManagerService，Activity完成Resumed
                     ActivityManagerNative.getDefault().activityResumed(token);
                 } catch (RemoteException ex) {
                 }

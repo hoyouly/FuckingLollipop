@@ -111,10 +111,13 @@ public final class WindowManagerGlobal {
     private static IWindowSession sWindowSession;
 
     private final Object mLock = new Object();
-
+    /**存储所有Window对应的View */
     private final ArrayList<View> mViews = new ArrayList<View>();
+    /**存储所有Window对应的ViewRootImpl */
     private final ArrayList<ViewRootImpl> mRoots = new ArrayList<ViewRootImpl>();
+    /**存储所有Window对应的布局参数 */
     private final ArrayList<WindowManager.LayoutParams> mParams = new ArrayList<WindowManager.LayoutParams>();
+    /**存储正被删除的View对象（已经调用removeView但是还未完成删除操作的Window对象）   */
     private final ArraySet<View> mDyingViews = new ArraySet<View>();
 
     private Runnable mSystemPropertyUpdater;
@@ -127,6 +130,7 @@ public final class WindowManagerGlobal {
     }
 
     public static WindowManagerGlobal getInstance() {
+        // 在WindowManagerImpl的全局变量中通过单例模式初始化了WindowManagerGlobal，也就是说一个进程就只有一个WindowManagerGlobal对象。
         synchronized (WindowManagerGlobal.class) {
             if (sDefaultWindowManager == null) {
                 sDefaultWindowManager = new WindowManagerGlobal();
@@ -218,6 +222,7 @@ public final class WindowManagerGlobal {
 
         final WindowManager.LayoutParams wparams = (WindowManager.LayoutParams) params;
         if (parentWindow != null) {
+            //调整布局参数，并设置token
             parentWindow.adjustLayoutParamsForSubWindow(wparams);
         } else {
             // If there's no parent and we're running on L or above (or in the
@@ -251,15 +256,19 @@ public final class WindowManagerGlobal {
             if (index >= 0) {
                 if (mDyingViews.contains(view)) {
                     // Don't wait for MSG_DIE to make it's way through root's queue.
+                    //如果待删除的view中有当前view，删除它
                     mRoots.get(index).doDie();
                 } else {
                     throw new IllegalStateException("View " + view + " has already been added to the window manager.");
                 }
                 // The previous removeView() had not completed executing. Now it has.
+                //之前移除View并没有完成删除操作，现在正式删除该view
             }
 
             // If this is a panel window, then find the window it is being
             // attached to for future reference.
+            //如果这是一个子窗口个(popupWindow)，找到它的父窗口。
+            //最本质的作用是使用父窗口的token(viewRootImpl的W类，也就是IWindow)
             if (wparams.type >= WindowManager.LayoutParams.FIRST_SUB_WINDOW && wparams.type <= WindowManager.LayoutParams.LAST_SUB_WINDOW) {
                 final int count = mViews.size();
                 for (int i = 0; i < count; i++) {
@@ -268,18 +277,19 @@ public final class WindowManagerGlobal {
                     }
                 }
             }
-
+            //创建ViewRootImpl，并且将view与之绑定
             root = new ViewRootImpl(view.getContext(), display);
 
             view.setLayoutParams(wparams);
 
-            mViews.add(view);
-            mRoots.add(root);
-            mParams.add(wparams);
+            mViews.add(view);//将当前view添加到mViews集合中
+            mRoots.add(root);//将当前ViewRootImpl添加到mRoots集合中
+            mParams.add(wparams);//将当前window的params添加到mParams集合中
         }
 
         // do this last because it fires off messages to start doing things
         try {
+            //通过ViewRootImpl的setView方法，完成view的绘制流程，并添加到window上。
             root.setView(view, wparams, panelParentView);
         } catch (RuntimeException e) {
             // BadTokenException or InvalidDisplayException, clean up.
