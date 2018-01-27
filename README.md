@@ -5,11 +5,11 @@
 
 ## ActivityThread 的handleLaunchActivity（）
 
-![setContentView()](./img/handleLaunchActivity.png)
+![handleLaunchActivity()](./img/handleLaunchActivity.png)
 
 ## ActivityThread 的 handleResumeActivity（）
 
-![setContentView()](./img/handleResumeActivity.png)
+![handleResumeActivity()](./img/handleResumeActivity.png)
 
 ## WindowManagerGlobal 的 addView（） 方法
 
@@ -35,7 +35,9 @@
     private final ArraySet<View> mDyingViews = new ArraySet<View>();
 
 ```
-![setContentView()](./img/addView.png)
+![addView()](./img/addView.png)
 
+## ViewRootImpl 的 setView（） 方法
+![setView()](./img/setView.png)
 
 https://drive.google.com/file/d/1rKzXAMU4RMWou38HRzxmN3AVIBVy2rWS/view?usp=sharing
