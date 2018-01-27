@@ -40,4 +40,7 @@
 ## ViewRootImpl 的 setView（） 方法
 ![setView()](./img/setView.png)
 
+## Window的token
+![setView()](./img/Window的token.png)
+
 https://drive.google.com/file/d/1rKzXAMU4RMWou38HRzxmN3AVIBVy2rWS/view?usp=sharing
