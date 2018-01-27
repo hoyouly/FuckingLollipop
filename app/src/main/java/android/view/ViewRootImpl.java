@@ -366,7 +366,7 @@ public final class ViewRootImpl implements ViewParent, View.AttachInfo.Callbacks
         mTempRect = new Rect();
         mVisRect = new Rect();
         mWinFrame = new Rect();
-        mWindow = new W(this);
+        mWindow = new W(this); //W是用于接收WmS通知的
         mTargetSdkVersion = context.getApplicationInfo().targetSdkVersion;
         mViewVisibility = View.GONE;
         mTransparentRegion = new Region();
@@ -1237,6 +1237,7 @@ public final class ViewRootImpl implements ViewParent, View.AttachInfo.Callbacks
             if (mViewLayoutDirectionInitial == View.LAYOUT_DIRECTION_INHERIT) {
                 host.setLayoutDirection(mLastConfiguration.getLayoutDirection());
             }
+            //第一次执行performTraversals时，会把自己的mAttachInfo关联到所有的子View
             host.dispatchAttachedToWindow(mAttachInfo, 0);
             mAttachInfo.mTreeObserver.dispatchOnWindowAttachedChange(true);
             dispatchApplyInsets(host);

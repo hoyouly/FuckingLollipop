@@ -221,6 +221,7 @@ public final class WindowManagerGlobal {
         }
 
         final WindowManager.LayoutParams wparams = (WindowManager.LayoutParams) params;
+        //parentWindow就是Acitivty的Window
         if (parentWindow != null) {
             //调整布局参数，并设置token
             parentWindow.adjustLayoutParamsForSubWindow(wparams);
@@ -272,6 +273,7 @@ public final class WindowManagerGlobal {
             if (wparams.type >= WindowManager.LayoutParams.FIRST_SUB_WINDOW && wparams.type <= WindowManager.LayoutParams.LAST_SUB_WINDOW) {
                 final int count = mViews.size();
                 for (int i = 0; i < count; i++) {
+                    //从mRoots找到相同的W类，再从mViews找到父View
                     if (mRoots.get(i).mWindow.asBinder() == wparams.token) {
                         panelParentView = mViews.get(i);
                     }

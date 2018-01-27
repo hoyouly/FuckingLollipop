@@ -62,6 +62,7 @@ public final class WindowManagerImpl implements WindowManager {
     }
 
     public WindowManagerImpl createLocalWindowManager(Window parentWindow) {
+        //parentWindow就是activity的Window
         return new WindowManagerImpl(mDisplay, parentWindow);
     }
 

@@ -2872,6 +2872,7 @@ public final class ActivityThread {
         mSomeActivitiesChanged = true;
 
         // TODO Push resumeArgs into the activity for consideration
+        //把activity数据记录更新到ActivityClientRecord
         ActivityClientRecord r = performResumeActivity(token, clearHide);
 
         if (r != null) {
