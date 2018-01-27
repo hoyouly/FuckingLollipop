@@ -333,9 +333,10 @@ public final class WindowManagerGlobal {
         }
 
         synchronized (mLock) {
+            //查找待删除的View的索引
             int index = findViewLocked(view, true);
             View curView = mRoots.get(index).getView();
-            removeViewLocked(index, immediate);
+            removeViewLocked(index, immediate);// 删除view
             if (curView == view) {
                 return;
             }
@@ -367,6 +368,7 @@ public final class WindowManagerGlobal {
         }
     }
 
+    //removeViewLocked 通过ViewRootImpl来完成删除操作
     private void removeViewLocked(int index, boolean immediate) {
         ViewRootImpl root = mRoots.get(index);
         View view = root.getView();
@@ -377,7 +379,7 @@ public final class WindowManagerGlobal {
                 imm.windowDismissed(mViews.get(index).getWindowToken());
             }
         }
-        boolean deferred = root.die(immediate);
+        boolean deferred = root.die(immediate);//deferred 延迟
         if (view != null) {
             view.assignParent(null);
             if (deferred) {

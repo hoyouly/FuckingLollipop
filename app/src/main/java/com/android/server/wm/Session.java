@@ -156,7 +156,8 @@ final class Session extends IWindowSession.Stub implements IBinder.DeathRecipien
 
     @Override
     public int addToDisplay(IWindow window, int seq, WindowManager.LayoutParams attrs, int viewVisibility, int displayId, Rect outContentInsets, Rect outStableInsets, InputChannel outInputChannel) {
-        //Window的添加请求就交给WmS去处理了，在WmS内部会为每一个应用保留一个单独的Session。在WmS 端会创建一个WindowState对象用来表示当前添加的窗口。 WmS负责管理这里些 WindowState 对象
+        //Window的添加请求就交给WmS去处理了，在WmS内部会为每一个应用保留一个单独的Session。
+        // 在WmS 端会创建一个WindowState对象用来表示当前添加的窗口。 WmS负责管理这里些 WindowState 对象
         return mService.addWindow(this, window, seq, attrs, viewVisibility, displayId, outContentInsets, outStableInsets, outInputChannel);
     }
 

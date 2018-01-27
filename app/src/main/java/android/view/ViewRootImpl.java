@@ -506,6 +506,7 @@ public final class ViewRootImpl implements ViewParent, View.AttachInfo.Callbacks
                 // Schedule the first layout -before- adding to the window
                 // manager, to make sure we do the relayout before receiving
                 // any other events from the system.
+                // setView 内部通过requestLayout完成异步刷新请求
                 requestLayout();//View的绘制流程
                 if ((mWindowAttributes.inputFeatures & WindowManager.LayoutParams.INPUT_FEATURE_NO_INPUT_CHANNEL) == 0) {
                     //创建InputChannel
@@ -516,7 +517,8 @@ public final class ViewRootImpl implements ViewParent, View.AttachInfo.Callbacks
                     mAttachInfo.mRecomputeGlobalAttributes = true;
                     collectViewAttributes();
                     //通过WindowSession进行IPC调用，将View添加到Window上
-                    //mWindow即W类，用来接收WmS信息,同时通过InputChannel接收触摸事件回调
+                    //mWindow即W类，用来接收WMS信息,同时通过InputChannel接收触摸事件回调
+                    //mWindowSession是一个IWindowSession对象，它是一个Binder对象，真正的实现类是Session
                     res = mWindowSession.addToDisplay(mWindow, mSeq, mWindowAttributes, getHostVisibility(), mDisplay.getDisplayId(), mAttachInfo.mContentInsets, mAttachInfo.mStableInsets, mInputChannel);
                 } catch (RemoteException e) {
                     mAdded = false;
@@ -844,7 +846,7 @@ public final class ViewRootImpl implements ViewParent, View.AttachInfo.Callbacks
     void invalidate() {
         mDirty.set(0, 0, mWidth, mHeight);
         if (!mWillDrawSoon) {
-            scheduleTraversals();
+            scheduleTraversals();//View 的实际入口
         }
     }
 
@@ -5199,7 +5201,7 @@ public final class ViewRootImpl implements ViewParent, View.AttachInfo.Callbacks
         } else {
             Log.e(TAG, "Attempting to destroy the window while drawing!\n" + "  window=" + this + ", title=" + mWindowAttributes.getTitle());
         }
-        //要不然，通过Handler发个消息，一会执行吧
+        //通过Handler发个请求删除view的消息
         mHandler.sendEmptyMessage(MSG_DIE);
         return true;
     }
@@ -5241,6 +5243,7 @@ public final class ViewRootImpl implements ViewParent, View.AttachInfo.Callbacks
 
             mAdded = false;
         }
+        //刷新数据，包括mRoots,mParams,以及mDyingViews，需要将当前Window所关联的对象从列表中删除
         WindowManagerGlobal.getInstance().doRemoveView(this);
     }
 
