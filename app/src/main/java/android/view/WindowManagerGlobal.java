@@ -222,6 +222,7 @@ public final class WindowManagerGlobal {
 
         final WindowManager.LayoutParams wparams = (WindowManager.LayoutParams) params;
         //parentWindow就是Acitivty的Window
+        //如果有设置父窗口，会通过adjustLayoutParamsForSubWindow来调整params。
         if (parentWindow != null) {
             //调整布局参数，并设置token
             parentWindow.adjustLayoutParamsForSubWindow(wparams);

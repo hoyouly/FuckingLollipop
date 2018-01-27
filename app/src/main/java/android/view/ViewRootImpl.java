@@ -2782,6 +2782,7 @@ public final class ViewRootImpl implements ViewParent, View.AttachInfo.Callbacks
     }
 
     void dispatchDetachedFromWindow() {
+        //(1) 通过dispatchDetachedFromWindow，通知View树，窗口已经移除了，你们已经detach from window了。
         if (mView != null && mView.mAttachInfo != null) {
             mAttachInfo.mTreeObserver.dispatchOnWindowAttachedChange(false);
             mView.dispatchDetachedFromWindow();
@@ -2791,7 +2792,7 @@ public final class ViewRootImpl implements ViewParent, View.AttachInfo.Callbacks
         mAccessibilityManager.removeAccessibilityStateChangeListener(mAccessibilityInteractionConnectionManager);
         mAccessibilityManager.removeHighTextContrastStateChangeListener(mHighContrastTextManager);
         removeSendWindowContentChangedCallback();
-
+        //(2) 把窗口对应的HardRender, Surface给释放了；
         destroyHardwareRenderer();
 
         setAccessibilityFocus(null, null);
@@ -2812,6 +2813,7 @@ public final class ViewRootImpl implements ViewParent, View.AttachInfo.Callbacks
             mInputEventReceiver.dispose();
             mInputEventReceiver = null;
         }
+        //(3) 通过mWindowSession，通知WmS，窗口要移除了，WmS会把跟这个窗口相关的WindowState，以及WindowToken给移除，同时更新其它窗口的显示
         try {
             mWindowSession.remove(mWindow);
         } catch (RemoteException e) {
@@ -2825,7 +2827,7 @@ public final class ViewRootImpl implements ViewParent, View.AttachInfo.Callbacks
         }
 
         mDisplayManager.unregisterDisplayListener(mDisplayListener);
-
+        //(4) 通知Choreographer,这个窗口不需要显示了，跟这个窗口相关的一些UI刷新操作，可以取消了。
         unscheduleTraversals();
     }
 
@@ -5186,6 +5188,7 @@ public final class ViewRootImpl implements ViewParent, View.AttachInfo.Callbacks
     boolean die(boolean immediate) {
         // Make sure we do execute immediately if we are in the middle of a traversal or the damage
         // done by dispatchDetachedFromWindow will cause havoc on return.
+        //如果需要立即移除，立即执行doDie
         if (immediate && !mIsInTraversal) {
             doDie();
             return false;
@@ -5196,6 +5199,7 @@ public final class ViewRootImpl implements ViewParent, View.AttachInfo.Callbacks
         } else {
             Log.e(TAG, "Attempting to destroy the window while drawing!\n" + "  window=" + this + ", title=" + mWindowAttributes.getTitle());
         }
+        //要不然，通过Handler发个消息，一会执行吧
         mHandler.sendEmptyMessage(MSG_DIE);
         return true;
     }
@@ -5209,6 +5213,7 @@ public final class ViewRootImpl implements ViewParent, View.AttachInfo.Callbacks
             }
             mRemoved = true;
             if (mAdded) {
+                // 在doDie中，会通过dispatchDetachedFromWindow，通知View树，窗口已经移除了
                 dispatchDetachedFromWindow();
             }
 

@@ -560,6 +560,7 @@ public abstract class Window {
 	 *
 	 * @param wm The window manager for adding new windows.
 	 */
+
 	public void setWindowManager(WindowManager wm, IBinder appToken, String appName, boolean hardwareAccelerated) {
 		mAppToken = appToken;
 		mAppName = appName;
@@ -568,7 +569,9 @@ public abstract class Window {
 			wm = (WindowManager) mContext.getSystemService(Context.WINDOW_SERVICE);
 		}
 
-		//在此处创建mWindowManager
+		//在此处创建mWindowManager,这里mWindowManager其实是一个WindowManagerImpl对象，而且是重新创建一个新对象的。
+		// 这里调用了createLocalWindowManager来创建一个新的WindowManagerImpl，传递的parentWindow就是它自己的。
+		// 这表示PhoneWindow创建一个WindowManagerImpl对象时，把它自己作为parentWindow传递给WindowManagerImpl。
 		mWindowManager = ((WindowManagerImpl) wm).createLocalWindowManager(this);
 	}
 

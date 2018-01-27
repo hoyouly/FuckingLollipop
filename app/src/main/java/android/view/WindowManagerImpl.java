@@ -82,6 +82,7 @@ public final class WindowManagerImpl implements WindowManager {
 
     @Override
     public void addView(@NonNull View view, @NonNull ViewGroup.LayoutParams params) {
+        //applyDefaultToken会检查，有没有设置默认token，如果设置，而且没有设置父窗口的情况下，token又是null的话，直接把默认token赋值给token吧。
         applyDefaultToken(params);
         mGlobal.addView(view, params, mDisplay, mParentWindow);
     }

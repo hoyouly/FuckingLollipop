@@ -5721,7 +5721,8 @@ public class Activity extends ContextThemeWrapper implements LayoutInflater.Fact
         mWindow.setCallback(this);
         mWindow.setOnWindowDismissedCallback(this);
         mWindow.getLayoutInflater().setPrivateFactory(this);
-        if (info.softInputMode != WindowManager.LayoutParams.SOFT_INPUT_STATE_UNSPECIFIED) {
+		//设置软键盘
+		if (info.softInputMode != WindowManager.LayoutParams.SOFT_INPUT_STATE_UNSPECIFIED) {
             mWindow.setSoftInputMode(info.softInputMode);
         }
         if (info.uiOptions != 0) {

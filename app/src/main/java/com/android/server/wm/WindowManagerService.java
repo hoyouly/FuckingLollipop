@@ -2247,12 +2247,14 @@ public class WindowManagerService extends IWindowManager.Stub implements Watchdo
                     return WindowManagerGlobal.ADD_BAD_SUBWINDOW_TOKEN;
                 }
             }
-
+            //如果是类型是TYPE_PRIVATE_PRESENTATION ，还会检查相应的显示设备
             if (type == TYPE_PRIVATE_PRESENTATION && !displayContent.isPrivate()) {
                 Slog.w(TAG, "Attempted to add private presentation window to a non-private display.  Aborting.");
                 return WindowManagerGlobal.ADD_PERMISSION_DENIED;
             }
 
+            //根据LayoutParams中的token，会检索WmS中保存的WindowToken，
+            //由引可见，不同的窗口类型，其对应的token是有区别的。WmS要根据窗口类型来检查其传递过来的token是否合法。
             boolean addToken = false;
             WindowToken token = mTokenMap.get(attrs.token);
             if (token == null) {
