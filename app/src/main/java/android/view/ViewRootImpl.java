@@ -832,8 +832,8 @@ public final class ViewRootImpl implements ViewParent, View.AttachInfo.Callbacks
     @Override
     public void requestLayout() {
         if (!mHandlingLayoutInLayoutRequest) {
-            checkThread();
-            mLayoutRequested = true;
+            checkThread(); //检查是否在主线程
+            mLayoutRequested = true; //mLayoutRequested 是否measure和layout布局。
             scheduleTraversals();
         }
     }
@@ -988,6 +988,8 @@ public final class ViewRootImpl implements ViewParent, View.AttachInfo.Callbacks
         if (!mTraversalScheduled) {
             mTraversalScheduled = true;
             mTraversalBarrier = mHandler.getLooper().postSyncBarrier();
+            //post一个runnable处理-->mTraversalRunnable
+            //ViewRootImpl中W类是Binder的Native端，用来接收WMS处理操作，因为W类的接收方法是在线程池中的，所以我们可以通过Handler将事件处理切换到主线程中
             mChoreographer.postCallback(Choreographer.CALLBACK_TRAVERSAL, mTraversalRunnable, null);
             if (!mUnbufferedInputDispatch) {
                 scheduleConsumeBatchedInput();
@@ -1015,6 +1017,7 @@ public final class ViewRootImpl implements ViewParent, View.AttachInfo.Callbacks
 
             Trace.traceBegin(Trace.TRACE_TAG_VIEW, "performTraversals");
             try {
+                //View的绘制流程正式开始。
                 performTraversals();
             } finally {
                 Trace.traceEnd(Trace.TRACE_TAG_VIEW);
@@ -1082,6 +1085,7 @@ public final class ViewRootImpl implements ViewParent, View.AttachInfo.Callbacks
             Log.v(TAG, "Measuring " + host + " in display " + desiredWindowWidth + "x" + desiredWindowHeight + "...");
 
         boolean goodMeasure = false;
+        //针对设置WRAP_CONTENT的dialog，开始协商,缩小布局参数
         if (lp.width == ViewGroup.LayoutParams.WRAP_CONTENT) {
             // On large screens, we don't want to allow dialogs to just
             // stretch to fill the entire width of the screen to display
@@ -1116,7 +1120,7 @@ public final class ViewRootImpl implements ViewParent, View.AttachInfo.Callbacks
             }
         }
 
-        if (!goodMeasure) {
+        if (!goodMeasure) {//DecorView,宽度基本都为match_parent
             childWidthMeasureSpec = getRootMeasureSpec(desiredWindowWidth, lp.width);
             childHeightMeasureSpec = getRootMeasureSpec(desiredWindowHeight, lp.height);
             performMeasure(childWidthMeasureSpec, childHeightMeasureSpec);
@@ -1161,6 +1165,12 @@ public final class ViewRootImpl implements ViewParent, View.AttachInfo.Callbacks
         host.dispatchApplyWindowInsets(new WindowInsets(mDispatchContentInsets, null /* windowDecorInsets */, mDispatchStableInsets, isRound));
     }
 
+    /**
+     * 是一个包罗万象的方法，ViewRootImpl接受的各种变化，例如来着WMS的窗口属性变化，来自控件树的尺寸变化以及重绘请求都会执行 performTraversals(),
+     * view 类以及子类中的onMesaure(),onLayout,onDraw()等回调也会是在 performTraversals()执行过程中直接或者间接引发的
+     * 正因为如此，一次次的 performTraversals()驱动控件树有条不紊的工作，一旦此方法无法正常执行，整个控件树都将处于僵死状态。
+     * 因此performTraversals()函数可以说是ViewRootImpl的心跳。
+     */
     private void performTraversals() {
         // cache mView since it is used so much below...
         final View host = mView;
@@ -1180,8 +1190,8 @@ public final class ViewRootImpl implements ViewParent, View.AttachInfo.Callbacks
         boolean surfaceChanged = false;
         WindowManager.LayoutParams lp = mWindowAttributes;
 
-        int desiredWindowWidth;
-        int desiredWindowHeight;
+        int desiredWindowWidth;//decorView宽度
+        int desiredWindowHeight;//decorView高度
 
         final int viewVisibility = getHostVisibility();
         boolean viewVisibilityChanged = mViewVisibility != viewVisibility || mNewSurfaceNeeded;
@@ -1215,11 +1225,13 @@ public final class ViewRootImpl implements ViewParent, View.AttachInfo.Callbacks
 
             if (lp.type == WindowManager.LayoutParams.TYPE_STATUS_BAR_PANEL || lp.type == WindowManager.LayoutParams.TYPE_INPUT_METHOD) {
                 // NOTE -- system code, won't try to do compat mode.
+                //窗口的类型中有状态栏和，所以高度需要减去状态栏
                 Point size = new Point();
                 mDisplay.getRealSize(size);
                 desiredWindowWidth = size.x;
                 desiredWindowHeight = size.y;
             } else {
+                //窗口的宽高即整个屏幕的宽高
                 DisplayMetrics packageMetrics = mView.getContext().getResources().getDisplayMetrics();
                 desiredWindowWidth = packageMetrics.widthPixels;
                 desiredWindowHeight = packageMetrics.heightPixels;
@@ -1240,6 +1252,7 @@ public final class ViewRootImpl implements ViewParent, View.AttachInfo.Callbacks
                 host.setLayoutDirection(mLastConfiguration.getLayoutDirection());
             }
             //第一次执行performTraversals时，会把自己的mAttachInfo关联到所有的子View
+            //在onCreate中view.post(runnable)和此方法有关
             host.dispatchAttachedToWindow(mAttachInfo, 0);
             mAttachInfo.mTreeObserver.dispatchOnWindowAttachedChange(true);
             dispatchApplyInsets(host);
@@ -1316,6 +1329,8 @@ public final class ViewRootImpl implements ViewParent, View.AttachInfo.Callbacks
             }
 
             // Ask host how big it wants to be
+            //调用performMeasure(childWidthMeasureSpec, childHeightMeasureSpec);
+            //创建了DecorView的MeasureSpec，并调用performMeasure
             windowSizeMayChange |= measureHierarchy(host, lp, res, desiredWindowWidth, desiredWindowHeight);
         }
 
@@ -1879,6 +1894,7 @@ public final class ViewRootImpl implements ViewParent, View.AttachInfo.Callbacks
     private void performMeasure(int childWidthMeasureSpec, int childHeightMeasureSpec) {
         Trace.traceBegin(Trace.TRACE_TAG_VIEW, "measure");
         try {
+            //直接调用mView.measure()方法
             mView.measure(childWidthMeasureSpec, childHeightMeasureSpec);
         } finally {
             Trace.traceEnd(Trace.TRACE_TAG_VIEW);
@@ -2084,6 +2100,7 @@ public final class ViewRootImpl implements ViewParent, View.AttachInfo.Callbacks
      *                      window.
      * @return The measure spec to use to measure the root view.
      */
+    //创建measureSpec
     private static int getRootMeasureSpec(int windowSize, int rootDimension) {
         int measureSpec;
         switch (rootDimension) {

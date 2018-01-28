@@ -16900,7 +16900,9 @@ public class View implements Drawable.Callback, KeyEvent.Callback, Accessibility
 	 *                          parent
 	 * @see #onMeasure(int, int)
 	 */
-	public final void measure(int widthMeasureSpec, int heightMeasureSpec) {
+    //final类，子类不能重写该方法
+    //view.measure()方法其实没有实现任何测量的算法，它的作用在于判断是否需要引发onMeasure()的调用，并对onMeasure()行为的正确性进行检查。
+    public final void measure(int widthMeasureSpec, int heightMeasureSpec) {
 		boolean optical = isLayoutModeOptical(this);
 		if (optical != isLayoutModeOptical(mParent)) {
 			Insets insets = getOpticalInsets();
