@@ -867,16 +867,16 @@ public final class ViewRootImpl implements ViewParent, View.AttachInfo.Callbacks
 
     @Override
     public ViewParent invalidateChildInParent(int[] location, Rect dirty) {
-        checkThread();
+        checkThread();//检查线程，这也是为什么invalidate一定要在主线程的原因
         if (DEBUG_DRAW) Log.v(TAG, "Invalidate child: " + dirty);
 
         if (dirty == null) {
-            invalidate();
+            invalidate();//有可能需要绘制整个窗口
             return null;
         } else if (dirty.isEmpty() && !mIsAnimating) {
             return null;
         }
-
+        // 动画和滑动的检查设置
         if (mCurScrollY != 0 || mTranslator != null) {
             mTempRect.set(dirty);
             dirty = mTempRect;
@@ -899,6 +899,7 @@ public final class ViewRootImpl implements ViewParent, View.AttachInfo.Callbacks
 
         // Add the new dirty rect to the current one
         localDirty.union(dirty.left, dirty.top, dirty.right, dirty.bottom);
+        //在这里，mDirty的区域就变为方法中的dirty，即要重绘的脏区域
         // Intersect with the bounds of the window to skip
         // updates that lie outside of the visible region
         final float appScale = mAttachInfo.mApplicationScale;
@@ -907,6 +908,7 @@ public final class ViewRootImpl implements ViewParent, View.AttachInfo.Callbacks
             localDirty.setEmpty();
         }
         if (!mWillDrawSoon && (intersected || mIsAnimating)) {
+            //执行View的工作流程
             scheduleTraversals();
         }
 
@@ -987,6 +989,7 @@ public final class ViewRootImpl implements ViewParent, View.AttachInfo.Callbacks
     void scheduleTraversals() {
         if (!mTraversalScheduled) {
             mTraversalScheduled = true;
+            // handler消息传递绘制请求
             mTraversalBarrier = mHandler.getLooper().postSyncBarrier();
             //post一个runnable处理-->mTraversalRunnable
             //ViewRootImpl中W类是Binder的Native端，用来接收WMS处理操作，因为W类的接收方法是在线程池中的，所以我们可以通过Handler将事件处理切换到主线程中
@@ -1174,13 +1177,6 @@ public final class ViewRootImpl implements ViewParent, View.AttachInfo.Callbacks
     private void performTraversals() {
         // cache mView since it is used so much below...
         final View host = mView;
-
-        if (DBG) {
-            System.out.println("======================================");
-            System.out.println("performTraversals");
-            host.debug();
-        }
-
         if (host == null || !mAdded) return;
 
         mIsInTraversal = true;
@@ -1462,58 +1458,7 @@ public final class ViewRootImpl implements ViewParent, View.AttachInfo.Callbacks
                 final boolean stableInsetsChanged = !mPendingStableInsets.equals(mAttachInfo.mStableInsets);
                 if (contentInsetsChanged) {
                     if (mWidth > 0 && mHeight > 0 && lp != null && ((lp.systemUiVisibility | lp.subtreeSystemUiVisibility) & View.SYSTEM_UI_LAYOUT_FLAGS) == 0 && mSurface != null && mSurface.isValid() && !mAttachInfo.mTurnOffWindowResizeAnim && mAttachInfo.mHardwareRenderer != null && mAttachInfo.mHardwareRenderer.isEnabled() && lp != null && !PixelFormat.formatHasAlpha(lp.format) && !mBlockResizeBuffer) {
-
                         disposeResizeBuffer();
-
-// TODO: Again....
-//                        if (mResizeBuffer == null) {
-//                            mResizeBuffer = mAttachInfo.mHardwareRenderer.createDisplayListLayer(
-//                                    mWidth, mHeight);
-//                        }
-//                        mResizeBuffer.prepare(mWidth, mHeight, false);
-//                        RenderNode layerRenderNode = mResizeBuffer.startRecording();
-//                        HardwareCanvas layerCanvas = layerRenderNode.start(mWidth, mHeight);
-//                        try {
-//                            final int restoreCount = layerCanvas.save();
-//
-//                            int yoff;
-//                            final boolean scrolling = mScroller != null
-//                                    && mScroller.computeScrollOffset();
-//                            if (scrolling) {
-//                                yoff = mScroller.getCurrY();
-//                                mScroller.abortAnimation();
-//                            } else {
-//                                yoff = mScrollY;
-//                            }
-//
-//                            layerCanvas.translate(0, -yoff);
-//                            if (mTranslator != null) {
-//                                mTranslator.translateCanvas(layerCanvas);
-//                            }
-//
-//                            RenderNode renderNode = mView.mRenderNode;
-//                            if (renderNode != null && renderNode.isValid()) {
-//                                layerCanvas.drawDisplayList(renderNode, null,
-//                                        RenderNode.FLAG_CLIP_CHILDREN);
-//                            } else {
-//                                mView.draw(layerCanvas);
-//                            }
-//
-//                            drawAccessibilityFocusedDrawableIfNeeded(layerCanvas);
-//
-//                            mResizeBufferStartTime = SystemClock.uptimeMillis();
-//                            mResizeBufferDuration = mView.getResources().getInteger(
-//                                    com.android.internal.R.integer.config_mediumAnimTime);
-//
-//                            layerCanvas.restoreToCount(restoreCount);
-//                            layerRenderNode.end(layerCanvas);
-//                            layerRenderNode.setCaching(true);
-//                            layerRenderNode.setLeftTopRightBottom(0, 0, mWidth, mHeight);
-//                            mTempRect.set(0, 0, mWidth, mHeight);
-//                        } finally {
-//                            mResizeBuffer.endRecording(mTempRect);
-//                        }
-//                        mAttachInfo.mHardwareRenderer.flushLayerUpdates();
                     }
                     mAttachInfo.mContentInsets.set(mPendingContentInsets);
                     if (DEBUG_LAYOUT) Log.v(TAG, "Content insets changing to: " + mAttachInfo.mContentInsets);
@@ -1733,6 +1678,8 @@ public final class ViewRootImpl implements ViewParent, View.AttachInfo.Callbacks
         final boolean didLayout = layoutRequested && !mStopped;
         boolean triggerGlobalLayoutListener = didLayout || mAttachInfo.mRecomputeGlobalAttributes;
         if (didLayout) {
+            //控件树中的控件对于自己的尺寸显然已经了然于胸。而且父控件对于子控件的位置也有了眉目，所以经过测量过程后，布局阶段会把测量结果转化为控件的实际位置与尺寸。
+            // 控件的实际位置与尺寸由View的mLeft，mTop，mRight，mBottom 等4个成员变量存储的坐标值来表示。
             performLayout(lp, desiredWindowWidth, desiredWindowHeight);
 
             // By this point all views have been sized and positioned
@@ -2210,13 +2157,13 @@ public final class ViewRootImpl implements ViewParent, View.AttachInfo.Callbacks
         if (mAttachInfo.mDisplayState == Display.STATE_OFF && !mReportNextDraw) {
             return;
         }
-
         final boolean fullRedrawNeeded = mFullRedrawNeeded;
         mFullRedrawNeeded = false;
 
         mIsDrawing = true;
         Trace.traceBegin(Trace.TRACE_TAG_VIEW, "draw");
         try {
+            //fullRedrawNeeded 源自mFullRedrawNeeded成员变量，用于表示是否需要重新绘制全部的View。
             draw(fullRedrawNeeded);
         } finally {
             mIsDrawing = false;
@@ -2317,7 +2264,7 @@ public final class ViewRootImpl implements ViewParent, View.AttachInfo.Callbacks
                 disposeResizeBuffer();
             }
         }
-
+        // 获取mDirty，该值表示需要重绘的区域
         final Rect dirty = mDirty;
         if (mSurfaceHolder != null) {
             // The app owns the surface, we won't draw.
@@ -2330,7 +2277,7 @@ public final class ViewRootImpl implements ViewParent, View.AttachInfo.Callbacks
             }
             return;
         }
-
+        // 如果为ture，则设置dirty区域为全屏
         if (fullRedrawNeeded) {
             mAttachInfo.mIgnoreDirtyState = true;
             dirty.set(0, 0, (int) (mWidth * appScale + 0.5f), (int) (mHeight * appScale + 0.5f));
@@ -2412,7 +2359,7 @@ public final class ViewRootImpl implements ViewParent, View.AttachInfo.Callbacks
                     scheduleTraversals();
                     return;
                 }
-
+                // 重绘区域、动画判断  硬件渲染判断
                 if (!drawSoftware(surface, mAttachInfo, xOffset, yOffset, scalingRequired, dirty)) {
                     return;
                 }
@@ -2494,7 +2441,8 @@ public final class ViewRootImpl implements ViewParent, View.AttachInfo.Callbacks
                 }
                 canvas.setScreenDensity(scalingRequired ? mNoncompatDensity : 0);
                 attachInfo.mSetIgnoreDirtyState = false;
-
+                // 首先对canvas进行一些属性设置，包括色块、平移等。之后调用mView.draw(canvas)方法，开始对View进行绘制。mView就是window中的顶级视图DecorView
+                // 关键代码，mView为DecorView，开启View绘制
                 mView.draw(canvas);
 
                 drawAccessibilityFocusedDrawableIfNeeded(canvas);

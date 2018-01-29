@@ -4541,6 +4541,7 @@ public abstract class ViewGroup extends View implements ViewParent, ViewManager 
             }
 
             final int[] location = attachInfo.mInvalidateChildLocation;
+            // 保存子View的left、top
             location[CHILD_LEFT_INDEX] = child.mLeft;
             location[CHILD_TOP_INDEX] = child.mTop;
             if (!childMatrix.isIdentity() || (mGroupFlags & ViewGroup.FLAG_SUPPORT_STATIC_TRANSFORMATIONS) != 0) {
@@ -4562,10 +4563,13 @@ public abstract class ViewGroup extends View implements ViewParent, ViewManager 
                 } else {
                     transformMatrix = childMatrix;
                 }
+                //父容器根据自身对子View的脏区域进行调整
                 transformMatrix.mapRect(boundingRect);
+                // 设置需要重绘的区域
                 dirty.set((int) (boundingRect.left - 0.5f), (int) (boundingRect.top - 0.5f), (int) (boundingRect.right + 0.5f), (int) (boundingRect.bottom + 0.5f));
             }
-
+            // 这里的do while方法，不断的去调用父类的 invalidateChildInParent 方法来传递重绘请求
+            //直到调用到ViewRootImpl的invalidateChildInParent（责任链模式）
             do {
                 View view = null;
                 if (parent instanceof View) {
@@ -4582,6 +4586,7 @@ public abstract class ViewGroup extends View implements ViewParent, ViewManager 
 
                 // If the parent is dirty opaque or not dirty, mark it dirty with the opaque
                 // flag coming from the child that initiated the invalidate
+                //如果父类是"实心"的，那么设置它的mPrivateFlags标识
                 if (view != null) {
                     if ((view.mViewFlags & FADING_EDGE_MASK) != 0 && view.getSolidColor() == 0) {
                         opaqueFlag = PFLAG_DIRTY;
@@ -4590,8 +4595,9 @@ public abstract class ViewGroup extends View implements ViewParent, ViewManager 
                         view.mPrivateFlags = (view.mPrivateFlags & ~PFLAG_DIRTY_MASK) | opaqueFlag;
                     }
                 }
-
+                //***往上递归调用父类的invalidateChildInParent***
                 parent = parent.invalidateChildInParent(location, dirty);
+                //设置父类的脏区域，父容器会把子View的脏区域转化为父容器中的坐标区域
                 if (view != null) {
                     // Account for transform on current parent
                     Matrix m = view.getMatrix();
@@ -4614,11 +4620,14 @@ public abstract class ViewGroup extends View implements ViewParent, ViewManager 
      * if this ViewGroup is already fully invalidated or if the dirty rectangle
      * does not intersect with this ViewGroup's bounds.
      */
+    //使用offset，把子View需要重绘的坐标区域转换为父View中的坐标区域。之后使用union对子View与父View的区域进行集合运算，获得需要绘制的区域。
     public ViewParent invalidateChildInParent(final int[] location, final Rect dirty) {
         if ((mPrivateFlags & PFLAG_DRAWN) == PFLAG_DRAWN || (mPrivateFlags & PFLAG_DRAWING_CACHE_VALID) == PFLAG_DRAWING_CACHE_VALID) {
             if ((mGroupFlags & (FLAG_OPTIMIZE_INVALIDATE | FLAG_ANIMATION_DONE)) != FLAG_OPTIMIZE_INVALIDATE) {
+                // 子View中的布局位置转换为父View中的布局位置
                 dirty.offset(location[CHILD_LEFT_INDEX] - mScrollX, location[CHILD_TOP_INDEX] - mScrollY);
                 if ((mGroupFlags & FLAG_CLIP_CHILDREN) == 0) {
+                    // 合并绘制区域集合
                     dirty.union(0, 0, mRight - mLeft, mBottom - mTop);
                 }
 
@@ -4916,14 +4925,17 @@ public abstract class ViewGroup extends View implements ViewParent, ViewManager 
      * {@inheritDoc}
      */
     @Override
+    //尽管ViewGroup也重写了layout方法,但是本质上还是会通过super.layout()调用View的layout()方法
     public final void layout(int l, int t, int r, int b) {
         if (!mSuppressLayout && (mTransition == null || !mTransition.isChangingLayout())) {
             if (mTransition != null) {
                 mTransition.layoutChange(this);
             }
+            //如果无动画，或者动画未运行
             super.layout(l, t, r, b);
         } else {
             // record the fact that we noop'd it; request layout when transition finishes
+            //等待动画完成时再调用requestLayout()
             mLayoutCalledWhileSuppressed = true;
         }
     }
@@ -5370,7 +5382,7 @@ public abstract class ViewGroup extends View implements ViewParent, ViewManager 
     /**
      * Ask one of the children of this view to measure itself, taking into
      * account both the MeasureSpec requirements for this view and its padding
-     * and margins. The child must have MarginLayoutParams The heavy lifting is
+     * and margins. The child must have MarginLayoutParams The heavy lift   ing is
      * done in getChildMeasureSpec.
      *
      * @param child                   The child to measure
@@ -5384,6 +5396,7 @@ public abstract class ViewGroup extends View implements ViewParent, ViewManager 
     protected void measureChildWithMargins(View child, int parentWidthMeasureSpec, int widthUsed, int parentHeightMeasureSpec, int heightUsed) {
         final MarginLayoutParams lp = (MarginLayoutParams) child.getLayoutParams();
 
+        //得到子元素的MeasureSpec。显然子元素的MeasureSpec的创建与父容器的MeasureSpec和子元素本身的LayoutParams有关，此外还和View的margin和padding有关
         final int childWidthMeasureSpec = getChildMeasureSpec(parentWidthMeasureSpec, mPaddingLeft + mPaddingRight + lp.leftMargin + lp.rightMargin + widthUsed, lp.width);
         final int childHeightMeasureSpec = getChildMeasureSpec(parentHeightMeasureSpec, mPaddingTop + mPaddingBottom + lp.topMargin + lp.bottomMargin + heightUsed, lp.height);
         //如果当前child也是ViewGroup，则measure()方法就又会调用相应的onMeasure（）继续遍历它的子View,
@@ -5410,16 +5423,17 @@ public abstract class ViewGroup extends View implements ViewParent, ViewManager 
      *                       dimension
      * @return a MeasureSpec integer for the child
      */
+    //根据父容器的MeasureSpec同时结合View本身的LayoutParams来确定子元素的MeasureSpec。
     public static int getChildMeasureSpec(int spec, int padding, int childDimension) {
-        int specMode = MeasureSpec.getMode(spec);
-        int specSize = MeasureSpec.getSize(spec);
+        int specMode = MeasureSpec.getMode(spec); //父容器的specMode
+        int specSize = MeasureSpec.getSize(spec);//父容器的specSize
 
         int size = Math.max(0, specSize - padding);
 
         int resultSize = 0;
         int resultMode = 0;
 
-        switch (specMode) {
+        switch (specMode) { //根据父容器的specMode
             // Parent has imposed an exact size on us
             case MeasureSpec.EXACTLY:
                 if (childDimension >= 0) {

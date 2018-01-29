@@ -405,6 +405,10 @@ public class FrameLayout extends ViewGroup {
 
     /**
      * {@inheritDoc}
+     * 首先遍历子View，调用measureChildWithMargins方法，
+     * 之后获取子view中的最大宽度or高度，这是因为FrameLayout的布局，如果在wrap_content的情况下，其宽度就等于所以子View中的最大宽度，高度就等于所以子View中最大的高度。
+     * 对子View的宽or高为MATCH_PARENT的View进行存储
+     * 之后处理一些属性，保存测量结果
      */
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
@@ -426,10 +430,12 @@ public class FrameLayout extends ViewGroup {
                 //如果当前child是View，便根据这个MeasureSpec测量自己
                 measureChildWithMargins(child, widthMeasureSpec, 0, heightMeasureSpec, 0);
                 final LayoutParams lp = (LayoutParams) child.getLayoutParams();
+                // 获取子view中最大的宽度和高度
                 maxWidth = Math.max(maxWidth, child.getMeasuredWidth() + lp.leftMargin + lp.rightMargin);
                 maxHeight = Math.max(maxHeight, child.getMeasuredHeight() + lp.topMargin + lp.bottomMargin);
                 childState = combineMeasuredStates(childState, child.getMeasuredState());
                 if (measureMatchParentChildren) {
+                    // 如果子View的宽or高为MATCH_PARENT，则保存子View
                     if (lp.width == LayoutParams.MATCH_PARENT || lp.height == LayoutParams.MATCH_PARENT) {
                         mMatchParentChildren.add(child);
                     }
@@ -451,10 +457,12 @@ public class FrameLayout extends ViewGroup {
             maxHeight = Math.max(maxHeight, drawable.getMinimumHeight());
             maxWidth = Math.max(maxWidth, drawable.getMinimumWidth());
         }
-
-        setMeasuredDimension(resolveSizeAndState(maxWidth, widthMeasureSpec, childState), resolveSizeAndState(maxHeight, heightMeasureSpec, childState << MEASURED_HEIGHT_STATE_SHIFT));
+        // 保存测量结果
+        setMeasuredDimension(resolveSizeAndState(maxWidth, widthMeasureSpec, childState), //
+                resolveSizeAndState(maxHeight, heightMeasureSpec, childState << MEASURED_HEIGHT_STATE_SHIFT));
 
         count = mMatchParentChildren.size();
+        // 对之前保存的子view，分别重新测量MeasureSpec
         if (count > 1) {
             for (int i = 0; i < count; i++) {
                 final View child = mMatchParentChildren.get(i);
@@ -474,7 +482,7 @@ public class FrameLayout extends ViewGroup {
                 } else {
                     childHeightMeasureSpec = getChildMeasureSpec(heightMeasureSpec, getPaddingTopWithForeground() + getPaddingBottomWithForeground() + lp.topMargin + lp.bottomMargin, lp.height);
                 }
-
+                // 测量子View
                 child.measure(childWidthMeasureSpec, childHeightMeasureSpec);
             }
         }

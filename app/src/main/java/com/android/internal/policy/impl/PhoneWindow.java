@@ -2481,10 +2481,13 @@ public class PhoneWindow extends Window implements MenuBuilder.Callback {
             final int heightMode = getMode(heightMeasureSpec);
 
             boolean fixedWidth = false;
+            //检查测量模式是否为AT_MOST
             if (widthMode == AT_MOST) {
                 final TypedValue tvw = isPortrait ? mFixedWidthMinor : mFixedWidthMajor;
+                // tvw不会为NULL，等级也不会为NULL，具体原因可以跟踪一下源码。
                 if (tvw != null && tvw.type != TypedValue.TYPE_NULL) {
                     final int w;
+                    // 获取视图宽度
                     if (tvw.type == TypedValue.TYPE_DIMENSION) {
                         w = (int) tvw.getDimension(metrics);
                     } else if (tvw.type == TypedValue.TYPE_FRACTION) {
@@ -2492,7 +2495,7 @@ public class PhoneWindow extends Window implements MenuBuilder.Callback {
                     } else {
                         w = 0;
                     }
-
+                    // 设置测量模式为EXACTLY
                     if (w > 0) {
                         final int widthSize = MeasureSpec.getSize(widthMeasureSpec);
                         widthMeasureSpec = MeasureSpec.makeMeasureSpec(Math.min(w, widthSize), EXACTLY);
@@ -2500,7 +2503,7 @@ public class PhoneWindow extends Window implements MenuBuilder.Callback {
                     }
                 }
             }
-
+            // heightMode的处理方式与widthMode相同
             if (heightMode == AT_MOST) {
                 final TypedValue tvh = isPortrait ? mFixedHeightMajor : mFixedHeightMinor;
                 if (tvh != null && tvh.type != TypedValue.TYPE_NULL) {

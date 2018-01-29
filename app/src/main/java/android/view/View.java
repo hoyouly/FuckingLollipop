@@ -5481,7 +5481,7 @@ public class View implements Drawable.Callback, KeyEvent.Callback, Accessibility
 					String viewId = getResources().getResourceName(mID);
 					info.setViewIdResourceName(viewId);
 				} catch (Resources.NotFoundException nfe) {
-                    /* ignore */
+					/* ignore */
 				}
 			}
 		}
@@ -11388,33 +11388,39 @@ public class View implements Drawable.Callback, KeyEvent.Callback, Accessibility
 	}
 
 	void invalidateInternal(int l, int t, int r, int b, boolean invalidateCache, boolean fullInvalidate) {
+		// 如果View重绘，则它也将重绘
 		if (mGhostView != null) {
 			mGhostView.invalidate(true);
 			return;
 		}
-
+		//如果View不可见，或者在动画中
 		if (skipInvalidate()) {
 			return;
 		}
-
-		if ((mPrivateFlags & (PFLAG_DRAWN | PFLAG_HAS_BOUNDS)) == (PFLAG_DRAWN | PFLAG_HAS_BOUNDS) || (invalidateCache && (mPrivateFlags & PFLAG_DRAWING_CACHE_VALID) == PFLAG_DRAWING_CACHE_VALID) || (mPrivateFlags & PFLAG_INVALIDATED) != PFLAG_INVALIDATED || (fullInvalidate && isOpaque() != mLastIsOpaque)) {
-			if (fullInvalidate) {
+		//根据mPrivateFlags来标记是否重绘
+		if ((mPrivateFlags & (PFLAG_DRAWN | PFLAG_HAS_BOUNDS)) == (PFLAG_DRAWN | PFLAG_HAS_BOUNDS) //
+				|| (invalidateCache && (mPrivateFlags & PFLAG_DRAWING_CACHE_VALID) == PFLAG_DRAWING_CACHE_VALID) //
+				|| (mPrivateFlags & PFLAG_INVALIDATED) != PFLAG_INVALIDATED //
+				|| (fullInvalidate && isOpaque() != mLastIsOpaque)) {
+			if (fullInvalidate) {//参数传入为true，表示需要全部重绘
 				mLastIsOpaque = isOpaque();
-				mPrivateFlags &= ~PFLAG_DRAWN;
+				mPrivateFlags &= ~PFLAG_DRAWN;//去除绘制完毕标记。
 			}
-
+			//添加标记，表示View正在绘制。PFLAG_DRAWN为绘制完毕。
 			mPrivateFlags |= PFLAG_DIRTY;
-
+			//清除缓存，表示由当前View发起的重绘。
 			if (invalidateCache) {
 				mPrivateFlags |= PFLAG_INVALIDATED;
 				mPrivateFlags &= ~PFLAG_DRAWING_CACHE_VALID;
 			}
 
 			// Propagate the damage rectangle to the parent view.
+			//把需要重绘的区域传递给父View
 			final AttachInfo ai = mAttachInfo;
 			final ViewParent p = mParent;
 			if (p != null && ai != null && l < r && t < b) {
 				final Rect damage = ai.mTmpInvalRect;
+				//设置重绘区域(区域为当前View在父容器中的整个布局)
 				damage.set(l, t, r, b);
 				p.invalidateChild(this, damage);
 			}
@@ -14652,6 +14658,7 @@ public class View implements Drawable.Callback, KeyEvent.Callback, Accessibility
 	 */
 	public void draw(Canvas canvas) {
 		final int privateFlags = mPrivateFlags;
+		//检查是否是"实心(不透明)"控件。（后面有补充）
 		final boolean dirtyOpaque = (privateFlags & PFLAG_DIRTY_MASK) == PFLAG_DIRTY_OPAQUE && (mAttachInfo == null || !mAttachInfo.mIgnoreDirtyState);
 		mPrivateFlags = (privateFlags & ~PFLAG_DIRTY_MASK) | PFLAG_DRAWN;
 
@@ -14659,17 +14666,17 @@ public class View implements Drawable.Callback, KeyEvent.Callback, Accessibility
          * Draw traversal performs several drawing steps which must be executed
          * in the appropriate order:
          *
-         *      1. Draw the background
-         *      2. If necessary, save the canvas' layers to prepare for fading
-         *      3. Draw view's content
-         *      4. Draw children
-         *      5. If necessary, draw the fading edges and restore layers
-         *      6. Draw decorations (scrollbars for instance)
+         *      1. Draw the background  绘制View背景，如果透明则不绘制
+         *      2. If necessary, save the canvas' layers to prepare for fading  如果需要，则保存画布的图层
+         *      3. Draw view's content  绘制View内容，如果透明则不绘制
+         *      4. Draw children  绘制子View————这个很重要
+         *      5. If necessary, draw the fading edges and restore layers  如果需要，则绘制View的褪色边缘和恢复图层
+         *      6. Draw decorations (scrollbars for instance)  绘制装饰滚动条
          */
 
 		// Step 1, draw the background, if needed
 		int saveCount;
-
+		//非"实心"控件，将会绘制背景
 		if (!dirtyOpaque) {
 			drawBackground(canvas);
 		}
@@ -14678,15 +14685,16 @@ public class View implements Drawable.Callback, KeyEvent.Callback, Accessibility
 		final int viewFlags = mViewFlags;
 		boolean horizontalEdges = (viewFlags & FADING_EDGE_HORIZONTAL) != 0;
 		boolean verticalEdges = (viewFlags & FADING_EDGE_VERTICAL) != 0;
+		//如果控件不需要绘制渐变边界，则可以进入渐变绘制流程
 		if (!verticalEdges && !horizontalEdges) {
 			// Step 3, draw the content
-			if (!dirtyOpaque) onDraw(canvas);
+			if (!dirtyOpaque) onDraw(canvas);//非"实心"，则绘制控件本身
 
 			// Step 4, draw the children
-			dispatchDraw(canvas);
+			dispatchDraw(canvas); //如果当前不是ViewGroup，此方法则是空实现
 
 			// Step 6, draw decorations (scrollbars)
-			onDrawScrollBars(canvas);
+			onDrawScrollBars(canvas); //绘制装饰和前景
 
 			if (mOverlay != null && !mOverlay.isEmpty()) {
 				mOverlay.getOverlayView().dispatchDraw(canvas);
@@ -15110,12 +15118,19 @@ public class View implements Drawable.Callback, KeyEvent.Callback, Accessibility
 		int oldB = mBottom;
 		int oldR = mRight;
 
+		//如果布局有变化，通过setFrame重新布局   setOpticalFrame()实际上也是调用的setFrame()
+		//将l、t、r、b分别设置到mLeft、mTop、mRight、和mBottom，这样就可以确定子View在父容器的位置了，这些位置是相对父容器的。
+		// 这里会判断要不要invalidate
 		boolean changed = isLayoutModeOptical(mParent) ? setOpticalFrame(l, t, r, b) : setFrame(l, t, r, b);
 
 		if (changed || (mPrivateFlags & PFLAG_LAYOUT_REQUIRED) == PFLAG_LAYOUT_REQUIRED) {
+			//如果这是一个ViewGroup，还会遍历子View的layout()方法
+			//如果是普通View，通知具体实现类布局变更通知
 			onLayout(changed, l, t, r, b);
+			//清除PFLAG_LAYOUT_REQUIRED标记
 			mPrivateFlags &= ~PFLAG_LAYOUT_REQUIRED;
 
+			// 局部监听通知
 			ListenerInfo li = mListenerInfo;
 			if (li != null && li.mOnLayoutChangeListeners != null) {
 				ArrayList<OnLayoutChangeListener> listenersCopy = (ArrayList<OnLayoutChangeListener>) li.mOnLayoutChangeListeners.clone();
@@ -15125,7 +15140,7 @@ public class View implements Drawable.Callback, KeyEvent.Callback, Accessibility
 				}
 			}
 		}
-
+		//清除PFLAG_FORCE_LAYOUT标记
 		mPrivateFlags &= ~PFLAG_FORCE_LAYOUT;
 		mPrivateFlags3 |= PFLAG3_IS_LAID_OUT;
 	}
@@ -15160,6 +15175,7 @@ public class View implements Drawable.Callback, KeyEvent.Callback, Accessibility
 	 * previous ones
 	 * {@hide}
 	 */
+
 	protected boolean setFrame(int left, int top, int right, int bottom) {
 		boolean changed = false;
 
@@ -15168,6 +15184,7 @@ public class View implements Drawable.Callback, KeyEvent.Callback, Accessibility
 		}
 
 		if (mLeft != left || mRight != right || mTop != top || mBottom != bottom) {
+			//布局坐标改变了
 			changed = true;
 
 			// Remember our drawn bit
@@ -15180,7 +15197,7 @@ public class View implements Drawable.Callback, KeyEvent.Callback, Accessibility
 			boolean sizeChanged = (newWidth != oldWidth) || (newHeight != oldHeight);
 
 			// Invalidate our old position
-			invalidate(sizeChanged);
+			invalidate(sizeChanged);//调用invalidate重新绘制视图
 
 			mLeft = left;
 			mTop = top;
@@ -16858,10 +16875,11 @@ public class View implements Drawable.Callback, KeyEvent.Callback, Accessibility
 			}
 			mAttachInfo.mViewRequestingLayout = this;
 		}
-
+		// 增加PFLAG_FORCE_LAYOUT标记，在measure时会校验此属性
 		mPrivateFlags |= PFLAG_FORCE_LAYOUT;
 		mPrivateFlags |= PFLAG_INVALIDATED;
-
+		// 父类不为空&&父类没有请求重新布局(是否有PFLAG_FORCE_LAYOUT标志)
+		//这样同一个父容器的多个子View同时调用requestLayout()就不会增加开销
 		if (mParent != null && !mParent.isLayoutRequested()) {
 			mParent.requestLayout();
 		}
@@ -16900,9 +16918,9 @@ public class View implements Drawable.Callback, KeyEvent.Callback, Accessibility
 	 *                          parent
 	 * @see #onMeasure(int, int)
 	 */
-    //final类，子类不能重写该方法
-    //view.measure()方法其实没有实现任何测量的算法，它的作用在于判断是否需要引发onMeasure()的调用，并对onMeasure()行为的正确性进行检查。
-    public final void measure(int widthMeasureSpec, int heightMeasureSpec) {
+	//final类，子类不能重写该方法
+	//view.measure()方法其实没有实现任何测量的算法，它的作用在于判断是否需要引发onMeasure()的调用，并对onMeasure()行为的正确性进行检查。
+	public final void measure(int widthMeasureSpec, int heightMeasureSpec) {
 		boolean optical = isLayoutModeOptical(this);
 		if (optical != isLayoutModeOptical(mParent)) {
 			Insets insets = getOpticalInsets();

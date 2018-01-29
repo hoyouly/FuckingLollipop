@@ -1,4 +1,4 @@
-# FuckingLollipop
+# Window
 
 ## PhoneWindow 的setcontentview（）流程
 ![setContentView()](./img/setContentView.png)
@@ -44,3 +44,21 @@
 ![setView()](./img/Window的token.png)
 
 https://drive.google.com/file/d/1rKzXAMU4RMWou38HRzxmN3AVIBVy2rWS/view?usp=sharing
+
+
+# View 的绘制流程
+
+## ViewRootImpl#performTraversals（）
+![performTraversals()](./img/performTraversals.png)
+
+## View的Measure
+![measure()](./img/measure.png)
+
+## View的layout
+![requestLayout()](./img/requestLayout.png)
+
+## View的draw
+![draw()](./img/draw.png)
+
+## View的invalidate
+![draw()](./img/invalidate.png)
