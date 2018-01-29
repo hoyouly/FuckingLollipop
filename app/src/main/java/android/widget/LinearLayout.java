@@ -670,6 +670,7 @@ public class LinearLayout extends ViewGroup {
 				// previous children have given a weight, then we allow it to
 				// use all available space (and we will shrink things later
 				// if needed).
+				//遍历每个子元素，并对每个子元素执行measureChildBeforeLayout（），这个方法内部调用measure()
 				measureChildBeforeLayout(child, i, widthMeasureSpec, 0, heightMeasureSpec, totalWeight == 0 ? mTotalLength : 0);
 
 				if (oldHeight != Integer.MIN_VALUE) {
@@ -678,6 +679,7 @@ public class LinearLayout extends ViewGroup {
 
 				final int childHeight = child.getMeasuredHeight();
 				final int totalLength = mTotalLength;
+				// 存储LinearLayout竖直方向的高度
 				mTotalLength = Math.max(totalLength, totalLength + childHeight + lp.topMargin + lp.bottomMargin + getNextLocationOffset(child));
 
 				if (useLargestChild) {
@@ -1425,6 +1427,7 @@ public class LinearLayout extends ViewGroup {
 				}
 
 				childTop += lp.topMargin;
+				//遍历所有子元素并执行setChildFrame（）来确定子元素的指定位置
 				setChildFrame(child, childLeft, childTop + getLocationOffset(child), childWidth, childHeight);
 				childTop += childHeight + lp.bottomMargin + getNextLocationOffset(child);
 

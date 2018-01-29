@@ -17174,6 +17174,8 @@ public class View implements Drawable.Callback, KeyEvent.Callback, Accessibility
 	 * @return The suggested minimum width of the view.
 	 */
 	protected int getSuggestedMinimumWidth() {
+		//如果没有设置背景那么View宽度就是mMinWidth，而mMinWidth 对应的就是Android：minWidth,如果不指定这个属性，默认为0
+		//mBackground.getMinimumWidth() 得到的就是Drawble的原始宽度
 		return (mBackground == null) ? mMinWidth : max(mMinWidth, mBackground.getMinimumWidth());
 	}
 
