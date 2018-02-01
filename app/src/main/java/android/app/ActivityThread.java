@@ -1300,7 +1300,8 @@ public final class ActivityThread {
 				case LAUNCH_ACTIVITY: {
 					Trace.traceBegin(Trace.TRACE_TAG_ACTIVITY_MANAGER, "activityStart");
 					final ActivityClientRecord r = (ActivityClientRecord) msg.obj;
-
+					//利用ApplicationInfo等信息得到对应的LoadedApk，保存到ActivityClientRecord
+					//ActivityClientRecord包含Activity相关的信息
 					r.packageInfo = getPackageInfoNoCheck(r.activityInfo.applicationInfo, r.compatInfo);
 					handleLaunchActivity(r, null);
 					Trace.traceEnd(Trace.TRACE_TAG_ACTIVITY_MANAGER);
@@ -4091,7 +4092,7 @@ public final class ActivityThread {
 		Message.updateCheckRecycle(data.appInfo.targetSdkVersion);
 
         /*
-         * Before spawning a new process, reset the time zone to be the system time zone.
+		 * Before spawning a new process, reset the time zone to be the system time zone.
          * This needs to be done because the system time zone could have changed after the
          * the spawning of this process. Without doing this this process would have the incorrect
          * system time zone.
@@ -4099,12 +4100,12 @@ public final class ActivityThread {
 		TimeZone.setDefault(null);
 
         /*
-         * Initialize the default locale in this process for the reasons we set the time zone.
+		 * Initialize the default locale in this process for the reasons we set the time zone.
          */
 		Locale.setDefault(data.config.locale);
 
         /*
-         * Update the system configuration since its preloaded and might not
+		 * Update the system configuration since its preloaded and might not
          * reflect configuration changes. The configuration object passed
          * in AppBindData can be safely assumed to be up to date
          */
@@ -4112,6 +4113,7 @@ public final class ActivityThread {
 		mCurDefaultDisplayDpi = data.config.densityDpi;
 		applyCompatConfiguration(mCurDefaultDisplayDpi);
 
+		//根据传递过来的ApplicationInfo创建一个对应的LoadedApk对象
 		data.info = getPackageInfoNoCheck(data.appInfo, data.compatInfo);
 
 		/**
@@ -4158,6 +4160,7 @@ public final class ActivityThread {
 		 * Note to those grepping:  this is what ultimately throws
 		 * NetworkOnMainThreadException ...
 		 */
+		//禁止在主线程使用网络操作
 		if (data.appInfo.targetSdkVersion > 9) {
 			StrictMode.enableDeathOnNetwork();
 		}
@@ -4239,6 +4242,7 @@ public final class ActivityThread {
 			instrApp.dataDir = ii.dataDir;
 			instrApp.nativeLibraryDir = ii.nativeLibraryDir;
 			LoadedApk pi = getPackageInfo(instrApp, data.compatInfo, appContext.getClassLoader(), false, true, false);
+			//创建进程对应的Android运行环境ContextImpl
 			ContextImpl instrContext = ContextImpl.createAppContext(this, pi);
 
 			try {
@@ -4258,6 +4262,8 @@ public final class ActivityThread {
 			}
 
 		} else {
+			//注意Activity的所有生命周期方法都会被Instrumentation对象所监控，
+			//也就说执行Activity的生命周期方法前后一定会调用Instrumentation对象的相关方法
 			mInstrumentation = new Instrumentation();
 		}
 
@@ -4280,6 +4286,7 @@ public final class ActivityThread {
 			if (!data.restrictedBackupMode) {
 				List<ProviderInfo> providers = data.providers;
 				if (providers != null) {
+					//加载进程对应Package中携带的ContentProvider
 					installContentProviders(app, providers);
 					// For process that contains content providers, we want to
 					// ensure that the JIT is enabled "at some point".
@@ -4296,6 +4303,9 @@ public final class ActivityThread {
 			}
 
 			try {
+				//这里会调用Application的onCreate方法
+				//故此Applcation对象的onCreate方法会比ActivityThread的main方法后调用
+				//但是会比这个应用的所有activity先调用
 				mInstrumentation.callApplicationOnCreate(app);
 			} catch (Exception e) {
 				if (!mInstrumentation.onException(app, e)) {

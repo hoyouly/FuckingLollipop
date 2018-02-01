@@ -2895,7 +2895,9 @@ public final class ActivityManagerService extends ActivityManagerNative implemen
 			boolean isActivityProcess = (entryPoint == null);
 			if (entryPoint == null) entryPoint = "android.app.ActivityThread";
 			checkTime(startTime, "startProcess: asking zygote to start proc");
-			Process.ProcessStartResult startResult = Process.start(entryPoint, app.processName, uid, uid, gids, debugFlags, mountExternal, app.info.targetSdkVersion, app.info.seinfo, requiredAbi, instructionSet, app.info.dataDir, entryPointArgs);
+			//Process.java的start函数，将通过socket发送消息给zygote  zygote将派生出一个子进程，子进程将通过反射调用ActivityThread的main函数
+			Process.ProcessStartResult startResult = Process.start(entryPoint, app.processName, uid, uid, gids, debugFlags, mountExternal, app.info.targetSdkVersion,//
+					app.info.seinfo, requiredAbi, instructionSet, app.info.dataDir, entryPointArgs);
 			checkTime(startTime, "startProcess: returned from zygote!");
 
 			if (app.isolated) {

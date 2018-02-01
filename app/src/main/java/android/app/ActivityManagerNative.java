@@ -71,7 +71,7 @@ public abstract class ActivityManagerNative extends Binder implements IActivityM
 		if (in != null) {
 			return in;//同一进程，返回Stub本地对象。
 		}
-
+		//从ServiceManager中获取AMS中Binder的引用对象，然后将它转换成ActivityManagerProxy对象（简称AMP），AMP就是AMS的代理对象。
 		return new ActivityManagerProxy(obj);//跨进程，返回代理对象。
 	}
 
@@ -2286,7 +2286,7 @@ public abstract class ActivityManagerNative extends Binder implements IActivityM
 
 	private static final Singleton<IActivityManager> gDefault = new Singleton<IActivityManager>() {
 		protected IActivityManager create() {
-			IBinder b = ServiceManager.getService("activity");
+			IBinder b = ServiceManager.getService("activity");//通过应用程序中的0号引用，可以向SMgr获取服务端（Server）的Binder引用。
 			if (false) {
 				Log.v("ActivityManager", "default service binder = " + b);
 			}

@@ -579,6 +579,9 @@ public final class ActivityStackSupervisor implements DisplayListener {
     boolean attachApplicationLocked(ProcessRecord app) throws RemoteException {
         final String processName = app.processName;
         boolean didSomething = false;
+
+        //ActivityStackSupervisor维护着终端中所有ActivityStack
+        //此处通过轮询，找出前台栈顶端的待启动Activity
         for (int displayNdx = mActivityDisplays.size() - 1; displayNdx >= 0; --displayNdx) {
             ArrayList<ActivityStack> stacks = mActivityDisplays.valueAt(displayNdx).mStacks;
             for (int stackNdx = stacks.size() - 1; stackNdx >= 0; --stackNdx) {
@@ -589,7 +592,9 @@ public final class ActivityStackSupervisor implements DisplayListener {
                 ActivityRecord hr = stack.topRunningActivityLocked(null);
                 if (hr != null) {
                     if (hr.app == null && app.uid == hr.info.applicationInfo.uid && processName.equals(hr.processName)) {
+                        //前台待启动的Activity与当前新建的进程一致时，启动这个Activity
                         try {
+                            //realStartActivityLocked进行实际的启动工作
                             if (realStartActivityLocked(hr, app, true, true)) {
                                 didSomething = true;
                             }
@@ -1264,7 +1269,7 @@ public final class ActivityStackSupervisor implements DisplayListener {
             // If a dead object exception was thrown -- fall through to
             // restart the application.
         }
-        //如果进程不存在，则通过zygote创建应用进程。
+        //如果进程不存在，则需要创建新进程，通过AMS调用Zygote(孕育天地)孵化应用进程。则通过zygote创建应用进程。
         mService.startProcessLocked(r.processName, r.info.applicationInfo, true, 0, "activity", r.intent.getComponent(), false, false, true);
     }
 
@@ -2098,6 +2103,7 @@ public final class ActivityStackSupervisor implements DisplayListener {
         }
         ActivityStack.logStartActivity(EventLogTags.AM_CREATE_ACTIVITY, r, r.task);
         targetStack.mLastPausedActivity = null;
+        //ActivityStack的startActivityLocked, 调用WindowManager准备App切换相关的工作
         targetStack.startActivityLocked(r, newTask, doResume, keepCurTransition, options);
         if (!launchTaskBehind) {
             // Don't set focus on an activity that's going to the back.

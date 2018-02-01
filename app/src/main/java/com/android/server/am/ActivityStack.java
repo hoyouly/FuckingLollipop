@@ -1552,17 +1552,21 @@ final class ActivityStack {
 		// can be resumed...  我们需要开始暂停当前 Activity，以便重新开始最上面的Activity
 		boolean dontWaitForPause = (next.info.flags & ActivityInfo.FLAG_RESUME_WHILE_PAUSING) != 0;
 		boolean pausing = mStackSupervisor.pauseBackStacks(userLeaving, true, dontWaitForPause);
-		if (mResumedActivity != null) {
+
+		if (mResumedActivity != null) {        //mResumedActivity指向上一次启动的Activity(Launcher)
 			if (DEBUG_STATES) Slog.d(TAG, "resumeTopActivityLocked: Pausing " + mResumedActivity);
+			//通知Launcher进入pause状态
 			pausing |= startPausingLocked(userLeaving, false, true, dontWaitForPause);
 		}
-		if (pausing) {
+		if (pausing) {// Launcher已经暂停了
 			if (DEBUG_SWITCH || DEBUG_STATES) Slog.v(TAG, "resumeTopActivityLocked: Skip resume: need to start pausing");
 			// At this point we want to put the upcoming activity's process
 			// at the top of the LRU list, since we know we will be needing it
 			// very soon and it would be a waste to let it get killed if it
 			// happens to be sitting towards the end.
 			if (next.app != null && next.app.thread != null) {
+				//如果app已经启动过
+				//调用淘宝(待启动)Activity所在进程的优先级，保证其不被kill
 				mService.updateLruProcessLocked(next.app, true, null);
 			}
 			if (DEBUG_STACK) mStackSupervisor.validateTopActivitiesLocked();
@@ -1681,6 +1685,7 @@ final class ActivityStack {
 			mResumedActivity = next;
 			next.task.touchActiveTime();
 			mService.addRecentTaskLocked(next.task);
+																																																																																																																																																																																																																																																																																																									`
 			mService.updateLruProcessLocked(next.app, true, null);
 			updateLRUListLocked(next);
 			mService.updateOomAdjLocked();
@@ -1729,6 +1734,7 @@ final class ActivityStack {
 				}
 
 				if (next.newIntents != null) {
+					//如果Intent不为空，调用NewIntent方法传入Intent
 					next.app.thread.scheduleNewIntent(next.newIntents, next.appToken);
 				}
 
@@ -1739,6 +1745,7 @@ final class ActivityStack {
 				next.app.pendingUiClean = true;
 				next.app.forceProcessStateUpTo(ActivityManager.PROCESS_STATE_TOP);
 				next.clearOptionsLocked();
+				//假设淘宝App已经启动，点击Home键返回到Launcher,再次从Launcher启动淘宝(或者第三方启动已开启的App)
 				next.app.thread.scheduleResumeActivity(next.appToken, next.app.repProcState, mService.isNextTransitionForward(), resumeAnimOptions);
 
 				mStackSupervisor.checkReadyForSleepLocked();
@@ -1757,6 +1764,7 @@ final class ActivityStack {
 				} else if (SHOW_APP_STARTING_PREVIEW && lastStack != null && mStackSupervisor.isFrontStack(lastStack)) {
 					mWindowManager.setAppStartingWindow(next.appToken, next.packageName, next.theme, mService.compatibilityInfoForPackageLocked(next.info.applicationInfo), next.nonLocalizedLabel, next.labelRes, next.icon, next.logo, next.windowFlags, null, true);
 				}
+				//创建进程，冷启动Activity。或者已启动App，重新启动Activity
 				mStackSupervisor.startSpecificActivityLocked(next, true, false);
 				if (DEBUG_STACK) mStackSupervisor.validateTopActivitiesLocked();
 				return true;
