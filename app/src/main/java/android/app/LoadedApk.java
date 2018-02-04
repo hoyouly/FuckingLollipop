@@ -104,6 +104,10 @@ public final class LoadedApk {
 
 	private final ArrayMap<Context, ArrayMap<BroadcastReceiver, ReceiverDispatcher>> mReceivers = new ArrayMap<Context, ArrayMap<BroadcastReceiver, ReceiverDispatcher>>();
 	private final ArrayMap<Context, ArrayMap<BroadcastReceiver, ReceiverDispatcher>> mUnregisteredReceivers = new ArrayMap<Context, ArrayMap<BroadcastReceiver, ReceiverDispatcher>>();
+    /**
+     * 存储着ServiceConnection和 ServiceDispatcher 之间的关系，ServiceDispatcher又保存了 ServiceConnection 和InnerConnection对象，当Service和客户端建立连接后
+     * 系统通过InnerConnection来调用ServiceConnection中的onServiceConnection()方法
+     */
 	private final ArrayMap<Context, ArrayMap<ServiceConnection, ServiceDispatcher>> mServices = new ArrayMap<Context, ArrayMap<ServiceConnection, ServiceDispatcher>>();
 	private final ArrayMap<Context, ArrayMap<ServiceConnection, ServiceDispatcher>> mUnboundServices = new ArrayMap<Context, ArrayMap<ServiceConnection, ServiceDispatcher>>();
 

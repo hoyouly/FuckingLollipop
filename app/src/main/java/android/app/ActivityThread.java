@@ -2180,7 +2180,7 @@ public final class ActivityThread {
 
 			if (activity != null) {
 
-				//创建ContextImpl对象，并
+				//创建ContextImpl对象。
 				Context appContext = createBaseContextForActivity(r, activity);
 				CharSequence title = r.activityInfo.loadLabel(appContext.getPackageManager());
 				Configuration config = new Configuration(mCompatConfiguration);
@@ -2671,6 +2671,7 @@ public final class ActivityThread {
 	}
 
 	private void handleBindService(BindServiceData data) {
+	    //根据Service的token取得Service对象
 		Service s = mServices.get(data.token);
 		if (DEBUG_SERVICE) Slog.v(TAG, "handleBindService s=" + s + " rebind=" + data.rebind);
 		if (s != null) {
@@ -2678,8 +2679,10 @@ public final class ActivityThread {
 				data.intent.setExtrasClassLoader(s.getClassLoader());
 				data.intent.prepareToEnterProcess();
 				try {
-					if (!data.rebind) {
+					if (!data.rebind) {//Service的一个特性，onBinder方法只会执行一次
+					    //调用onBind()方法，这样Service就处于被绑定状态了
 						IBinder binder = s.onBind(data.intent);
+						//这个时候客户端还不知道Service被绑定了，所以需要通知客户端Service被绑定了
 						ActivityManagerNative.getDefault().publishService(data.token, data.intent, binder);
 					} else {
 						s.onRebind(data.intent);

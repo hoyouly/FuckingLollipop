@@ -14170,6 +14170,7 @@ public final class ActivityManagerService extends ActivityManagerNative implemen
 			final int callingPid = Binder.getCallingPid();
 			final int callingUid = Binder.getCallingUid();
 			final long origId = Binder.clearCallingIdentity();
+			//通过mServices 来完成Service的后续过程
 			ComponentName res = mServices.startServiceLocked(caller, service, resolvedType, callingPid, callingUid, userId);
 			Binder.restoreCallingIdentity(origId);
 			return res;
