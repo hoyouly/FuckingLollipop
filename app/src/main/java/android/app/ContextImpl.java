@@ -1327,7 +1327,9 @@ class ContextImpl extends Context {
         String resolvedType = intent.resolveTypeIfNeeded(getContentResolver());
         try {
             intent.prepareToLeaveProcess();
-            ActivityManagerNative.getDefault().broadcastIntent(mMainThread.getApplicationThread(), intent, resolvedType, null, Activity.RESULT_OK, null, null, null, AppOpsManager.OP_NONE, false, false, getUserId());
+            //向AMS发送一个异步请求用于发送广播
+            ActivityManagerNative.getDefault().broadcastIntent(mMainThread.getApplicationThread(), intent, resolvedType, null, Activity.RESULT_OK, //
+                    null, null, null, AppOpsManager.OP_NONE, false, false, getUserId());
         } catch (RemoteException e) {
         }
     }
@@ -1557,13 +1559,15 @@ class ContextImpl extends Context {
         return registerReceiverInternal(receiver, user.getIdentifier(), filter, broadcastPermission, scheduler, getOuterContext());
     }
 
-    private Intent registerReceiverInternal(BroadcastReceiver receiver, int userId, IntentFilter filter, String broadcastPermission, Handler scheduler, Context context) {
+    private Intent registerReceiverInternal(BroadcastReceiver receiver, int userId, IntentFilter filter, //
+                                            String broadcastPermission, Handler scheduler, Context context) {
         IIntentReceiver rd = null;
         if (receiver != null) {
             if (mPackageInfo != null && context != null) {
                 if (scheduler == null) {
                     scheduler = mMainThread.getHandler();
                 }
+                //从PackageInfo 中取得IIntentReceiver对象
                 rd = mPackageInfo.getReceiverDispatcher(receiver, context, scheduler, mMainThread.getInstrumentation(), true);
             } else {
                 if (scheduler == null) {
@@ -1573,6 +1577,8 @@ class ContextImpl extends Context {
             }
         }
         try {
+            //采用跨进程方式向AMS发送广播请求，之所以使用IIntentReceiver 而不是 BroadcastReceiver，是因为注册广播是一个跨进程的过程，而BroadcastReceiver作为Android的一个组件显然是不能直接直跨进程传递的
+            //所以需要使用IIntentReceiver中转一下  IIntentReceiver 是一个Binder借口，具体实现是LoadedApk.ReceiverDispatcher.InnerReceiver.
             return ActivityManagerNative.getDefault().registerReceiver(mMainThread.getApplicationThread(), mBasePackageName, rd, filter, broadcastPermission, userId);
         } catch (RemoteException e) {
             return null;

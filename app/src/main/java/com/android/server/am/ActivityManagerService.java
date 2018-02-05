@@ -14654,6 +14654,7 @@ public final class ActivityManagerService extends ActivityManagerNative implemen
 					}
 					rl.linkedToDeath = true;
 				}
+				//把远程的InnerReciver和IntentFilter对象存储起来
 				mRegisteredReceivers.put(receiver.asBinder(), rl);
 			} else if (rl.uid != callingUid) {
 				throw new IllegalArgumentException("Receiver requested to register for uid " + callingUid + " was previously registered for uid " + rl.uid);
@@ -14822,10 +14823,14 @@ public final class ActivityManagerService extends ActivityManagerNative implemen
 		return receivers;
 	}
 
-	private final int broadcastIntentLocked(ProcessRecord callerApp, String callerPackage, Intent intent, String resolvedType, IIntentReceiver resultTo, int resultCode, String resultData, Bundle map, String requiredPermission, int appOp, boolean ordered, boolean sticky, int callingPid, int callingUid, int userId) {
+
+	private final int broadcastIntentLocked(ProcessRecord callerApp, String callerPackage, Intent intent, String resolvedType,//
+											IIntentReceiver resultTo, int resultCode, String resultData, Bundle map, String requiredPermission,//
+											int appOp, boolean ordered, boolean sticky, int callingPid, int callingUid, int userId) {
 		intent = new Intent(intent);
 
 		// By default broadcasts do not go to stopped apps.
+		//在5.0 上，默认的是不发送给已经停止的的应用
 		intent.addFlags(Intent.FLAG_EXCLUDE_STOPPED_PACKAGES);
 
 		if (DEBUG_BROADCAST_LIGHT) Slog.v(TAG, (sticky ? "Broadcast sticky: " : "Broadcast: ") + intent + " ordered=" + ordered + " userid=" + userId);
@@ -14851,7 +14856,8 @@ public final class ActivityManagerService extends ActivityManagerNative implemen
          * processes) from sending protected broadcasts.
          */
 		int callingAppId = UserHandle.getAppId(callingUid);
-		if (callingAppId == Process.SYSTEM_UID || callingAppId == Process.PHONE_UID || callingAppId == Process.SHELL_UID || callingAppId == Process.BLUETOOTH_UID || callingAppId == Process.NFC_UID || callingUid == 0) {
+		if (callingAppId == Process.SYSTEM_UID || callingAppId == Process.PHONE_UID || callingAppId == Process.SHELL_UID //
+				|| callingAppId == Process.BLUETOOTH_UID || callingAppId == Process.NFC_UID || callingUid == 0) {
 			// Always okay.
 		} else if (callerApp == null || !callerApp.persistent) {
 			try {
@@ -15072,6 +15078,7 @@ public final class ActivityManagerService extends ActivityManagerNative implemen
 		}
 
 		// Figure out who all will receive this broadcast.
+		// 根据Intent-Filter查找匹配的广播并经过一系列的条件过滤，最终满足条件的广播接受者添加到BroadQueue中
 		List receivers = null;
 		List<BroadcastFilter> registeredReceivers = null;
 		// Need to resolve the intent to interested receivers...
@@ -15129,7 +15136,8 @@ public final class ActivityManagerService extends ActivityManagerNative implemen
 			// broadcast or such for apps, but we'd like to deliberately make
 			// this decision.
 			String skipPackages[] = null;
-			if (Intent.ACTION_PACKAGE_ADDED.equals(intent.getAction()) || Intent.ACTION_PACKAGE_RESTARTED.equals(intent.getAction()) || Intent.ACTION_PACKAGE_DATA_CLEARED.equals(intent.getAction())) {
+			if (Intent.ACTION_PACKAGE_ADDED.equals(intent.getAction()) || Intent.ACTION_PACKAGE_RESTARTED.equals(intent.getAction()) //
+					|| Intent.ACTION_PACKAGE_DATA_CLEARED.equals(intent.getAction())) {
 				Uri data = intent.getData();
 				if (data != null) {
 					String pkgName = data.getSchemeSpecificPart();
@@ -15188,10 +15196,11 @@ public final class ActivityManagerService extends ActivityManagerNative implemen
 			receivers.add(registeredReceivers.get(ir));
 			ir++;
 		}
-
+		//BroadcastQueue 会将广播发给相应的接受者
 		if ((receivers != null && receivers.size() > 0) || resultTo != null) {
 			BroadcastQueue queue = broadcastQueueForIntent(intent);
-			BroadcastRecord r = new BroadcastRecord(queue, intent, callerApp, callerPackage, callingPid, callingUid, resolvedType, requiredPermission, appOp, receivers, resultTo, resultCode, resultData, map, ordered, sticky, false, userId);
+			BroadcastRecord r = new BroadcastRecord(queue, intent, callerApp, callerPackage, callingPid, callingUid, resolvedType, //
+					requiredPermission, appOp, receivers, resultTo, resultCode, resultData, map, ordered, sticky, false, userId);
 			if (DEBUG_BROADCAST) Slog.v(TAG, "Enqueueing ordered broadcast " + r + ": prev had " + queue.mOrderedBroadcasts.size());
 			if (DEBUG_BROADCAST) {
 				int seq = r.intent.getIntExtra("seq", -1);
@@ -15234,7 +15243,8 @@ public final class ActivityManagerService extends ActivityManagerNative implemen
 		return intent;
 	}
 
-	public final int broadcastIntent(IApplicationThread caller, Intent intent, String resolvedType, IIntentReceiver resultTo, int resultCode, String resultData, Bundle map, String requiredPermission, int appOp, boolean serialized, boolean sticky, int userId) {
+	public final int broadcastIntent(IApplicationThread caller, Intent intent, String resolvedType, IIntentReceiver resultTo, int resultCode, //
+									 String resultData, Bundle map, String requiredPermission, int appOp, boolean serialized, boolean sticky, int userId) {
 		enforceNotIsolatedCaller("broadcastIntent");
 		synchronized (this) {
 			intent = verifyBroadcastLocked(intent);
@@ -15243,7 +15253,8 @@ public final class ActivityManagerService extends ActivityManagerNative implemen
 			final int callingPid = Binder.getCallingPid();
 			final int callingUid = Binder.getCallingUid();
 			final long origId = Binder.clearCallingIdentity();
-			int res = broadcastIntentLocked(callerApp, callerApp != null ? callerApp.info.packageName : null, intent, resolvedType, resultTo, resultCode, resultData, map, requiredPermission, appOp, serialized, sticky, callingPid, callingUid, userId);
+			int res = broadcastIntentLocked(callerApp, callerApp != null ? callerApp.info.packageName : null, intent, resolvedType, resultTo, resultCode, //
+					resultData, map, requiredPermission, appOp, serialized, sticky, callingPid, callingUid, userId);
 			Binder.restoreCallingIdentity(origId);
 			return res;
 		}

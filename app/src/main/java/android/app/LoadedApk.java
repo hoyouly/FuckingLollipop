@@ -671,6 +671,7 @@ public final class LoadedApk {
 				}
 			}
 			if (rd == null) {
+				//创建一个ReceiverDispatcher 对象
 				rd = new ReceiverDispatcher(r, context, handler, instrumentation, registered);
 				if (registered) {
 					if (map == null) {
@@ -683,6 +684,7 @@ public final class LoadedApk {
 				rd.validate(context, handler);
 			}
 			rd.mForgotten = false;
+			//返回ReceiverDispatcher 保存的IntentReceiver对象
 			return rd.getIIntentReceiver();
 		}
 	}
@@ -730,6 +732,9 @@ public final class LoadedApk {
 		}
 	}
 
+	/**
+	 * ReceiverDispatcher 同时保存着BroadcastReceiver和
+	 */
 	static final class ReceiverDispatcher {
 
 		final static class InnerReceiver extends IIntentReceiver.Stub {
@@ -816,6 +821,7 @@ public final class LoadedApk {
 					intent.setExtrasClassLoader(cl);
 					setExtrasClassLoader(cl);
 					receiver.setPendingResult(this);
+					// onReceive执行
 					receiver.onReceive(mContext, intent);
 				} catch (Exception e) {
 					if (mRegistered && ordered) {
@@ -884,6 +890,8 @@ public final class LoadedApk {
 				int seq = intent.getIntExtra("seq", -1);
 				Slog.i(ActivityThread.TAG, "Enqueueing broadcast " + intent.getAction() + " seq=" + seq + " to " + mReceiver);
 			}
+			// 创建一个Args对象，并通过mActivityThread方法执行，
+			//mActivityThread 是一个Handler对象，Args实现了Runnale接口，最终执行的是run()方法
 			Args args = new Args(intent, resultCode, data, extras, ordered, sticky, sendingUser);
 			if (!mActivityThread.post(args)) {
 				if (mRegistered && ordered) {
