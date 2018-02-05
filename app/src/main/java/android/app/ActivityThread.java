@@ -266,7 +266,6 @@ public final class ActivityThread {
 	}
 
 	// The lock of mProviderMap protects the following variables.
-	//存储已经启动的ContentProvider对象
 	final ArrayMap<ProviderKey, ProviderClientRecord> mProviderMap = new ArrayMap<ProviderKey, ProviderClientRecord>();
 	final ArrayMap<IBinder, ProviderRefCount> mProviderRefCountMap = new ArrayMap<IBinder, ProviderRefCount>();
 	final ArrayMap<IBinder, ProviderClientRecord> mLocalProviders = new ArrayMap<IBinder, ProviderClientRecord>();
@@ -4339,7 +4338,6 @@ public final class ActivityThread {
 	private void installContentProviders(Context context, List<ProviderInfo> providers) {
 		final ArrayList<IActivityManager.ContentProviderHolder> results = new ArrayList<IActivityManager.ContentProviderHolder>();
 
-		//遍历当前的进程的ProviderInfo列表，并一一调用installProvider（）方法
 		for (ProviderInfo cpi : providers) {
 			if (DEBUG_PROVIDER) {
 				StringBuilder buf = new StringBuilder(128);
@@ -4357,14 +4355,12 @@ public final class ActivityThread {
 		}
 
 		try {
-			//将已启动的ContentProvider发布到AMS中，AMS把他们存储到ProvidersMap中，这样一来外部就可以直接从AMS中获取ContentProvider
 			ActivityManagerNative.getDefault().publishContentProviders(getApplicationThread(), results);
 		} catch (RemoteException ex) {
 		}
 	}
 
 	public final IContentProvider acquireProvider(Context c, String auth, int userId, boolean stable) {
-		//查找目标ContentProvider是否存在，如果存在直接返回
 		final IContentProvider provider = acquireExistingProvider(c, auth, userId, stable);
 		if (provider != null) {
 			return provider;
@@ -4378,9 +4374,6 @@ public final class ActivityThread {
 		// be re-entrant in the case where the provider is in the same process.
 		IActivityManager.ContentProviderHolder holder = null;
 		try {
-			//执行到这里，说明没有启动，发送进程通信给AMS，启动目标ContentProvider
-			//首先启动ContentProvider所在的进程，通过AMS的startProcessLocked()其内部就是通过Process的start()方法完成一个进程的启动，入口方法就是ActivityThread的main()方法
-
 			holder = ActivityManagerNative.getDefault().getContentProvider(getApplicationThread(), auth, userId, stable);
 		} catch (RemoteException ex) {
 		}
@@ -4709,7 +4702,8 @@ public final class ActivityThread {
 			}
 			try {
 				final ClassLoader cl = c.getClassLoader();
-				localProvider = (ContentProvider) cl.loadClass(info.name).newInstance();
+				localProvider = (ContentProvider) cl.
+						loadClass(info.name).newInstance();
 				provider = localProvider.getIContentProvider();
 				if (provider == null) {
 					Slog.e(TAG, "Failed to instantiate class " + info.name + " from sourceDir " + info.applicationInfo.sourceDir);
