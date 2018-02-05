@@ -5716,7 +5716,6 @@ public class Activity extends ContextThemeWrapper implements LayoutInflater.Fact
 	final void attach(Context context, ActivityThread aThread, Instrumentation instr, IBinder token, int ident, Application application, Intent intent, ActivityInfo info, CharSequence title, Activity parent, String id, NonConfigurationInstances lastNonConfigurationInstances, Configuration config, String referrer, IVoiceInteractor voiceInteractor) {
 		//绑定上下文
 		attachBaseContext(context);
-
 		mFragments.attachActivity(this, mContainer, null);
 		//创建Activity所属的Window对象并为其设置回调接口，
 		mWindow = PolicyManager.makeNewWindow(this); //得到的就是一个PhoneWindow对象，
