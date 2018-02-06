@@ -1408,7 +1408,7 @@ public class Instrumentation {
 	 * {@hide}
 	 */
 
-	
+
 	public ActivityResult execStartActivity(Context who, IBinder contextThread, IBinder token, Activity target, Intent intent, int requestCode, Bundle options) {
 		IApplicationThread whoThread = (IApplicationThread) contextThread;
 		if (mActivityMonitors != null) {
@@ -1677,7 +1677,8 @@ public class Instrumentation {
 			case ActivityManager.START_INTENT_NOT_RESOLVED:
 			case ActivityManager.START_CLASS_NOT_FOUND:
 				if (intent instanceof Intent && ((Intent) intent).getComponent() != null)
-					throw new ActivityNotFoundException("Unable to find explicit activity class " + ((Intent) intent).getComponent().toShortString() + "; have you declared this activity in your AndroidManifest.xml?");
+					throw new ActivityNotFoundException("Unable to find explicit activity class " + ((Intent) intent).getComponent().toShortString() //
+							+ "; have you declared this activity in your AndroidManifest.xml?");
 				throw new ActivityNotFoundException("No Activity found to handle " + intent);
 			case ActivityManager.START_PERMISSION_DENIED:
 				throw new SecurityException("Not allowed to start activity " + intent);

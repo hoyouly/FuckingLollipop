@@ -88,6 +88,7 @@ final class TaskRecord {
 
 	static final int INVALID_TASK_ID = -1;
 
+	//TaskRecord的唯一标识
 	final int taskId;       // Unique identifier for this task.
 	String affinity;        // The affinity name for this task, or null; may change identity.
 	String rootAffinity;    // Initial base affinity, or null; does not change from initial root.
@@ -121,11 +122,13 @@ final class TaskRecord {
 
 	/**
 	 * List of all activities in the task arranged in history order
+	 * TaskRecord里所有的ActivityRecord信息
 	 */
 	final ArrayList<ActivityRecord> mActivities;
 
 	/**
 	 * Current stack
+	 * TaskRecord所在的stack
 	 */
 	ActivityStack stack;
 

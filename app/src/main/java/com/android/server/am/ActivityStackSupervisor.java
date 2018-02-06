@@ -199,11 +199,13 @@ public final class ActivityStackSupervisor implements DisplayListener {
     /**
      * The stack containing the launcher app. Assumed to always be attached to
      * Display.DEFAULT_DISPLAY.
+     * 用来存储Launcher App的Activity的堆栈
      */
     private ActivityStack mHomeStack;
 
     /**
      * The stack currently receiving input or launching the next activity.
+     * 当前正在接收输入或启动下一个Activity的堆栈
      */
     private ActivityStack mFocusedStack;
 
@@ -211,6 +213,7 @@ public final class ActivityStackSupervisor implements DisplayListener {
      * If this is the same as mFocusedStack then the activity on the top of the focused stack has
      * been resumed. If stacks are changing position this will hold the old stack until the new
      * stack becomes resumed after which it will be set to mFocusedStack.
+     * 此前接收输入的Activity的堆栈
      */
     private ActivityStack mLastFocusedStack;
 
@@ -1270,7 +1273,8 @@ public final class ActivityStackSupervisor implements DisplayListener {
             // restart the application.
         }
         //如果进程不存在，则需要创建新进程，通过AMS调用Zygote(孕育天地)孵化应用进程。则通过zygote创建应用进程。
-        mService.startProcessLocked(r.processName, r.info.applicationInfo, true, 0, "activity", r.intent.getComponent(), false, false, true);
+        mService.startProcessLocked(r.processName, r.info.applicationInfo, true, 0, "activity", //
+                r.intent.getComponent(), false, false, true);
     }
 
     //在startActivityLocked方法里，对传过来的参数做一些校验，然后创建ActivityRecord对象，再调用startActivityUnchecked(7.0前是startActivityUncheckedLocked)方法启动Activity。
@@ -1974,6 +1978,8 @@ public final class ActivityStackSupervisor implements DisplayListener {
                 targetStack.moveToFront("startingNewTask");
             }
             if (reuseTask == null) {
+                //通过createTaskRecord 创建一个taskRecord
+                //把ActivityRecord绑定到了一个TaskRecord上
                 r.setTask(targetStack.createTaskRecord(getNextTaskId(), newTaskInfo != null ? newTaskInfo : r.info, newTaskIntent != null ? newTaskIntent : intent, voiceSession, voiceInteractor, !launchTaskBehind /* toTop */), taskToAffiliate);
                 if (DEBUG_TASKS)
                     Slog.v(TAG, "Starting new activity " + r + " in new task " + r.task);

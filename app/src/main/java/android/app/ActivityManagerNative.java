@@ -47,7 +47,7 @@ import android.os.ServiceManager;
 import android.os.StrictMode;
 import android.service.voice.IVoiceInteractionSession;
 import android.text.TextUtils;
-import android.util.Log;
+import android.util.Log;/home/hoyouly/win7/Chrome_Downloads/ServiceManager.java
 import android.util.Singleton;
 
 import com.android.internal.app.IVoiceInteractor;

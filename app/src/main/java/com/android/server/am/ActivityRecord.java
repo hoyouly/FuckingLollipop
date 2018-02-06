@@ -86,7 +86,9 @@ final class ActivityRecord {
 	private static final String ATTR_COMPONENTSPECIFIED = "component_specified";
 	static final String ACTIVITY_ICON_SUFFIX = "_activity_icon_";
 
+	//ams的引用
 	final ActivityManagerService service; // owner
+	//token用来和wms交互
 	final IApplicationToken.Stub appToken; // window manager token
 	final ActivityInfo info; // all about me
 	final ApplicationInfo appInfo; // information about activity's app
@@ -105,11 +107,15 @@ final class ActivityRecord {
 	final boolean noDisplay;  // activity is not displayed?
 	final boolean componentSpecified;  // did caller specifiy an explicit component?
 
+	//	定义了activity的类型，一共有三种
+	//绝大多数Activity都是这种类型的
 	static final int APPLICATION_ACTIVITY_TYPE = 0;
+	//launcher activity或者ResolverActivity（这是一个系统Activity，弹出的让用户选择app的界面，例如分享文件时弹出让用户选择分享到哪个应用）属于HOME_ACTIVITY_TYPE这种类型
 	static final int HOME_ACTIVITY_TYPE = 1;
+	//systemui里的RecentsActivity 属于RECENTS_ACTIVITY_TYPE 这种类型
 	static final int RECENTS_ACTIVITY_TYPE = 2;
 	int mActivityType;
-
+	//Activity资源信息
 	CharSequence nonLocalizedLabel;  // the label information from the package mgr.
 	int labelRes;           // the label information from the package mgr.
 	int icon;               // resource identifier of activity's icon.
@@ -117,6 +123,8 @@ final class ActivityRecord {
 	int theme;              // resource identifier of activity's theme.
 	int realTheme;          // actual theme resource we will use, never 0.
 	int windowFlags;        // custom window flags for preview window.
+
+	//ActivityRecord所在的TaskRecord
 	TaskRecord task;        // the task this is in.
 	long createTime = System.currentTimeMillis();
 	long displayStartTime;  // when we started launching this activity
@@ -138,6 +146,7 @@ final class ActivityRecord {
 	ActivityOptions returningOptions; // options that are coming back via convertToTranslucent
 	HashSet<ConnectionRecord> connections; // All ConnectionRecord we hold
 	UriPermissionOwner uriPermissions; // current special URI access perms.
+	//ActivityRecord所在进程
 	ProcessRecord app;      // if non-null, hosting application
 	ActivityState state;    // current state we are in
 	Bundle icicle;         // last saved activity state
@@ -531,7 +540,8 @@ final class ActivityRecord {
 			if ((aInfo.flags & ActivityInfo.FLAG_HARDWARE_ACCELERATED) != 0) {
 				windowFlags |= WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED;
 			}
-			if ((aInfo.flags & ActivityInfo.FLAG_MULTIPROCESS) != 0 && _caller != null && (aInfo.applicationInfo.uid == Process.SYSTEM_UID || aInfo.applicationInfo.uid == _caller.info.uid)) {
+			if ((aInfo.flags & ActivityInfo.FLAG_MULTIPROCESS) != 0 && _caller != null //
+					&& (aInfo.applicationInfo.uid == Process.SYSTEM_UID || aInfo.applicationInfo.uid == _caller.info.uid)) {
 				processName = _caller.processName;
 			} else {
 				processName = aInfo.processName;
@@ -545,10 +555,13 @@ final class ActivityRecord {
 			launchMode = aInfo.launchMode;
 
 			AttributeCache.Entry ent = AttributeCache.instance().get(packageName, realTheme, com.android.internal.R.styleable.Window, userId);
-			fullscreen = ent != null && !ent.array.getBoolean(com.android.internal.R.styleable.Window_windowIsFloating, false) && !ent.array.getBoolean(com.android.internal.R.styleable.Window_windowIsTranslucent, false);
+			fullscreen = ent != null && !ent.array.getBoolean(com.android.internal.R.styleable.Window_windowIsFloating, false)//
+					&& !ent.array.getBoolean(com.android.internal.R.styleable.Window_windowIsTranslucent, false);
 			noDisplay = ent != null && ent.array.getBoolean(com.android.internal.R.styleable.Window_windowNoDisplay, false);
 
-			if ((!_componentSpecified || _launchedFromUid == Process.myUid() || _launchedFromUid == 0) && Intent.ACTION_MAIN.equals(_intent.getAction()) && _intent.hasCategory(Intent.CATEGORY_HOME) && _intent.getCategories().size() == 1 && _intent.getData() == null && _intent.getType() == null && (intent.getFlags() & Intent.FLAG_ACTIVITY_NEW_TASK) != 0 && isNotResolverActivity()) {
+			if ((!_componentSpecified || _launchedFromUid == Process.myUid() || _launchedFromUid == 0) && Intent.ACTION_MAIN.equals(_intent.getAction()) //
+					&& _intent.hasCategory(Intent.CATEGORY_HOME) && _intent.getCategories().size() == 1 && _intent.getData() == null //
+					&& _intent.getType() == null && (intent.getFlags() & Intent.FLAG_ACTIVITY_NEW_TASK) != 0 && isNotResolverActivity()) {
 				// This sure looks like a home activity!
 				mActivityType = HOME_ACTIVITY_TYPE;
 			} else if (realActivity.getClassName().contains(RECENTS_PACKAGE_NAME)) {

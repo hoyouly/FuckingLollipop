@@ -383,7 +383,7 @@ public final class ActivityManagerService extends ActivityManagerNative implemen
 	private Installer mInstaller;
 
 	/**
-	 * Run all ActivityStacks through this
+	 * Run all ActivityStacks through this  运行所有的activitystack。
 	 */
 	ActivityStackSupervisor mStackSupervisor;
 
@@ -2683,7 +2683,7 @@ public final class ActivityManagerService extends ActivityManagerNative implemen
 										   String abiOverride, String entryPoint, String[] entryPointArgs, Runnable crashHandler) {
 		long startTime = SystemClock.elapsedRealtime();
 		ProcessRecord app;
-		if (!isolated) {
+		if (!isolated) {//isolated  孤立
 			app = getProcessRecordLocked(processName, info.uid, keepIfLarge);
 			checkTime(startTime, "startProcess: after getProcessRecord");
 		} else {
@@ -2697,7 +2697,8 @@ public final class ActivityManagerService extends ActivityManagerNative implemen
 		// (3) There is a pid assigned to it, so it is either starting or
 		//     already running.
 		if (DEBUG_PROCESSES)
-			Slog.v(TAG, "startProcess: name=" + processName + " app=" + app + " knownToBeDead=" + knownToBeDead + " thread=" + (app != null ? app.thread : null) + " pid=" + (app != null ? app.pid : -1));
+			Slog.v(TAG, "startProcess: name=" + processName + " app=" + app + " knownToBeDead=" + knownToBeDead + " thread=" //
+					+ (app != null ? app.thread : null) + " pid=" + (app != null ? app.pid : -1));
 		if (app != null && app.pid > 0) {
 			if (!knownToBeDead || app.thread == null) {
 				// We already have the app running, or are waiting for it to
@@ -2896,8 +2897,8 @@ public final class ActivityManagerService extends ActivityManagerNative implemen
 			if (entryPoint == null) entryPoint = "android.app.ActivityThread";
 			checkTime(startTime, "startProcess: asking zygote to start proc");
 			//Process.java的start函数，将通过socket发送消息给zygote  zygote将派生出一个子进程，子进程将通过反射调用ActivityThread的main函数
-			Process.ProcessStartResult startResult = Process.start(entryPoint, app.processName, uid, uid, gids, debugFlags, mountExternal, app.info.targetSdkVersion,//
-					app.info.seinfo, requiredAbi, instructionSet, app.info.dataDir, entryPointArgs);
+			Process.ProcessStartResult startResult = Process.start(entryPoint, app.processName, uid, uid, gids, debugFlags, mountExternal, app.info.targetSdkVersion//
+					, app.info.seinfo, requiredAbi, instructionSet, app.info.dataDir, entryPointArgs);
 			checkTime(startTime, "startProcess: returned from zygote!");
 
 			if (app.isolated) {
@@ -4243,7 +4244,7 @@ public final class ActivityManagerService extends ActivityManagerNative implemen
 		}
 	}
 
-	@Override
+	@Override   //设置Activity的切换动画
 	public void overridePendingTransition(IBinder token, String packageName, int enterAnim, int exitAnim) {
 		synchronized (this) {
 			ActivityRecord self = ActivityRecord.isInStackLocked(token);
@@ -4254,6 +4255,7 @@ public final class ActivityManagerService extends ActivityManagerNative implemen
 			final long origId = Binder.clearCallingIdentity();
 
 			if (self.state == ActivityState.RESUMED || self.state == ActivityState.PAUSING) {
+				//只有ActivityState为RESUMED状态或者PAUSING状态时才会调用WMS类型的mWindowManager对象的overridePendingAppTransition方法来进行切换动画
 				mWindowManager.overridePendingAppTransition(packageName, enterAnim, exitAnim, null);
 			}
 

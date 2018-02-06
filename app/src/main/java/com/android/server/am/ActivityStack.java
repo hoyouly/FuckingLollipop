@@ -141,11 +141,13 @@ final class ActivityStack {
 	/**
 	 * The back history of all previous (and possibly still
 	 * running) activities.  It contains #TaskRecord objects.
+	 * 所有没有被销毁的Task
 	 */
 	private ArrayList<TaskRecord> mTaskHistory = new ArrayList<TaskRecord>();
 
 	/**
 	 * Used for validating app tokens with window manager.
+	 * 用于与窗口管理器验证应用令牌
 	 */
 	final ArrayList<TaskGroup> mValidateAppTokens = new ArrayList<TaskGroup>();
 
@@ -153,18 +155,21 @@ final class ActivityStack {
 	 * List of running activities, sorted by recent usage.
 	 * The first entry in the list is the least recently used.
 	 * It contains HistoryRecord objects.
+	 * 正在运行的Activity，列表中的第一个条目是最近最少使用的元素
 	 */
 	final ArrayList<ActivityRecord> mLRUActivities = new ArrayList<ActivityRecord>();
 
 	/**
 	 * Animations that for the current transition have requested not to
 	 * be considered for the transition animation.
+	 * 不考虑转换动画的Activity
 	 */
 	final ArrayList<ActivityRecord> mNoAnimActivities = new ArrayList<ActivityRecord>();
 
 	/**
 	 * When we are in the process of pausing an activity, before starting the
 	 * next one, this variable holds the activity that is currently being paused.
+	 * //正在暂停的Activity
 	 */
 	ActivityRecord mPausingActivity = null;
 
@@ -172,6 +177,7 @@ final class ActivityStack {
 	 * This is the last activity that we put into the paused state.  This is
 	 * used to determine if we need to do an activity transition while sleeping,
 	 * when we normally hold the top activity paused.
+	 * 上一个已经暂停的Activity
 	 */
 	ActivityRecord mLastPausedActivity = null;
 
@@ -179,11 +185,13 @@ final class ActivityStack {
 	 * Activities that specify No History must be removed once the user navigates away from them.
 	 * If the device goes to sleep with such an activity in the paused state then we save it here
 	 * and finish it later if another activity replaces it on wakeup.
+	 * 最近一次没有历史记录的Activity
 	 */
 	ActivityRecord mLastNoHistoryActivity = null;
 
 	/**
 	 * Current activity that is resumed, or null if there is none.
+	 * 已经Resume的Activity
 	 */
 	ActivityRecord mResumedActivity = null;
 
@@ -191,6 +199,7 @@ final class ActivityStack {
 	 * This is the last activity that has been started.  It is only used to
 	 * identify when multiple activities are started at once so that the user
 	 * can be warned they may not be in the activity they think they are.
+	 * 最近一次启动的Activity
 	 */
 	ActivityRecord mLastStartedActivity = null;
 
@@ -200,7 +209,9 @@ final class ActivityStack {
 	// Activity in mTranslucentActivityWaiting is notified via
 	// Activity.onTranslucentConversionComplete(false). If a timeout occurs prior to the last
 	// background activity being drawn then the same call will be made with a true value.
+	//传递给convertToTranslucent方法的最上层的Activity
 	ActivityRecord mTranslucentActivityWaiting = null;
+
 	private ArrayList<ActivityRecord> mUndrawnActivitiesBelowTopTranslucent = new ArrayList<ActivityRecord>();
 
 	/**
@@ -214,6 +225,7 @@ final class ActivityStack {
 
 	int mCurrentUser;
 
+	//唯一标识
 	final int mStackId;
 	final ActivityContainer mActivityContainer;
 	/**
@@ -1536,7 +1548,8 @@ final class ActivityStack {
 				final boolean inTime = mLastStartedActivity.startTime != 0 && (mLastStartedActivity.startTime + START_WARN_TIME) >= now;
 				final int lastUid = mLastStartedActivity.info.applicationInfo.uid;
 				final int nextUid = next.info.applicationInfo.uid;
-				if (inTime && lastUid != nextUid && lastUid != next.launchedFromUid && mService.checkPermission(android.Manifest.permission.STOP_APP_SWITCHES, -1, next.launchedFromUid) != PackageManager.PERMISSION_GRANTED) {
+				if (inTime && lastUid != nextUid && lastUid != next.launchedFromUid //
+						&& mService.checkPermission(android.Manifest.permission.STOP_APP_SWITCHES, -1, next.launchedFromUid) != PackageManager.PERMISSION_GRANTED) {
 					mService.showLaunchWarningLocked(mLastStartedActivity, next);
 				} else {
 					next.startTime = now;
@@ -1832,6 +1845,7 @@ final class ActivityStack {
 		updateTaskMovement(task, true);
 	}
 
+	// 启动锁定的Activity
 	final void startActivityLocked(ActivityRecord r, boolean newTask, boolean doResume, boolean keepCurTransition, Bundle options) {
 		TaskRecord rTask = r.task;
 		final int taskId = rTask.taskId;
@@ -3800,6 +3814,7 @@ final class ActivityStack {
 	}
 
 	TaskRecord createTaskRecord(int taskId, ActivityInfo info, Intent intent, IVoiceInteractionSession voiceSession, IVoiceInteractor voiceInteractor, boolean toTop) {
+		//当没有可复用的TaskRecord时(假如第一次跑进来，肯定是没有的，必须要创建)，就会创建一个TaskRecord
 		TaskRecord task = new TaskRecord(mService, taskId, info, intent, voiceSession, voiceInteractor);
 		addTask(task, toTop, false);
 		return task;
