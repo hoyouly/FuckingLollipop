@@ -88,8 +88,10 @@ public final class Looper {
 	 * to call this function yourself.  See also: {@link #prepare()}
 	 */
 	public static void prepareMainLooper() {
+		//设置不允许退出的Looper
 		prepare(false);
 		synchronized (Looper.class) {
+			//将当前的Looper保存为主Looper，每个线程只允许执行一次。
 			if (sMainLooper != null) {
 				throw new IllegalStateException("The main Looper has already been prepared.");
 			}
@@ -111,10 +113,12 @@ public final class Looper {
 	 * {@link #quit()} to end the loop.
 	 */
 	public static void loop() {
+		//获取TLS存储的Looper对象
 		final Looper me = myLooper();
 		if (me == null) {
 			throw new RuntimeException("No Looper; Looper.prepare() wasn't called on this thread.");
 		}
+		//获取Looper对象中的消息队列
 		final MessageQueue queue = me.mQueue;
 
 		// Make sure the identity of this thread is that of the local process,
@@ -122,19 +126,20 @@ public final class Looper {
 		Binder.clearCallingIdentity();
 		final long ident = Binder.clearCallingIdentity();
 
-		for (; ; ) {
-			Message msg = queue.next(); // might block
-			if (msg == null) {
+		for (; ; ) {//进入loop的主循环方法
+			Message msg = queue.next(); // might block //可能会阻塞
+			if (msg == null) {  //没有消息，则退出循环
 				// No message indicates that the message queue is quitting.
 				return;
 			}
 
 			// This must be in a local variable, in case a UI event sets the logger
+			//默认为null，可通过setMessageLogging()方法来指定输出，用于debug功能
 			Printer logging = me.mLogging;
 			if (logging != null) {
 				logging.println(">>>>> Dispatching to " + msg.target + " " + msg.callback + ": " + msg.what);
 			}
-
+			//用于分发Message
 			msg.target.dispatchMessage(msg);
 
 			if (logging != null) {
@@ -143,11 +148,13 @@ public final class Looper {
 
 			// Make sure that during the course of dispatching the
 			// identity of the thread wasn't corrupted.
+			//确保分发过程中identity不会损坏
 			final long newIdent = Binder.clearCallingIdentity();
 			if (ident != newIdent) {
+				//打印identity改变的log，在分发消息过程中是不希望身份被改变的。
 				Log.wtf(TAG, "Thread identity changed from 0x" + Long.toHexString(ident) + " to 0x" + Long.toHexString(newIdent) + " while dispatching to " + msg.target.getClass().getName() + " " + msg.callback + " what=" + msg.what);
 			}
-
+			//将Message放入消息池  以便重复利用。
 			msg.recycleUnchecked();
 		}
 	}
@@ -213,7 +220,7 @@ public final class Looper {
 	 * @see #quitSafely
 	 */
 	public void quit() {
-		mQueue.quit(false);
+		mQueue.quit(false);//消息移除
 	}
 
 	/**
@@ -229,7 +236,7 @@ public final class Looper {
 	 * </p>
 	 */
 	public void quitSafely() {
-		mQueue.quit(true);
+		mQueue.quit(true);//安全地消息移除
 	}
 
 	/**

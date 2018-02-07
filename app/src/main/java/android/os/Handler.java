@@ -184,20 +184,21 @@ public class Handler {
 	 * @hide
 	 */
 	public Handler(Callback callback, boolean async) {
+		//匿名类、内部类或本地类都必须申明为static，否则会警告可能出现内存泄露
 		if (FIND_POTENTIAL_LEAKS) {
 			final Class<? extends Handler> klass = getClass();
 			if ((klass.isAnonymousClass() || klass.isMemberClass() || klass.isLocalClass()) && (klass.getModifiers() & Modifier.STATIC) == 0) {
 				Log.w(TAG, "The following Handler class should be static or leaks might occur: " + klass.getCanonicalName());
 			}
 		}
-
-		mLooper = Looper.myLooper();
+		//必须先执行Looper.prepare()，才能获取Looper对象，否则为null.
+		mLooper = Looper.myLooper();//从当前线程的TLS中获取Looper对象
 		if (mLooper == null) {
 			throw new RuntimeException("Can't create handler inside thread that has not called Looper.prepare()");
 		}
-		mQueue = mLooper.mQueue;
-		mCallback = callback;
-		mAsynchronous = async;
+		mQueue = mLooper.mQueue;//消息队列，来自Looper对象
+		mCallback = callback;//回调方法
+		mAsynchronous = async;//设置消息是否为异步处理方式
 	}
 
 	/**
@@ -580,6 +581,7 @@ public class Handler {
 	 * message queue.  Returns false on failure, usually because the
 	 * looper processing the message queue is exiting.
 	 */
+	//该方法通过设置消息的触发时间为0，从而使Message加入到消息队列的队头。
 	public final boolean sendMessageAtFrontOfQueue(Message msg) {
 		MessageQueue queue = mQueue;
 		if (queue == null) {

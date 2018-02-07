@@ -122,15 +122,16 @@ public final class Message implements Parcelable {
 	/**
 	 * Return a new Message instance from the global pool. Allows us to
 	 * avoid allocating new objects in many cases.
+	 * obtain()，从消息池取Message，都是把消息池表头的Message取走，再把表头指向next;
 	 */
 	public static Message obtain() {
 		synchronized (sPoolSync) {
 			if (sPool != null) {
 				Message m = sPool;
 				sPool = m.next;
-				m.next = null;
-				m.flags = 0; // clear in-use flag
-				sPoolSize--;
+				m.next = null;//从sPool中取出一个Message对象，并消息链表断开
+				m.flags = 0; // clear in-use flag // 清除in-use flag
+				sPoolSize--;  //消息池的可用大小进行减1操作
 				return m;
 			}
 		}
@@ -284,12 +285,13 @@ public final class Message implements Parcelable {
 	 * </p>
 	 */
 	public void recycle() {
-		if (isInUse()) {
-			if (gCheckRecycle) {
+		if (isInUse()) {//判断消息是否正在使用
+			if (gCheckRecycle) {//Android 5.0以后的版本默认为true,之前的版本默认为false.
 				throw new IllegalStateException("This message cannot be recycled because it " + "is still in use.");
 			}
 			return;
 		}
+		//对于不再使用的消息，加入到消息池
 		recycleUnchecked();
 	}
 
@@ -300,6 +302,7 @@ public final class Message implements Parcelable {
 	void recycleUnchecked() {
 		// Mark the message as in use while it remains in the recycled object pool.
 		// Clear out all other details.
+		//将消息标示位置为IN_USE，并清空消息所有的参数。
 		flags = FLAG_IN_USE;
 		what = 0;
 		arg1 = 0;
@@ -314,9 +317,10 @@ public final class Message implements Parcelable {
 
 		synchronized (sPoolSync) {
 			if (sPoolSize < MAX_POOL_SIZE) {
+				//当消息池没有满时，将Message对象加入消息池
 				next = sPool;
 				sPool = this;
-				sPoolSize++;
+				sPoolSize++;//消息池的可用大小进行加1操作
 			}
 		}
 	}

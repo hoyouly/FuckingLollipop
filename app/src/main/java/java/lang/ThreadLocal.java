@@ -51,18 +51,22 @@ public class ThreadLocal<T> {
 	@SuppressWarnings("unchecked")
 	public T get() {
 		// Optimized for the fast path.
+		//获取当前线程
 		Thread currentThread = Thread.currentThread();
+		//查找当前线程的本地储存区
 		Values values = values(currentThread);
 		if (values != null) {
 			Object[] table = values.table;
 			int index = hash & values.mask;
 			if (this.reference == table[index]) {
+				//返回当前线程储存区中的数据
 				return (T) table[index + 1];
 			}
 		} else {
+			//创建Values对象
 			values = initializeValues(currentThread);
 		}
-
+		//从目标线程存储区没有查询是则返回null
 		return (T) values.getAfterMiss(this);
 	}
 
@@ -84,11 +88,15 @@ public class ThreadLocal<T> {
 	 * @param value the new value of the variable for the caller thread.
 	 */
 	public void set(T value) {
+		//获取当前线程
 		Thread currentThread = Thread.currentThread();
+		//查找当前线程的本地储存区
 		Values values = values(currentThread);
 		if (values == null) {
+			//当线程本地存储区，尚未存储该线程相关信息时，则创建Values对象
 			values = initializeValues(currentThread);
 		}
+		//保存数据value到当前线程this
 		values.put(this, value);
 	}
 
