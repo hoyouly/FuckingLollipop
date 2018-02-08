@@ -62,6 +62,7 @@ public final class MessageQueue {
 	/**
 	 * Callback interface for discovering when a thread is going to block
 	 * waiting for more messages.
+	 * 回调接口，用于发现线程何时阻塞等待更多消息。
 	 */
 	public static interface IdleHandler {
 		/**
@@ -142,8 +143,7 @@ public final class MessageQueue {
 		}
 
 		int pendingIdleHandlerCount = -1; // -1 only during first iteration  // 循环迭代的首次为-1
-		//代表下一个消息到来前，还需要等待的时长；当nextPollTimeoutMillis = -1时，表示消息队列中无消息，会一直等待下去。
-		int nextPollTimeoutMillis = 0;
+		int nextPollTimeoutMillis = 0;//代表下一个消息到来前，还需要等待的时长；当nextPollTimeoutMillis = -1时，表示消息队列中无消息，会一直等待下去。
 		//无限循环，如果队列中没有消息，那么next()方法就会一直阻塞在这里，当新消息到来的时候，next方法就会返回这条消息并且将其从链表中移除
 		for (; ; ) {
 			if (nextPollTimeoutMillis != 0) {
@@ -330,6 +330,7 @@ public final class MessageQueue {
 			// If the loop is quitting then it is already awake.
 			// We can assume mPtr != 0 when mQuitting is false.
 			if (needWake && !mQuitting) {
+				//用于唤醒功能
 				nativeWake(mPtr);
 			}
 		}
@@ -386,6 +387,7 @@ public final class MessageQueue {
 			// We can assume mPtr != 0 because mQuitting is false.
 			//消息没有退出，我们认为此时mPtr != 0
 			if (needWake) {
+				//用于唤醒功能
 				nativeWake(mPtr);
 			}
 		}

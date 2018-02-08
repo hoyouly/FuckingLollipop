@@ -56,9 +56,12 @@ public class ThreadLocal<T> {
 		//查找当前线程的本地储存区
 		Values values = values(currentThread);
 		if (values != null) {
+			//得到Values中的数组对象
 			Object[] table = values.table;
 			int index = hash & values.mask;
+			//然后得到ThreadLocal的reference的坐标
 			if (this.reference == table[index]) {
+				//根据上面可知，ThreadLocal的值在table中存储的位置总是TheadLocal中reference的下一位，这样就得到了TheadLocal的值
 				//返回当前线程储存区中的数据
 				return (T) table[index + 1];
 			}
@@ -132,6 +135,7 @@ public class ThreadLocal<T> {
 
 	/**
 	 * Weak reference to this thread local instance.
+	 * 这个线程本地实例的弱引用。
 	 */
 	private final Reference<ThreadLocal<T>> reference = new WeakReference<ThreadLocal<T>>(this);
 
@@ -412,12 +416,14 @@ public class ThreadLocal<T> {
 				if (k == null) {
 					if (firstTombstone == -1) {
 						// Fill in null slot.
+						//ThreadLocal的值在table中存储的位置总是TheadLocal中reference的下一位
 						table[index] = key.reference;
 						table[index + 1] = value;
 						size++;
 						return;
 					}
 
+					//ThreadLocal的值在table中存储的位置总是TheadLocal中reference的下一位
 					// Go back and replace first tombstone.
 					table[firstTombstone] = key.reference;
 					table[firstTombstone + 1] = value;
@@ -436,6 +442,7 @@ public class ThreadLocal<T> {
 		/**
 		 * Gets value for given ThreadLocal after not finding it in the first
 		 * slot.
+		 * 获取给定ThreadLocal的值，因为在第一个slot 中没有找到它。
 		 */
 		Object getAfterMiss(ThreadLocal<?> key) {
 			Object[] table = this.table;

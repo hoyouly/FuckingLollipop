@@ -90,6 +90,7 @@ public final class Message implements Parcelable {
 
 	/**
 	 * If set message is asynchronous
+	 * 如果设置消息是异步的
 	 */
     /*package*/ static final int FLAG_ASYNCHRONOUS = 1 << 1;
 
