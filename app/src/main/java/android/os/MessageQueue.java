@@ -72,6 +72,7 @@ public final class MessageQueue {
 		 * pending in the queue, but they are all scheduled to be dispatched
 		 * after the current time.
 		 */
+		// 返回true表示保持在MessageQueue的mIdleHandlers中
 		boolean queueIdle();
 	}
 
@@ -160,6 +161,8 @@ public final class MessageQueue {
 				Message prevMsg = null;
 				Message msg = mMessages;
 				if (msg != null && msg.target == null) {
+					//msg.target为空是一类特殊消息（栅栏消息），用于阻塞所有同步消息，但是对异步消息没有影响，
+                    //在这个前提下，当头部是特殊消息时需要往后找是否有异步消息
 					// Stalled by a barrier.  Find the next asynchronous message in the queue.
 					//当消息Handler为空时，查询MessageQueue中的下一条异步消息msg，则退出循环。
 					do {
@@ -167,12 +170,17 @@ public final class MessageQueue {
 						msg = msg.next;
 					} while (msg != null && !msg.isAsynchronous());
 				}
-				if (msg != null) {
-					if (now < msg.when) {
+
+				// 走到这一步, 有两种可能,
+				// 一种是遍历到队尾没有发现异步消息,
+				// 另一种是找到queue中的第一个异步消息
+
+				if (msg != null) { // 找到queue中的第一个异步消息
+					if (now < msg.when) { // 没有到消息的执行时间
 						// Next message is not ready.  Set a timeout to wake up when it is ready.
 						//当异步消息触发时间大于当前时间，则设置下一次轮询的超时时长
 						nextPollTimeoutMillis = (int) Math.min(msg.when - now, Integer.MAX_VALUE);
-					} else {
+					} else {// 当前消息到达可以执行的时间, 直接返回这个msg
 						// Got a message.
 						// 获取一条消息，并返回
 						mBlocked = false;
@@ -200,12 +208,12 @@ public final class MessageQueue {
 				// If first time idle, then get the number of idlers to run.
 				// Idle handles only run if the queue is empty or if the first message
 				// in the queue (possibly a barrier) is due to be handled in the future.
-				//当消息队列为空，或者是消息队列的第一个消息时
+				// 如果queue中没有msg, 或者msg没到可执行的时间,那么现在线程就处于空闲时间了, 可以执行IdleHandler了
 				if (pendingIdleHandlerCount < 0 && (mMessages == null || now < mMessages.when)) {
+					// pendingIdleHandlerCount在进入for循环之前是被初始化为-1的  并且没有更多地消息要进行处理
 					pendingIdleHandlerCount = mIdleHandlers.size();
 				}
 				if (pendingIdleHandlerCount <= 0) {
-					// No idle handlers to run.  Loop and wait some more.
 					//没有idle handlers 需要运行，则循环并等待。
 					mBlocked = true;
 					continue;
@@ -234,6 +242,8 @@ public final class MessageQueue {
 
 				if (!keep) {
 					synchronized (this) {
+						// 如果之前addIdleHandler中返回为false,
+						// 就在执行完这个IdleHandler的callback之后, 将这个idler移除掉
 						mIdleHandlers.remove(idler);
 					}
 				}
@@ -275,9 +285,11 @@ public final class MessageQueue {
 		}
 	}
 
-	int enqueueSyncBarrier(long when) {
+	int enqueueSyncBarrier(long when) {//Barrier 拦截器 在这个拦截器后面的消息都暂时无法执行，直到这个拦截器被移除了，
 		// Enqueue a new sync barrier token.
 		// We don't need to wake the queue because the purpose of a barrier is to stall it.
+		//创建一个target为空的特殊消息，并根据when插入MessageQueue中合适的位置
+		// 无需唤醒因为栅栏消息的目的在于阻塞消息的执行
 		synchronized (this) {
 			final int token = mNextBarrierToken++;
 			final Message msg = Message.obtain();
@@ -307,6 +319,7 @@ public final class MessageQueue {
 	void removeSyncBarrier(int token) {
 		// Remove a sync barrier token from the queue.
 		// If the queue is no longer stalled by a barrier then wake it.
+		// 移除token对应的栅栏消息，并在必要的时候进行唤醒
 		synchronized (this) {
 			Message prev = null;
 			Message p = mMessages;
