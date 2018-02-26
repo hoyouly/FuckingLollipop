@@ -1233,7 +1233,7 @@ public final class InputMethodManager {
 			try {
 				if (DEBUG) Log.v(TAG, "START INPUT: " + view + " ic=" + ic + " tba=" + tba + " controlFlags=#" + Integer.toHexString(controlFlags));
 				InputBindResult res;
-				if (windowGainingFocus != null) {                 //focusIn这个不会走到这条分支
+				if (windowGainingFocus != null) {//focusIn这个不会走到这条分支
 					res = mService.windowGainedFocus(mClient, windowGainingFocus, controlFlags, softInputMode, windowFlags, tba, servedContext);
 				} else {
 					//通知InputMethodManagerService,该程序的view获得焦点，IMMS就会将这个view和输入法绑定

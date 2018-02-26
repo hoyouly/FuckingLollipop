@@ -937,6 +937,9 @@ public class InputMethodManagerService extends IInputMethodManager.Stub implemen
 			Slog.e(TAG, "--- bind failed: service = " + service + ", conn = " + conn);
 			return false;
 		}
+		//绑定服务成功后，会在对应的Service的onBinder()中传递一个binder接口，因为绑定的是IMS，所以会再IMS的onBind()
+		// 中返回，又因为IMS继承AbstractInputMethodService，而AbstractInputMethodService继承Service，并实现了onBind
+		// ()方法，所以需要在AbstractInputMethodService中的onBind()中寻找
 		return mContext.bindServiceAsUser(service, conn, flags, new UserHandle(mSettings.getCurrentUserId()));
 	}
 
@@ -1186,6 +1189,7 @@ public class InputMethodManagerService extends IInputMethodManager.Stub implemen
 		mCurIntent.setComponent(info.getComponent());
 		mCurIntent.putExtra(Intent.EXTRA_CLIENT_LABEL, com.android.internal.R.string.input_method_binding_label);
 		mCurIntent.putExtra(Intent.EXTRA_CLIENT_INTENT, PendingIntent.getActivity(mContext, 0, new Intent(Settings.ACTION_INPUT_METHOD_SETTINGS), 0));
+
 		if (bindCurrentInputMethodService(mCurIntent, this, Context.BIND_AUTO_CREATE | Context.BIND_NOT_VISIBLE | Context.BIND_NOT_FOREGROUND | Context.BIND_SHOWING_UI)) {
 			mLastBindTime = SystemClock.uptimeMillis();
 			mHaveConnection = true;
@@ -1225,6 +1229,8 @@ public class InputMethodManagerService extends IInputMethodManager.Stub implemen
 	public void finishInput(IInputMethodClient client) {
 	}
 
+	//由于IMMS是以bindService的方式启动输入法service，所以当输入法service启动完
+	//成后它就会回调IMMS的onServiceConnected
 	@Override
 	public void onServiceConnected(ComponentName name, IBinder service) {
 		synchronized (mMethodMap) {
@@ -1254,7 +1260,9 @@ public class InputMethodManagerService extends IInputMethodManager.Stub implemen
 			if (mCurMethod != null && method != null && mCurMethod.asBinder() == method.asBinder()) {
 				if (mCurClient != null) {
 					clearClientSessionLocked(mCurClient);
+					//将session相关的数据封装到SessionState对象里
 					mCurClient.curSession = new SessionState(mCurClient, method, session, channel);
+					//开始真正的绑定
 					InputBindResult res = attachNewInputLocked(true);
 					if (res.method != null) {
 						executeOrSendMessage(mCurClient.client, mCaller.obtainMessageOO(MSG_BIND_METHOD, mCurClient.client, res));
@@ -1303,6 +1311,7 @@ public class InputMethodManagerService extends IInputMethodManager.Stub implemen
 	void requestClientSessionLocked(ClientState cs) {
 		if (!cs.sessionRequested) {
 			if (DEBUG) Slog.v(TAG, "Creating new session for client " + cs);
+			//这里又出现了InputChannel对，很面熟吧，在前面几篇文章已经详细分析过了，可见它已经成为一种通用的跨平台的数据通信接口了
 			InputChannel[] channels = InputChannel.openInputChannelPair(cs.toString());
 			cs.sessionRequested = true;
 			executeOrSendMessage(mCurMethod, mCaller.obtainMessageOOO(MSG_CREATE_SESSION, mCurMethod, channels[1], new MethodCallback(this, mCurMethod, channels[0])));
@@ -2338,6 +2347,7 @@ public class InputMethodManagerService extends IInputMethodManager.Stub implemen
 				try {
 					if (DEBUG) Slog.v(TAG, "Sending attach of token: " + args.arg2);
 					//和输入法通信
+					//args.arg1其实就是InputMethodImpl对象，
 					((IInputMethod) args.arg1).attachToken((IBinder) args.arg2);
 				} catch (RemoteException e) {
 				}
@@ -2397,6 +2407,7 @@ public class InputMethodManagerService extends IInputMethodManager.Stub implemen
 				IInputMethodClient client = (IInputMethodClient) args.arg1;
 				InputBindResult res = (InputBindResult) args.arg2;
 				try {
+					//会调回到程序端
 					client.onBindMethod(res);
 				} catch (RemoteException e) {
 					Slog.w(TAG, "Client died receiving input method " + args.arg2);

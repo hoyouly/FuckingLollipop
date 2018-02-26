@@ -350,7 +350,9 @@ public class InputMethodService extends AbstractInputMethodService {
 		 */
 		public void attachToken(IBinder token) {
 			if (mToken == null) {
+				//保存token
 				mToken = token;
+				//这样输入法的window就绑定这个window token
 				mWindow.setToken(token);
 			}
 		}
@@ -788,6 +790,7 @@ public class InputMethodService extends AbstractInputMethodService {
 	 */
 	@Override
 	public AbstractInputMethodSessionImpl onCreateInputMethodSessionInterface() {
+		//sesion的真正实现
 		return new InputMethodSessionImpl();
 	}
 
@@ -1548,6 +1551,7 @@ public class InputMethodService extends AbstractInputMethodService {
 			if (mShowInputRequested) {
 				if (DEBUG) Log.v(TAG, "CALL: onStartInputView");
 				mInputViewStarted = true;
+				//真正的输入法需要在这个接口里实现输入法的内容
 				onStartInputView(mInputEditorInfo, restarting);
 				startExtractingText(true);
 			} else if (mCandidatesVisibility == View.VISIBLE) {
@@ -1685,6 +1689,7 @@ public class InputMethodService extends AbstractInputMethodService {
 	 *              InputMethodManager.HIDE_IMPLICIT_ONLY} bit set.
 	 */
 	public void requestHideSelf(int flags) {
+		//mToken就是上面提到的过程----IMMS传递给输入法的
 		mImm.hideSoftInputFromInputMethod(mToken, flags);
 	}
 
