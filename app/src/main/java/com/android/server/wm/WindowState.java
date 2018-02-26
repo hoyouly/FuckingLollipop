@@ -877,7 +877,8 @@ final class WindowState implements WindowManagerPolicy.WindowState {
      */
     boolean isVisibleOrAdding() {
         final AppWindowToken atoken = mAppToken;
-        return (mHasSurface || (!mRelayoutCalled && mViewVisibility == View.VISIBLE)) && mPolicyVisibility && !mAttachedHidden && (atoken == null || !atoken.hiddenRequested) && !mExiting && !mDestroying;
+        return (mHasSurface || (!mRelayoutCalled && mViewVisibility == View.VISIBLE))//
+                && mPolicyVisibility && !mAttachedHidden && (atoken == null || !atoken.hiddenRequested) && !mExiting && !mDestroying;
     }
 
     /**
@@ -1071,9 +1072,12 @@ final class WindowState implements WindowManagerPolicy.WindowState {
 
     /**
      * @return true if this window desires key events.
+     * 如果这个窗口需要关键事件。返回true
      */
     public final boolean canReceiveKeys() {
-        return isVisibleOrAdding() && (mViewVisibility == View.VISIBLE) && ((mAttrs.flags & WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE) == 0);
+        return isVisibleOrAdding() && (mViewVisibility == View.VISIBLE) //
+                //由于输入法的window带有FLAG_NOT_FOCUSABLE, 从上可见其不可能是焦点window
+                && ((mAttrs.flags & WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE) == 0);
     }
 
     @Override
@@ -1264,6 +1268,10 @@ final class WindowState implements WindowManagerPolicy.WindowState {
      */
     public void reportFocusChangedSerialized(boolean focused, boolean inTouchMode) {
         try {
+            //这个就是通过Binder告知client其获得或失去了焦点
+            //其实这个mClient 就是ViewRootImpl中的W实例mWindow
+            //具体就是在VIewRootImpl中setView()方法中 mWindowSession.addToDisplay()中把mWindow传递过去,
+            // 然后在Session的addToDisplay 中通过mService.addWindow（）通过mWindow创建WindowState对象，然后mClient接受这个mWidow对象
             mClient.windowFocusChanged(focused, inTouchMode);
         } catch (RemoteException e) {
         }

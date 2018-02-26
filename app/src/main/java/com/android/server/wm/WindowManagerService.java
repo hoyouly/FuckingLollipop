@@ -7223,12 +7223,14 @@ public class WindowManagerService extends IWindowManager.Stub implements Watchdo
                     //                   + " to " + newFocus);
                     if (newFocus != null) {
                         if (DEBUG_FOCUS_LIGHT) Slog.i(TAG, "Gaining focus: " + newFocus);
+                        //通知新的焦点程序其获得了焦点
                         newFocus.reportFocusChangedSerialized(true, mInTouchMode);
                         notifyFocusChanged();
                     }
 
                     if (lastFocus != null) {
                         if (DEBUG_FOCUS_LIGHT) Slog.i(TAG, "Losing focus: " + lastFocus);
+                        //通知老的焦点程序其获得了焦点
                         lastFocus.reportFocusChangedSerialized(false, mInTouchMode);
                     }
                 }
@@ -9751,11 +9753,13 @@ public class WindowManagerService extends IWindowManager.Stub implements Watchdo
     }
 
     private boolean updateFocusedWindowLocked(int mode, boolean updateInputWindows) {
+        //计算焦点window
         WindowState newFocus = computeFocusedWindowLocked();
-        if (mCurrentFocus != newFocus) {
+        if (mCurrentFocus != newFocus) {//说明焦点window发生变化了
             Trace.traceBegin(Trace.TRACE_TAG_WINDOW_MANAGER, "wmUpdateFocus");
             // This check makes sure that we don't already have the focus
-            // change message pending.
+            // change message pending.  此检查可确保我们尚未处理焦点更改消息。
+            //焦点window发生变化，post一个message来通知程序焦点发生变化了
             mH.removeMessages(H.REPORT_FOCUS_CHANGE);
             mH.sendEmptyMessage(H.REPORT_FOCUS_CHANGE);
             // TODO(multidisplay): Focused windows on default display only.
@@ -9822,6 +9826,7 @@ public class WindowManagerService extends IWindowManager.Stub implements Watchdo
         return null;
     }
 
+    //该函数就是找出最top的可以接收按键事件的window，这个window就获得焦点
     private WindowState findFocusedWindowLocked(DisplayContent displayContent) {
         final WindowList windows = displayContent.getWindowList();
         for (int i = windows.size() - 1; i >= 0; i--) {
@@ -9830,6 +9835,7 @@ public class WindowManagerService extends IWindowManager.Stub implements Watchdo
             if (localLOGV || DEBUG_FOCUS)
                 Slog.v(TAG, "Looking for focus: " + i + " = " + win + ", flags=" + win.mAttrs.flags + ", canReceive=" + win.canReceiveKeys());
 
+            //是否为activity的window
             AppWindowToken wtoken = win.mAppToken;
 
             // If this window's application has been removed, just skip it.
@@ -9838,12 +9844,16 @@ public class WindowManagerService extends IWindowManager.Stub implements Watchdo
                 continue;
             }
 
-            if (!win.canReceiveKeys()) {
+            if (!win.canReceiveKeys()) {//重要函数，window是否可以获取焦点
                 continue;
             }
 
             // Descend through all of the app tokens and find the first that either matches
             // win.mAppToken (return win) or mFocusedApp (return null).
+            //通过所有应用程序令牌下载并找到第一个匹配win.mAppToken（返回win）或mFocusedApp（返回null）的第一个。
+
+            // mFocusedApp是最top的activity ，下面逻辑是为了确保焦点window的app必须是焦点程序之上，
+            // 所以这个逻辑其实并没有多大作用，只是为了检测出错误
             if (wtoken != null && win.mAttrs.type != TYPE_APPLICATION_STARTING && mFocusedApp != null) {
                 ArrayList<Task> tasks = displayContent.getTasks();
                 for (int taskNdx = tasks.size() - 1; taskNdx >= 0; --taskNdx) {

@@ -1037,6 +1037,7 @@ public abstract class ViewGroup extends View implements ViewParent, ViewManager 
         super.dispatchWindowFocusChanged(hasFocus);
         final int count = mChildrenCount;
         final View[] children = mChildren;
+        //让每个子view处理window焦点改变时间,但是只有获得焦点的view才会处理这个时间
         for (int i = 0; i < count; i++) {
             children[i].dispatchWindowFocusChanged(hasFocus);
         }

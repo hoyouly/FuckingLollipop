@@ -3005,6 +3005,8 @@ public final class ViewRootImpl implements ViewParent, View.AttachInfo.Callbacks
                     }
                     break;
                 case MSG_WINDOW_FOCUS_CHANGED: {
+                    //程序获得焦点会通过调用mView.dispatchWindowFocusChanged和
+                    //imm.onWindowFocus来通知IMMS焦点信息发生改变，需要更新输入法
                     if (mAdded) {
                         boolean hasWindowFocus = msg.arg1 != 0;
                         mAttachInfo.mHasWindowFocus = hasWindowFocus;
@@ -3045,6 +3047,8 @@ public final class ViewRootImpl implements ViewParent, View.AttachInfo.Callbacks
                                 imm.startGettingWindowFocus(mView);
                             }
                             mAttachInfo.mKeyDispatchState.reset();
+                            //调用根view的dispatchWindowFocusChanged函数通知view 程序获得焦点
+                            //上面的根view就是DecorView，它只是调用父类ViewGroup的dispatchWindowFocusChanged
                             mView.dispatchWindowFocusChanged(hasWindowFocus);
                             mAttachInfo.mTreeObserver.dispatchOnWindowFocusChange(hasWindowFocus);
                         }
@@ -3053,6 +3057,7 @@ public final class ViewRootImpl implements ViewParent, View.AttachInfo.Callbacks
                         // so all of the view state is set up correctly.
                         if (hasWindowFocus) {
                             if (imm != null && mLastWasImTarget && !isInLocalFocusMode()) {
+                                //通知imm该window获得焦点
                                 imm.onWindowFocus(mView, mView.findFocus(), mWindowAttributes.softInputMode, !mHasHadWindowFocus, mWindowAttributes.flags);
                             }
                             // Clear the forward bit.  We can just do this directly, since
