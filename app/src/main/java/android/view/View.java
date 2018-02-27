@@ -4793,15 +4793,15 @@ public class View implements Drawable.Callback, KeyEvent.Callback, Accessibility
 			mPrivateFlags |= PFLAG_FOCUSED;
 
 			View oldFocus = (mAttachInfo != null) ? getRootView().findFocus() : null;
-
 			if (mParent != null) {
+			//由于当前焦点view没法知道旧的焦点view,没法告知旧的焦点view失去焦点所以必须叫父亲去做这个事情
 				mParent.requestChildFocus(this, this);
 			}
 
 			if (mAttachInfo != null) {
 				mAttachInfo.mTreeObserver.dispatchOnGlobalFocusChange(oldFocus, this);
 			}
-
+			//这个函数很重要，编辑类view(比如TextEditor)和普通view的差别就在此和输入法相关的处理也在此
 			onFocusChanged(true, direction, previouslyFocusedRect);
 			refreshDrawableState();
 		}
@@ -5033,6 +5033,7 @@ public class View implements Drawable.Callback, KeyEvent.Callback, Accessibility
 			}
 			onFocusLost();
 		} else if (imm != null && mAttachInfo != null && mAttachInfo.mHasWindowFocus) {
+			//通知IMMS该view获得了焦点，到此，这后面的逻辑就和上面的window获得焦点导致view和输入法绑定的逻辑一样了
 			imm.focusIn(this);
 		}
 
@@ -7394,6 +7395,7 @@ public class View implements Drawable.Callback, KeyEvent.Callback, Accessibility
 
 	private boolean requestFocusNoSearch(int direction, Rect previouslyFocusedRect) {
 		// need to be focusable
+		// 该view必须是可以获取焦点的
 		if ((mViewFlags & FOCUSABLE_MASK) != FOCUSABLE || (mViewFlags & VISIBILITY_MASK) != VISIBLE) {
 			return false;
 		}
@@ -7404,10 +7406,12 @@ public class View implements Drawable.Callback, KeyEvent.Callback, Accessibility
 		}
 
 		// need to not have any parents blocking us
+		// 这个检查得到对象大家可能经常用过，就是这个属性android:descendantFocusability=”blocksDescendants”，
+		// 这个属性可以解决listView等容器类View没法获取点击事件问题,它的实现就在此，当父亲设置了这个属性子view就没法获取焦点了
 		if (hasAncestorThatBlocksDescendantFocus()) {
 			return false;
 		}
-
+		//获取焦点处理逻辑
 		handleFocusGainInternal(direction, previouslyFocusedRect);
 		return true;
 	}
@@ -8147,11 +8151,14 @@ public class View implements Drawable.Callback, KeyEvent.Callback, Accessibility
 
 		if (onFilterTouchEventForSecurity(event)) {
 			//noinspection SimplifiableIfStatement
+			//这个就是我们常使用view.setOnTouchListener调用保存下来的信息
 			ListenerInfo li = mListenerInfo;
 			if (li != null && li.mOnTouchListener != null && (mViewFlags & ENABLED_MASK) == ENABLED && li.mOnTouchListener.onTouch(this, event)) {
 				result = true;
 			}
-
+			//view的默认处理，即调用onTouchEvent函数
+			//非TextView只会执行View.onTouchEvent,该函数是另一种将view和输入法绑定的调用
+			//而TextView会调用imm.showSoftInput会显示输入法
 			if (!result && onTouchEvent(event)) {
 				result = true;
 			}
@@ -8336,6 +8343,7 @@ public class View implements Drawable.Callback, KeyEvent.Callback, Accessibility
 	 * @hide
 	 */
 	public final boolean dispatchPointerEvent(MotionEvent event) {
+		//DecorView又是一个ViewGroup，所以会调用ViewGroup的dispatchTouchEvent
 		if (event.isTouchEvent()) {
 			return dispatchTouchEvent(event);
 		} else {
@@ -9095,6 +9103,7 @@ public class View implements Drawable.Callback, KeyEvent.Callback, Accessibility
 						// take focus if we don't have it already and we should in
 						// touch mode.
 						boolean focusTaken = false;
+						//让view获得焦点
 						if (isFocusable() && isFocusableInTouchMode() && !isFocused()) {
 							focusTaken = requestFocus();
 						}

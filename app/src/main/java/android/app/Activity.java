@@ -2342,6 +2342,7 @@ public class Activity extends ContextThemeWrapper implements LayoutInflater.Fact
 			if (getApplicationInfo().targetSdkVersion >= Build.VERSION_CODES.ECLAIR) {
 				event.startTracking();
 			} else {
+				//这个就是结束activity的函数
 				onBackPressed();
 			}
 			return true;

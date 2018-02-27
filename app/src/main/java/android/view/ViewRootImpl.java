@@ -382,6 +382,7 @@ public final class ViewRootImpl implements ViewParent, View.AttachInfo.Callbacks
         mViewConfiguration = ViewConfiguration.get(context);
         mDensity = context.getResources().getDisplayMetrics().densityDpi;
         mNoncompatDensity = context.getResources().getDisplayMetrics().noncompatDensityDpi;
+        //如果view没有处理按键，则最后会给mFallbackEventHandler一个机会处理按键，Camera等快捷键就是由这个handler处理的，下面来看看。
         mFallbackEventHandler = PolicyManager.makeNewFallbackEventHandler(context);
         mChoreographer = Choreographer.getInstance();
         mDisplayManager = (DisplayManager) context.getSystemService(Context.DISPLAY_SERVICE);
@@ -519,7 +520,8 @@ public final class ViewRootImpl implements ViewParent, View.AttachInfo.Callbacks
                     //通过WindowSession进行IPC调用，将View添加到Window上
                     //mWindow即W类，用来接收WMS信息,同时通过InputChannel接收触摸事件回调
                     //mWindowSession是一个IWindowSession对象，它是一个Binder对象，真正的实现类是Session
-                    res = mWindowSession.addToDisplay(mWindow, mSeq, mWindowAttributes, getHostVisibility(), mDisplay.getDisplayId(), mAttachInfo.mContentInsets, mAttachInfo.mStableInsets, mInputChannel);
+                    res = mWindowSession.addToDisplay(mWindow, mSeq, mWindowAttributes, getHostVisibility(), mDisplay.getDisplayId(), //
+                            mAttachInfo.mContentInsets, mAttachInfo.mStableInsets, mInputChannel);
                 } catch (RemoteException e) {
                     mAdded = false;
                     mView = null;
@@ -584,6 +586,7 @@ public final class ViewRootImpl implements ViewParent, View.AttachInfo.Callbacks
                         mInputQueueCallback.onInputQueueCreated(mInputQueue);
                     }
                     //处理触摸事件回调
+                    //InputChannel监听器安装在WindowInputEventReceiver初始化的时候
                     mInputEventReceiver = new WindowInputEventReceiver(mInputChannel, Looper.myLooper());
                 }
 
@@ -3005,8 +3008,7 @@ public final class ViewRootImpl implements ViewParent, View.AttachInfo.Callbacks
                     }
                     break;
                 case MSG_WINDOW_FOCUS_CHANGED: {
-                    //程序获得焦点会通过调用mView.dispatchWindowFocusChanged和
-                    //imm.onWindowFocus来通知IMMS焦点信息发生改变，需要更新输入法
+                    //程序获得焦点会通过调用mView.dispatchWindowFocusChanged和imm.onWindowFocus来通知IMMS焦点信息发生改变，需要更新输入法
                     if (mAdded) {
                         boolean hasWindowFocus = msg.arg1 != 0;
                         mAttachInfo.mHasWindowFocus = hasWindowFocus;
@@ -3309,10 +3311,12 @@ public final class ViewRootImpl implements ViewParent, View.AttachInfo.Callbacks
          */
         public final void deliver(QueuedInputEvent q) {
             if ((q.mFlags & QueuedInputEvent.FLAG_FINISHED) != 0) {
+                //已经被处理了，则让后面的处理
                 forward(q);
             } else if (shouldDropInputEvent(q)) {
                 finish(q, false);
             } else {
+                //没有处理，自己开始处理该事件
                 apply(q, onProcess(q));
             }
         }
@@ -3367,8 +3371,10 @@ public final class ViewRootImpl implements ViewParent, View.AttachInfo.Callbacks
                 Log.v(TAG, "Done with " + getClass().getSimpleName() + ". " + q);
             }
             if (mNext != null) {
+                //如果下一个事件处理器不为空，则让下一个事件处理器处理
                 mNext.deliver(q);
             } else {
+                //所有的都处理器都完成了处理，调用finish告知server端事件已经被处理
                 finishInputEvent(q);
             }
         }
@@ -3740,6 +3746,7 @@ public final class ViewRootImpl implements ViewParent, View.AttachInfo.Callbacks
 
     /**
      * Delivers post-ime input events to the view hierarchy.
+     * 将后期输入事件传递给视图层次结构。
      */
     final class ViewPostImeInputStage extends InputStage {
         public ViewPostImeInputStage(InputStage next) {
@@ -3747,7 +3754,8 @@ public final class ViewRootImpl implements ViewParent, View.AttachInfo.Callbacks
         }
 
         @Override
-        protected int onProcess(QueuedInputEvent q) {
+        protected int onProcess(QueuedInputEvent q) { //将事件发送给view的事件处理器是ViewPostImeInputStage
+
             if (q.mEvent instanceof KeyEvent) {
                 return processKeyEvent(q);
             } else {
@@ -3756,6 +3764,7 @@ public final class ViewRootImpl implements ViewParent, View.AttachInfo.Callbacks
                 handleDispatchDoneAnimating();
                 final int source = q.mEvent.getSource();
                 if ((source & InputDevice.SOURCE_CLASS_POINTER) != 0) {
+                //处理touch事件
                     return processPointerEvent(q);
                 } else if ((source & InputDevice.SOURCE_CLASS_TRACKBALL) != 0) {
                     return processTrackballEvent(q);
@@ -3784,6 +3793,7 @@ public final class ViewRootImpl implements ViewParent, View.AttachInfo.Callbacks
             }
 
             // Deliver the key to the view hierarchy.
+            // 向view发送按键事件
             if (mView.dispatchKeyEvent(event)) {
                 return FINISH_HANDLED;
             }
@@ -3803,6 +3813,7 @@ public final class ViewRootImpl implements ViewParent, View.AttachInfo.Callbacks
             }
 
             // Apply the fallback event policy.
+            // 系统默认按键处理，比如CAMERA快捷键处理
             if (mFallbackEventHandler.dispatchKeyEvent(event)) {
                 return FINISH_HANDLED;
             }
@@ -3881,6 +3892,7 @@ public final class ViewRootImpl implements ViewParent, View.AttachInfo.Callbacks
             final MotionEvent event = (MotionEvent) q.mEvent;
 
             mAttachInfo.mUnbufferedDispatchRequested = false;
+            //从上可知最后会调用DecorView的dispatchPointerEvent，DecorView也是一个view,所以该函数其实就是View的dispatchPointerEvent函数。
             boolean handled = mView.dispatchPointerEvent(event);
             if (mAttachInfo.mUnbufferedDispatchRequested && !mUnbufferedInputDispatch) {
                 mUnbufferedInputDispatch = true;
@@ -5433,6 +5445,7 @@ public final class ViewRootImpl implements ViewParent, View.AttachInfo.Callbacks
         Trace.traceCounter(Trace.TRACE_TAG_INPUT, mPendingInputEventQueueLengthCounterName, mPendingInputEventCount);
 
         if (processImmediately) {
+            //处理事件
             doProcessInputEvents();
         } else {
             scheduleProcessInputEvents();
@@ -5450,6 +5463,7 @@ public final class ViewRootImpl implements ViewParent, View.AttachInfo.Callbacks
 
     void doProcessInputEvents() {
         // Deliver all pending input events in the queue.
+        // 遍历所有的输入事件
         while (mPendingInputEventHead != null) {
             QueuedInputEvent q = mPendingInputEventHead;
             mPendingInputEventHead = q.mNext;
@@ -5460,7 +5474,7 @@ public final class ViewRootImpl implements ViewParent, View.AttachInfo.Callbacks
 
             mPendingInputEventCount -= 1;
             Trace.traceCounter(Trace.TRACE_TAG_INPUT, mPendingInputEventQueueLengthCounterName, mPendingInputEventCount);
-
+            //处理事件
             deliverInputEvent(q);
         }
 
@@ -5479,12 +5493,12 @@ public final class ViewRootImpl implements ViewParent, View.AttachInfo.Callbacks
         }
 
         InputStage stage;
+        //检测ime相关module是否需要处理该输入事件，比如back键,是需要先让IME处理，这个时候需要先交给mFirstPostImeInputStage处理
         if (q.shouldSendToSynthesizer()) {
             stage = mSyntheticInputStage;
         } else {
             stage = q.shouldSkipIme() ? mFirstPostImeInputStage : mFirstInputStage;
         }
-
         if (stage != null) {
             stage.deliver(q);
         } else {
@@ -5492,11 +5506,13 @@ public final class ViewRootImpl implements ViewParent, View.AttachInfo.Callbacks
         }
     }
 
+    //       client将事件处理完了，必须通知server已经完成对该事件的处理，否则server一直在等待事件完成而不能发送后面的事件。
     private void finishInputEvent(QueuedInputEvent q) {
         Trace.asyncTraceEnd(Trace.TRACE_TAG_VIEW, "deliverInputEvent", q.mEvent.getSequenceNumber());
 
         if (q.mReceiver != null) {
             boolean handled = (q.mFlags & QueuedInputEvent.FLAG_FINISHED_HANDLED) != 0;
+            // mReceiver是InputEventReciever
             q.mReceiver.finishInputEvent(q.mEvent, handled);
         } else {
             q.mEvent.recycleIfNeededAfterDispatch();

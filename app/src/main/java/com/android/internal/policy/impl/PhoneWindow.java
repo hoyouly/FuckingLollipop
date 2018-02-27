@@ -2212,12 +2212,13 @@ public class PhoneWindow extends Window implements MenuBuilder.Callback {
 
             if (!isDestroyed()) {
                 final Callback cb = getCallback();
+                //首先让callback处理，然后调用super的接口
+                //上面的getCallback的返回值就是Activity，故其有很高的优先级获取并处理这些按键。
                 final boolean handled = cb != null && mFeatureId < 0 ? cb.dispatchKeyEvent(event) : super.dispatchKeyEvent(event);
                 if (handled) {
                     return true;
                 }
             }
-
             return isDown ? PhoneWindow.this.onKeyDown(mFeatureId, event.getKeyCode(), event) : PhoneWindow.this.onKeyUp(mFeatureId, event.getKeyCode(), event);
         }
 

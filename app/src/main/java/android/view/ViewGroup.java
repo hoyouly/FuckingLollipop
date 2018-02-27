@@ -1471,10 +1471,12 @@ public abstract class ViewGroup extends View implements ViewParent, ViewManager 
         }
 
         if ((mPrivateFlags & (PFLAG_FOCUSED | PFLAG_HAS_BOUNDS)) == (PFLAG_FOCUSED | PFLAG_HAS_BOUNDS)) {
+            //调用view的接口
             if (super.dispatchKeyEvent(event)) {
                 return true;
             }
         } else if (mFocused != null && (mFocused.mPrivateFlags & PFLAG_HAS_BOUNDS) == PFLAG_HAS_BOUNDS) {
+            //向获得焦点的view传递事件
             if (mFocused.dispatchKeyEvent(event)) {
                 return true;
             }
@@ -1921,6 +1923,7 @@ public abstract class ViewGroup extends View implements ViewParent, ViewManager 
             if (actionMasked == MotionEvent.ACTION_DOWN || mFirstTouchTarget != null) {
                 final boolean disallowIntercept = (mGroupFlags & FLAG_DISALLOW_INTERCEPT) != 0;
                 if (!disallowIntercept) {
+                    //先给该view一个处理事件的机会，如果Intercept，则事件不会往下发送
                     intercepted = onInterceptTouchEvent(ev);
                     ev.setAction(action); // restore action in case it was changed
                 } else {
@@ -2042,6 +2045,7 @@ public abstract class ViewGroup extends View implements ViewParent, ViewManager 
             }
 
             // Dispatch to touch targets.
+            //按照冒泡法，将触摸事件传递给每个child处理
             if (mFirstTouchTarget == null) {
                 // No touch targets so treat this as an ordinary view.
                 handled = dispatchTransformedTouchEvent(ev, canceled, null, TouchTarget.ALL_POINTER_IDS);
@@ -2056,6 +2060,7 @@ public abstract class ViewGroup extends View implements ViewParent, ViewManager 
                         handled = true;
                     } else {
                         final boolean cancelChild = resetCancelNextUpFlag(target.child) || intercepted;
+                        //真正处理函数
                         if (dispatchTransformedTouchEvent(ev, cancelChild, target.child, target.pointerIdBits)) {
                             handled = true;
                         }
@@ -2316,9 +2321,11 @@ public abstract class ViewGroup extends View implements ViewParent, ViewManager 
         final int oldAction = event.getAction();
         if (cancel || oldAction == MotionEvent.ACTION_CANCEL) {
             event.setAction(MotionEvent.ACTION_CANCEL);
+            // child == null意味着该parent已经调用完所有的child的dispatchTouchEvent 所以从这里可以看出是child优先处理触摸事件的
             if (child == null) {
                 handled = super.dispatchTouchEvent(event);
             } else {
+                //这里的child如果仍就是一个ViewGroup，则和上面的逻辑一样。如果是一般的view，则直接调用view. dispatchTouchEvent
                 handled = child.dispatchTouchEvent(event);
             }
             event.setAction(oldAction);

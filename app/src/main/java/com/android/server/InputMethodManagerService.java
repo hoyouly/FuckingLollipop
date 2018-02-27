@@ -1832,7 +1832,8 @@ public class InputMethodManagerService extends IInputMethodManager.Stub implemen
 	}
 
 	@Override
-	public InputBindResult windowGainedFocus(IInputMethodClient client, IBinder windowToken, int controlFlags, int softInputMode, int windowFlags, EditorInfo attribute, IInputContext inputContext) {
+	public InputBindResult windowGainedFocus(IInputMethodClient client, IBinder windowToken, int controlFlags, int softInputMode, int windowFlags, //
+											 EditorInfo attribute, IInputContext inputContext) {
 		// Needs to check the validity before clearing calling identity
 		final boolean calledFromValidUser = calledFromValidUser();
 
@@ -1841,7 +1842,8 @@ public class InputMethodManagerService extends IInputMethodManager.Stub implemen
 		try {
 			synchronized (mMethodMap) {
 				if (DEBUG)
-					Slog.v(TAG, "windowGainedFocus: " + client.asBinder() + " controlFlags=#" + Integer.toHexString(controlFlags) + " softInputMode=#" + Integer.toHexString(softInputMode) + " windowFlags=#" + Integer.toHexString(windowFlags));
+					Slog.v(TAG, "windowGainedFocus: " + client.asBinder() + " controlFlags=#" + Integer.toHexString(controlFlags) //
+							+ " softInputMode=#" + Integer.toHexString(softInputMode) + " windowFlags=#" + Integer.toHexString(windowFlags));
 
 				ClientState cs = mClients.get(client.asBinder());
 				if (cs == null) {
@@ -1884,7 +1886,8 @@ public class InputMethodManagerService extends IInputMethodManager.Stub implemen
 				// them good context without input information being obscured
 				// by the IME) or if running on a large screen where there
 				// is more room for the target window + IME.
-				final boolean doAutoShow = (softInputMode & WindowManager.LayoutParams.SOFT_INPUT_MASK_ADJUST) == WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE || mRes.getConfiguration().isLayoutSizeAtLeast(Configuration.SCREENLAYOUT_SIZE_LARGE);
+				final boolean doAutoShow = (softInputMode & WindowManager.LayoutParams.SOFT_INPUT_MASK_ADJUST) == WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE //
+						|| mRes.getConfiguration().isLayoutSizeAtLeast(Configuration.SCREENLAYOUT_SIZE_LARGE);
 				final boolean isTextEditor = (controlFlags & InputMethodManager.CONTROL_WINDOW_IS_TEXT_EDITOR) != 0;
 
 				// We want to start input before showing the IME, but after closing

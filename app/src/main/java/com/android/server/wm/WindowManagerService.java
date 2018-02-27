@@ -2199,7 +2199,8 @@ public class WindowManagerService extends IWindowManager.Stub implements Watchdo
         }
     }
 
-    public int addWindow(Session session, IWindow client, int seq, LayoutParams attrs, int viewVisibility, int displayId, Rect outContentInsets, Rect outStableInsets, InputChannel outInputChannel) {
+    public int addWindow(Session session, IWindow client, int seq, LayoutParams attrs, int viewVisibility, int displayId, Rect outContentInsets, //
+                         Rect outStableInsets, InputChannel outInputChannel) {
         int[] appOp = new int[1];
         //根据type检查窗口类型是否合法，如果是系统窗口类型，还需要进行权限检查
         int res = mPolicy.checkAddPermission(attrs, appOp);
@@ -2355,10 +2356,13 @@ public class WindowManagerService extends IWindowManager.Stub implements Watchdo
 
             if (outInputChannel != null && (attrs.inputFeatures & LayoutParams.INPUT_FEATURE_NO_INPUT_CHANNEL) == 0) {
                 String name = win.makeInputChannelName();
+                //创建channel对，即会返回两个InputChannel
                 InputChannel[] inputChannels = InputChannel.openInputChannelPair(name);
+                //一个unix socket保存到window里
                 win.setInputChannel(inputChannels[0]);
+                //另外一个unix socket传递到程序端
                 inputChannels[1].transferTo(outInputChannel);
-
+                //这个函数很重要，这个会将server端的unix socket注册到native层的InputManager,  win.mInputChannel就是上面的inputChannels[0]
                 mInputManager.registerInputChannel(win.mInputChannel, win.mInputWindowHandle);
             }
 
@@ -9773,6 +9777,7 @@ public class WindowManagerService extends IWindowManager.Stub implements Watchdo
             if (DEBUG_FOCUS_LIGHT || localLOGV)
                 Slog.v(TAG, "Changing focus from " + mCurrentFocus + " to " + newFocus + " Callers=" + Debug.getCallers(4));
             final WindowState oldFocus = mCurrentFocus;
+            //保存焦点window
             mCurrentFocus = newFocus;
             mLosingFocus.remove(newFocus);
 
@@ -9850,7 +9855,7 @@ public class WindowManagerService extends IWindowManager.Stub implements Watchdo
 
             // Descend through all of the app tokens and find the first that either matches
             // win.mAppToken (return win) or mFocusedApp (return null).
-            //通过所有应用程序令牌下载并找到第一个匹配win.mAppToken（返回win）或mFocusedApp（返回null）的第一个。
+            // 通过所有应用程序令牌下载并找到第一个匹配win.mAppToken（返回win）或mFocusedApp（返回null）的第一个。
 
             // mFocusedApp是最top的activity ，下面逻辑是为了确保焦点window的app必须是焦点程序之上，
             // 所以这个逻辑其实并没有多大作用，只是为了检测出错误

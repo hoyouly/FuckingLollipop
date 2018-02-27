@@ -416,6 +416,7 @@ public class InputMethodService extends AbstractInputMethodService {
 			mShowInputFlags = 0;
 			if (onShowInputRequested(flags, false)) {
 				try {
+					//这个是真正显示UI的函数
 					showWindow(true);
 				} catch (BadTokenException e) {
 					if (DEBUG) Log.v(TAG, "BadTokenException: IME is done.");
@@ -641,11 +642,13 @@ public class InputMethodService extends AbstractInputMethodService {
 
 	@Override
 	public void onCreate() {
-		mTheme = Resources.selectSystemTheme(mTheme, getApplicationInfo().targetSdkVersion, android.R.style.Theme_InputMethod, android.R.style.Theme_Holo_InputMethod, android.R.style.Theme_DeviceDefault_InputMethod, android.R.style.Theme_DeviceDefault_InputMethod);
+		mTheme = Resources.selectSystemTheme(mTheme, getApplicationInfo().targetSdkVersion, android.R.style.Theme_InputMethod,//
+				android.R.style.Theme_Holo_InputMethod, android.R.style.Theme_DeviceDefault_InputMethod, android.R.style.Theme_DeviceDefault_InputMethod);
 		super.setTheme(mTheme);
 		super.onCreate();
 		mImm = (InputMethodManager) getSystemService(INPUT_METHOD_SERVICE);
 		mInflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+		// SoftInputWindow就是大家一般用的Dialog的子类
 		mWindow = new SoftInputWindow(this, "InputMethod", mTheme, null, null, mDispatcherState, WindowManager.LayoutParams.TYPE_INPUT_METHOD, Gravity.BOTTOM, false);
 		if (mHardwareAccelerated) {
 			mWindow.getWindow().addFlags(WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED);
@@ -1060,6 +1063,7 @@ public class InputMethodService extends AbstractInputMethodService {
 			mInputFrame.setVisibility(isShown ? View.VISIBLE : View.GONE);
 			if (mInputView == null) {
 				initialize();
+					//这个是核心view，创建显示键盘的根view
 				View v = onCreateInputView();
 				if (v != null) {
 					setInputView(v);
@@ -1400,6 +1404,7 @@ public class InputMethodService extends AbstractInputMethodService {
 		if (DEBUG) Log.v(TAG, "showWindow: updating UI");
 		initialize();
 		updateFullscreenMode();
+		//这个函数会创建输入法的键盘
 		updateInputViewShown();
 
 		if (!mWindowAdded || !mWindowCreated) {
@@ -1407,6 +1412,7 @@ public class InputMethodService extends AbstractInputMethodService {
 			mWindowCreated = true;
 			initialize();
 			if (DEBUG) Log.v(TAG, "CALL: onCreateCandidatesView");
+			//创建输入法dialog里的候选词View
 			View v = onCreateCandidatesView();
 			if (DEBUG) Log.v(TAG, "showWindow: candidates=" + v);
 			if (v != null) {
@@ -1433,6 +1439,7 @@ public class InputMethodService extends AbstractInputMethodService {
 			if (DEBUG) Log.v(TAG, "showWindow: showing!");
 			mImm.setImeWindowStatus(mToken, IME_ACTIVE, mBackDisposition);
 			onWindowShown();
+			//这个是Dialog的window,这里开始就显示UI了
 			mWindow.show();
 		}
 	}
@@ -1542,6 +1549,7 @@ public class InputMethodService extends AbstractInputMethodService {
 			doFinishInput();
 		}
 		mInputStarted = true;
+		//这个就是通信接口
 		mStartedInputConnection = ic;
 		mInputEditorInfo = attribute;
 		initialize();

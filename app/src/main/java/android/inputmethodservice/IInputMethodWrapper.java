@@ -190,6 +190,7 @@ class IInputMethodWrapper extends IInputMethod.Stub implements HandlerCaller.Cal
 				inputMethod.revokeSession((InputMethodSession) msg.obj);
 				return;
 			case DO_SHOW_SOFT_INPUT:
+				//这个inputMethod是通过onCreateInputMethodInterface函数创建的 InputMethodImpl对象
 				inputMethod.showSoftInput(msg.arg1, (ResultReceiver) msg.obj);
 				return;
 			case DO_HIDE_SOFT_INPUT:

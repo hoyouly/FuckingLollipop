@@ -1188,6 +1188,7 @@ public final class InputMethodManager {
 		tba.fieldId = view.getId();
 		//创建数据通信连接接口，这个会传送到InputMethodService
 		//InputMethodService后面就通过这个connection将输入法的字符传递给该view
+		//由具体的view创建,比如TextView创建的
 		InputConnection ic = view.onCreateInputConnection(tba);
 		if (DEBUG) Log.v(TAG, "Starting input: tba=" + tba + " ic=" + ic);
 
@@ -1411,6 +1412,7 @@ public final class InputMethodManager {
 				mHasBeenInactive = false;
 				forceNewFocus = true;
 			}
+			//和上面view获取焦点事件的处理一样
 			focusInLocked(focusedView != null ? focusedView : rootView);
 		}
 
@@ -1425,6 +1427,9 @@ public final class InputMethodManager {
 			controlFlags |= CONTROL_WINDOW_FIRST;
 		}
 
+		//确认当前focused view是否已经调用过startInputInner来绑定输入法
+		//因为在前面mView.dispatchWindowFocusChanged处理过程focused view已经完成
+		//了绑定，所以大部分情况下，该函数返回false，即不会再次调用startInputInner
 		if (checkFocusNoStartInput(forceNewFocus, true)) {
 			// We need to restart input on the current focus view.  This
 			// should be done in conjunction with telling the system service
@@ -1440,6 +1445,7 @@ public final class InputMethodManager {
 		synchronized (mH) {
 			try {
 				if (DEBUG) Log.v(TAG, "Reporting focus gain, without startInput");
+				//调用IMMS windowGainedFocus函数
 				mService.windowGainedFocus(mClient, rootView.getWindowToken(), controlFlags, softInputMode, windowFlags, null, null);
 			} catch (RemoteException e) {
 			}
