@@ -8385,7 +8385,7 @@ public class View implements Drawable.Callback, KeyEvent.Callback, Accessibility
 			removeTapCallback();
 			onFocusLost();
 		} else if (imm != null && (mPrivateFlags & PFLAG_FOCUSED) != 0) {
-			//获得焦点的view通过 InputMethodManager向service通知自己获得焦点
+			//获得焦点的view通过 InputMethodManager 向service通知自己获得焦点
 			imm.focusIn(this);
 		}
 		refreshDrawableState();

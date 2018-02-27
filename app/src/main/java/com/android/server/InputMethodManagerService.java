@@ -263,6 +263,7 @@ public class InputMethodManagerService extends IInputMethodManager.Stub implemen
 
 	/**
 	 * Id of the currently selected input method.
+	 * 当前所选输入法的ID。
 	 */
 	String mCurMethodId;
 
@@ -295,6 +296,7 @@ public class InputMethodManagerService extends IInputMethodManager.Stub implemen
 	/**
 	 * The input method ID of the input method service that we are currently
 	 * connected to or in the process of connecting to.
+	 * 我们当前连接或正在连接的输入法服务的输入法ID。
 	 */
 	String mCurId;
 
@@ -312,6 +314,7 @@ public class InputMethodManagerService extends IInputMethodManager.Stub implemen
 	/**
 	 * Set to true if our ServiceConnection is currently actively bound to
 	 * a service (whether or not we have gotten its IBinder back yet).
+	 * 如果我们的ServiceConnection目前被绑定到一个服务（无论我们是否已经获得它的IBinder），则设置为true。
 	 */
 	boolean mHaveConnection;
 
@@ -348,7 +351,7 @@ public class InputMethodManagerService extends IInputMethodManager.Stub implemen
 
 	/**
 	 * If non-null, this is the input method service we are currently connected
-	 * to.
+	 * to.  如果非空，这是我们当前连接的输入法服务。
 	 */
 	IInputMethod mCurMethod;
 
@@ -939,7 +942,7 @@ public class InputMethodManagerService extends IInputMethodManager.Stub implemen
 		}
 		//绑定服务成功后，会在对应的Service的onBinder()中传递一个binder接口，因为绑定的是IMS，所以会再IMS的onBind()
 		// 中返回，又因为IMS继承AbstractInputMethodService，而AbstractInputMethodService继承Service，并实现了onBind
-		// ()方法，所以需要在AbstractInputMethodService中的onBind()中寻找
+		// ()方法，所以需要在 AbstractInputMethodService 中的onBind()中寻找
 		return mContext.bindServiceAsUser(service, conn, flags, new UserHandle(mSettings.getCurrentUserId()));
 	}
 
@@ -1134,7 +1137,7 @@ public class InputMethodManagerService extends IInputMethodManager.Stub implemen
 		mCurInputContext = inputContext;
 		mCurAttribute = attribute;
 
-		// Check if the input method is changing.
+		// Check if the input method is changing.  检查输入法是否正在改变。
 		if (mCurId != null && mCurId.equals(mCurMethodId)) {
 			if (cs.curSession != null) {
 				// Fast case: if we are already connected to the input method,

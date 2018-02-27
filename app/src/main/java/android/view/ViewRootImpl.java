@@ -5831,7 +5831,7 @@ public final class ViewRootImpl implements ViewParent, View.AttachInfo.Callbacks
 
     public void dispatchCheckFocus() {
         if (!mHandler.hasMessages(MSG_CHECK_FOCUS)) {
-            // This will result in a call to checkFocus() below.
+            // This will result in a call to checkFocus() below.这将导致下面的checkFocus()调用。
             mHandler.sendEmptyMessage(MSG_CHECK_FOCUS);
         }
     }

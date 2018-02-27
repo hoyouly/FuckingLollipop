@@ -1237,7 +1237,7 @@ public final class InputMethodManager {
 				if (windowGainingFocus != null) {//focusIn这个不会走到这条分支
 					res = mService.windowGainedFocus(mClient, windowGainingFocus, controlFlags, softInputMode, windowFlags, tba, servedContext);
 				} else {
-					//通知InputMethodManagerService,该程序的view获得焦点，IMMS就会将这个view和输入法绑定
+					//通知 InputMethodManagerService,该程序的view获得焦点，IMMS就会将这个view和输入法绑定
 					res = mService.startInput(mClient, servedContext, tba, controlFlags);
 				}
 				if (DEBUG) Log.v(TAG, "Starting input: Bind result=" + res);
