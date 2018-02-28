@@ -4794,7 +4794,7 @@ public class View implements Drawable.Callback, KeyEvent.Callback, Accessibility
 
 			View oldFocus = (mAttachInfo != null) ? getRootView().findFocus() : null;
 			if (mParent != null) {
-			//由于当前焦点view没法知道旧的焦点view,没法告知旧的焦点view失去焦点所以必须叫父亲去做这个事情
+			//由于当前焦点view没法知道旧的焦点view,没法告知旧的焦点view失去焦点所以必须叫父View去做这个事情
 				mParent.requestChildFocus(this, this);
 			}
 
@@ -8151,7 +8151,7 @@ public class View implements Drawable.Callback, KeyEvent.Callback, Accessibility
 
 		if (onFilterTouchEventForSecurity(event)) {
 			//noinspection SimplifiableIfStatement
-			//这个就是我们常使用view.setOnTouchListener调用保存下来的信息
+			//这个就是我们常使用view.setOnTouchListener 调用保存下来的信息
 			ListenerInfo li = mListenerInfo;
 			if (li != null && li.mOnTouchListener != null && (mViewFlags & ENABLED_MASK) == ENABLED && li.mOnTouchListener.onTouch(this, event)) {
 				result = true;

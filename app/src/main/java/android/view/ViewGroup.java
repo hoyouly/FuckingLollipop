@@ -2312,6 +2312,8 @@ public abstract class ViewGroup extends View implements ViewParent, ViewManager 
      * Transforms a motion event into the coordinate space of a particular child view,
      * filters out irrelevant pointer ids, and overrides its action if necessary.
      * If child is null, assumes the MotionEvent will be sent to this ViewGroup instead.
+     * 将 motion event 转换为特定子视图的坐标空间，过滤无关的指针id，并在必要时覆盖其操作。如果child为null，则假定MotionEvent
+     * 将被发送到这个ViewGroup。
      */
     private boolean dispatchTransformedTouchEvent(MotionEvent event, boolean cancel, View child, int desiredPointerIdBits) {
         final boolean handled;
