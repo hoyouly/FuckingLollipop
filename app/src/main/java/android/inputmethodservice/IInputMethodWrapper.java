@@ -86,7 +86,7 @@ class IInputMethodWrapper extends IInputMethod.Stub implements HandlerCaller.Cal
 		InputMethodSessionCallbackWrapper(Context context, InputChannel channel, IInputSessionCallback cb) {
 			mContext = context;
 			mChannel = channel;
-			mCb = cb;
+			mCb = cb;  //就是一个 MethodCallBack 对象。里面包含一个IMMS对象
 		}
 
 		@Override
@@ -159,6 +159,7 @@ class IInputMethodWrapper extends IInputMethod.Stub implements HandlerCaller.Cal
 				return;
 			case DO_START_INPUT: {
 				SomeArgs args = (SomeArgs) msg.obj;
+				// IInputContext就是输入法和文本输入view的通信接口 通过这个接口，输入法能够获取view的信息，也能够直接将文本传送给view
 				IInputContext inputContext = (IInputContext) args.arg1;
 				InputConnection ic = inputContext != null ? new InputConnectionWrapper(inputContext) : null;
 				EditorInfo info = (EditorInfo) args.arg2;
@@ -179,6 +180,7 @@ class IInputMethodWrapper extends IInputMethod.Stub implements HandlerCaller.Cal
 			}
 			case DO_CREATE_SESSION: {
 				SomeArgs args = (SomeArgs) msg.obj;
+				//args.arg2 就是一个 MethodCallBack 对象。里面包含一个IMMS对象
 				inputMethod.createSession(new InputMethodSessionCallbackWrapper(mContext, (InputChannel) args.arg1, (IInputSessionCallback) args.arg2));
 				args.recycle();
 				return;
@@ -255,6 +257,7 @@ class IInputMethodWrapper extends IInputMethod.Stub implements HandlerCaller.Cal
 
 	@Override
 	public void createSession(InputChannel channel, IInputSessionCallback callback) {
+		//callback 就是一个 MethodCallBack 对象。里面包含一个IMMS对象
 		mCaller.executeOrSendMessage(mCaller.obtainMessageOO(DO_CREATE_SESSION, channel, callback));
 	}
 

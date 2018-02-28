@@ -3892,7 +3892,7 @@ public final class ViewRootImpl implements ViewParent, View.AttachInfo.Callbacks
             final MotionEvent event = (MotionEvent) q.mEvent;
 
             mAttachInfo.mUnbufferedDispatchRequested = false;
-            //从上可知最后会调用DecorView的dispatchPointerEvent，DecorView也是一个view,所以该函数其实就是View的dispatchPointerEvent函数。
+            //从上可知最后会调用 DecorView的dispatchPointerEvent，DecorView也是一个view,所以该函数其实就是View的dispatchPointerEvent函数。
             boolean handled = mView.dispatchPointerEvent(event);
             if (mAttachInfo.mUnbufferedDispatchRequested && !mUnbufferedInputDispatch) {
                 mUnbufferedInputDispatch = true;

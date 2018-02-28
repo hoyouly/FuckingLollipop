@@ -1193,6 +1193,7 @@ public class InputMethodManagerService extends IInputMethodManager.Stub implemen
 		mCurIntent.putExtra(Intent.EXTRA_CLIENT_LABEL, com.android.internal.R.string.input_method_binding_label);
 		mCurIntent.putExtra(Intent.EXTRA_CLIENT_INTENT, PendingIntent.getActivity(mContext, 0, new Intent(Settings.ACTION_INPUT_METHOD_SETTINGS), 0));
 
+
 		if (bindCurrentInputMethodService(mCurIntent, this, Context.BIND_AUTO_CREATE | Context.BIND_NOT_VISIBLE | Context.BIND_NOT_FOREGROUND | Context.BIND_SHOWING_UI)) {
 			mLastBindTime = SystemClock.uptimeMillis();
 			mHaveConnection = true;
@@ -1317,6 +1318,7 @@ public class InputMethodManagerService extends IInputMethodManager.Stub implemen
 			//这里又出现了InputChannel对，很面熟吧，在前面几篇文章已经详细分析过了，可见它已经成为一种通用的跨平台的数据通信接口了
 			InputChannel[] channels = InputChannel.openInputChannelPair(cs.toString());
 			cs.sessionRequested = true;
+			// arg3 是一个MethodCallBack对象，里面包含一个IMMS对象
 			executeOrSendMessage(mCurMethod, mCaller.obtainMessageOOO(MSG_CREATE_SESSION, mCurMethod, channels[1], new MethodCallback(this, mCurMethod, channels[0])));
 		}
 	}
@@ -2353,7 +2355,7 @@ public class InputMethodManagerService extends IInputMethodManager.Stub implemen
 				try {
 					if (DEBUG) Slog.v(TAG, "Sending attach of token: " + args.arg2);
 					//和输入法通信
-					//args.arg1其实就是InputMethodImpl对象，
+					//args.arg1其实就是 InputMethodImpl 对象，
 					((IInputMethod) args.arg1).attachToken((IBinder) args.arg2);
 				} catch (RemoteException e) {
 				}
@@ -2364,6 +2366,7 @@ public class InputMethodManagerService extends IInputMethodManager.Stub implemen
 				IInputMethod method = (IInputMethod) args.arg1;
 				InputChannel channel = (InputChannel) args.arg2;
 				try {
+					//arg3就是一个 MethodCallBack 对象。里面包含一个IMMS对象
 					method.createSession(channel, (IInputSessionCallback) args.arg3);
 				} catch (RemoteException e) {
 				} finally {
