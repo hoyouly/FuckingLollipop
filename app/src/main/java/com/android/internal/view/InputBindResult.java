@@ -54,8 +54,7 @@ public final class InputBindResult implements Parcelable {
      */
     public final int userActionNotificationSequenceNumber;
 
-    public InputBindResult(IInputMethodSession _method, InputChannel _channel,
-                           String _id, int _sequence, int _userActionNotificationSequenceNumber) {
+    public InputBindResult(IInputMethodSession _method, InputChannel _channel, String _id, int _sequence, int _userActionNotificationSequenceNumber) {
         method = _method;
         channel = _channel;
         id = _id;
@@ -77,10 +76,7 @@ public final class InputBindResult implements Parcelable {
 
     @Override
     public String toString() {
-        return "InputBindResult{" + method + " " + id
-                + " sequence:" + sequence
-                + " userActionNotificationSequenceNumber:" + userActionNotificationSequenceNumber
-                + "}";
+        return "InputBindResult{" + method + " " + id + " sequence:" + sequence + " userActionNotificationSequenceNumber:" + userActionNotificationSequenceNumber + "}";
     }
 
     /**
@@ -106,18 +102,17 @@ public final class InputBindResult implements Parcelable {
     /**
      * Used to make this class parcelable.
      */
-    public static final Creator<InputBindResult> CREATOR =
-            new Creator<InputBindResult>() {
-                @Override
-                public InputBindResult createFromParcel(Parcel source) {
-                    return new InputBindResult(source);
-                }
+    public static final Creator<InputBindResult> CREATOR = new Creator<InputBindResult>() {
+        @Override
+        public InputBindResult createFromParcel(Parcel source) {
+            return new InputBindResult(source);
+        }
 
-                @Override
-                public InputBindResult[] newArray(int size) {
-                    return new InputBindResult[size];
-                }
-            };
+        @Override
+        public InputBindResult[] newArray(int size) {
+            return new InputBindResult[size];
+        }
+    };
 
     @Override
     public int describeContents() {

@@ -189,7 +189,8 @@ public class InputMethodManagerService extends IInputMethodManager.Stub implemen
 	private final InputMethodSubtypeSwitchingController mSwitchingController;
 
 	// Used to bring IME service up to visible adjustment while it is being shown.
-	final ServiceConnection mVisibleConnection = new ServiceConnection() {
+    //用于在显示IME服务时显示调整。
+    final ServiceConnection mVisibleConnection = new ServiceConnection() {
 		@Override
 		public void onServiceConnected(ComponentName name, IBinder service) {
 		}

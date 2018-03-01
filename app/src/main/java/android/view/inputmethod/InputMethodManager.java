@@ -603,7 +603,7 @@ public final class InputMethodManager {
 	final InputConnection mDummyInputConnection = new BaseInputConnection(this, false);
 
 	InputMethodManager(IInputMethodManager service, Looper looper) {
-		mService = service;
+		mService = service;//实质上就是一个IMMS对象
 		mMainLooper = looper;
 		mH = new H(looper);
 		mIInputContext = new ControlledInputConnectionWrapper(looper, mDummyInputConnection, this);
@@ -620,6 +620,7 @@ public final class InputMethodManager {
 			if (sInstance == null) {
 				// InputMethodManager其实就是一个Binder service的proxy
 				IBinder b = ServiceManager.getService(Context.INPUT_METHOD_SERVICE);
+				//这个service 其实就是IMMS
 				IInputMethodManager service = IInputMethodManager.Stub.asInterface(b);
 				sInstance = new InputMethodManager(service, Looper.getMainLooper());
 			}
