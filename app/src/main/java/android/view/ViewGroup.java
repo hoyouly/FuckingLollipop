@@ -1915,12 +1915,15 @@ public abstract class ViewGroup extends View implements ViewParent, ViewManager 
                 // The framework may have dropped the up or cancel event for the previous gesture
                 // due to an app switch, ANR, or some other state change.
                 cancelAndClearTouchTargets(ev);
+                //重置FLAG_DISALLOW_INTERCEPT，因此子View调用requestDisallowInterceptTouchEvent（）在ACTION_DOWN并不能影响
                 resetTouchState();
             }
 
             // Check for interception.
             final boolean intercepted;
-            if (actionMasked == MotionEvent.ACTION_DOWN || mFirstTouchTarget != null) {
+            //mFirstTouchTarget  当事件由VieGroup的子元素成功处理时，mFirstTouchTarget就会被赋值并且指向子元素
+            if (actionMasked == MotionEvent.ACTION_DOWN || mFirstTouchTarget != null) {//说明ViewGroup 会拦截事件
+                //如果子View设置了 requestDisallowInterceptTouchEvent()，那么ViewGroup讲无法拦截ACTION_DOWN以外的其他点击事件
                 final boolean disallowIntercept = (mGroupFlags & FLAG_DISALLOW_INTERCEPT) != 0;
                 if (!disallowIntercept) {
                     //先给该view一个处理事件的机会，如果Intercept，则事件不会往下发送
@@ -1973,8 +1976,9 @@ public abstract class ViewGroup extends View implements ViewParent, ViewManager 
                         // Scan children from front to back.
                         final ArrayList<View> preorderedList = buildOrderedChildList();
                         final boolean customOrder = preorderedList == null && isChildrenDrawingOrderEnabled();
+
                         final View[] children = mChildren;
-                        for (int i = childrenCount - 1; i >= 0; i--) {
+                        for (int i = childrenCount - 1; i >= 0; i--) {//遍历整个子元素
                             final int childIndex = customOrder ? getChildDrawingOrder(childrenCount, i) : i;
                             final View child = (preorderedList == null) ? children[childIndex] : preorderedList.get(childIndex);
 
@@ -1989,7 +1993,7 @@ public abstract class ViewGroup extends View implements ViewParent, ViewManager 
                                 childWithAccessibilityFocus = null;
                                 i = childrenCount - 1;
                             }
-
+                            //判断子元素是否能接收点击事件
                             if (!canViewReceivePointerEvents(child) || !isTransformedTouchPointInView(x, y, child, null)) {
                                 ev.setTargetAccessibilityFocus(false);
                                 continue;
@@ -2521,6 +2525,8 @@ public abstract class ViewGroup extends View implements ViewParent, ViewManager 
      * them dispatched to this ViewGroup through onTouchEvent().
      * The current target will receive an ACTION_CANCEL event, and no further
      * messages will be delivered here.
+     * 用来判断是否拦截某个事件，如果当前View拦截了某个事件，那么在同一个事件序列中，此方法不会再次调用
+     * 返回结果表示是否拦截此事件
      */
     public boolean onInterceptTouchEvent(MotionEvent ev) {
         return false;

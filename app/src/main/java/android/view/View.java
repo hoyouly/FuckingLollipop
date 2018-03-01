@@ -8122,7 +8122,7 @@ public class View implements Drawable.Callback, KeyEvent.Callback, Accessibility
 	/**
 	 * Pass the touch screen motion event down to the target view, or this
 	 * view if it is the target.
-	 *
+	 * 如果事件能传递到当前View，那么此方法一定会调用，返回结果受当前View的onTouchEvent和下级的dispatchTouchEvent()影响，返回结果表示是否消耗当前事件
 	 * @param event The motion event to be dispatched.
 	 * @return True if the event was handled by the view, false otherwise.
 	 */
@@ -9074,6 +9074,8 @@ public class View implements Drawable.Callback, KeyEvent.Callback, Accessibility
 	 *
 	 * @param event The motion event.
 	 * @return True if the event was handled, false otherwise.
+	 *
+	 * 在dispatchTouchEvent()中调用，用来处理点击事件，返回结果表示是否消耗当前事件，如果不消耗，则在同一事件序列中，当前View无法再次接受到事件
 	 */
 	public boolean onTouchEvent(MotionEvent event) {
 		final float x = event.getX();

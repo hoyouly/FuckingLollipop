@@ -1676,6 +1676,7 @@ public class PhoneWindow extends Window implements MenuBuilder.Callback {
 
     @Override
     public boolean superDispatchTouchEvent(MotionEvent event) {
+        //这个mDecor是一个DecorView对象，在我们setContentView的时候初始化
         return mDecor.superDispatchTouchEvent(event);
     }
 
@@ -2298,6 +2299,7 @@ public class PhoneWindow extends Window implements MenuBuilder.Callback {
         }
 
         public boolean superDispatchTouchEvent(MotionEvent event) {
+            //因为DecorView继承 FrameLayout,所以是一个ViewGroup,super.dispatchTouchEvent()最终也就是执行到 ViewGroup 的dispatchTouchEvent（）中
             return super.dispatchTouchEvent(event);
         }
 

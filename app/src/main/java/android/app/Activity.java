@@ -2697,14 +2697,18 @@ public class Activity extends ContextThemeWrapper implements LayoutInflater.Fact
 	 *
 	 * @param ev The touch screen event.
 	 * @return boolean Return true if this event was consumed.
+	 *
+	 * 当点击一个事件的时候，事件最先传递给当前的Activity，由Activity的dispathcTouchEvent（）进行分发
 	 */
 	public boolean dispatchTouchEvent(MotionEvent ev) {
 		if (ev.getAction() == MotionEvent.ACTION_DOWN) {
 			onUserInteraction();
 		}
-		if (getWindow().superDispatchTouchEvent(ev)) {
+		//具体的是由Activity内部的Window来完成，这个Window对象是在Activity的attch()中创建的，实际上是一个PhoneWindow对象
+		if (getWindow().superDispatchTouchEvent(ev)) {//整个事件循环结束
 			return true;
 		}
+		//执行到这里，说明这个事件没有人处理，所有的View的onTouchEvent()都是返回false,那么Activity的onTouchEvent()执行
 		return onTouchEvent(ev);
 	}
 
