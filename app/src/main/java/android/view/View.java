@@ -9082,22 +9082,25 @@ public class View implements Drawable.Callback, KeyEvent.Callback, Accessibility
 		final float y = event.getY();
 		final int viewFlags = mViewFlags;
 
-		if ((viewFlags & ENABLED_MASK) == DISABLED) {
+		if ((viewFlags & ENABLED_MASK) == DISABLED) {//View 处于不可点击状态下
 			if (event.getAction() == MotionEvent.ACTION_UP && (mPrivateFlags & PFLAG_PRESSED) != 0) {
 				setPressed(false);
 			}
-			// A disabled view that is clickable still consumes the touch
-			// events, it just doesn't respond to them.
+			// A disabled view that is clickable still consumes the touch  events, it just doesn't
+            // respond to them. 处于不可点击状态下也是可以消耗事件的，只不过会会响应而已
 			return (((viewFlags & CLICKABLE) == CLICKABLE || (viewFlags & LONG_CLICKABLE) == LONG_CLICKABLE));
 		}
 
-		if (mTouchDelegate != null) {
+		if (mTouchDelegate != null) {//如果设置的TouchDelegate，则会执行TouchDelegate的 onTouchEvent()，
+            //onTouchEvent()的机制和onTouchListener类似
 			if (mTouchDelegate.onTouchEvent(event)) {
 				return true;
 			}
 		}
 
+		//对点击事件的具体处理
 		if (((viewFlags & CLICKABLE) == CLICKABLE || (viewFlags & LONG_CLICKABLE) == LONG_CLICKABLE)) {
+		    // 只要设置了CLICKABLE 或者LONG_CLICKABLE任意一个为true，就会消耗掉事件
 			switch (event.getAction()) {
 				case MotionEvent.ACTION_UP:
 					boolean prepressed = (mPrivateFlags & PFLAG_PREPRESSED) != 0;

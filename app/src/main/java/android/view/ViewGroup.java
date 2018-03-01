@@ -1993,7 +1993,7 @@ public abstract class ViewGroup extends View implements ViewParent, ViewManager 
                                 childWithAccessibilityFocus = null;
                                 i = childrenCount - 1;
                             }
-                            //判断子元素是否能接收点击事件
+                            //判断子元素是否能接收点击事件：子元素是否在播放动画和点击坐标点是否在子元素内
                             if (!canViewReceivePointerEvents(child) || !isTransformedTouchPointInView(x, y, child, null)) {
                                 ev.setTargetAccessibilityFocus(false);
                                 continue;
@@ -2009,6 +2009,7 @@ public abstract class ViewGroup extends View implements ViewParent, ViewManager 
 
                             resetCancelNextUpFlag(child);
                             if (dispatchTransformedTouchEvent(ev, false, child, idBitsToAssign)) {
+                                //子元素的dispatchTouchEvent（）返回的是true
                                 // Child wants to receive touch within its bounds.
                                 mLastTouchDownTime = ev.getDownTime();
                                 if (preorderedList != null) {
@@ -2024,6 +2025,7 @@ public abstract class ViewGroup extends View implements ViewParent, ViewManager 
                                 }
                                 mLastTouchDownX = ev.getX();
                                 mLastTouchDownY = ev.getY();
+                                //mFirstTouchTarget 被赋值，并且跳出循环
                                 newTouchTarget = addTouchTarget(child, idBitsToAssign);
                                 alreadyDispatchedToNewTouchTarget = true;
                                 break;
@@ -2050,8 +2052,11 @@ public abstract class ViewGroup extends View implements ViewParent, ViewManager 
 
             // Dispatch to touch targets.
             //按照冒泡法，将触摸事件传递给每个child处理
-            if (mFirstTouchTarget == null) {
+            if (mFirstTouchTarget == null)
+            {//遍历所有的子元素最后都没有被处理，一种是ViewGroup没有子元素，二是子元素的dispatchTouchEvent()返回的是false,
+                // 一般这种情况都是子元素的onTouchEvent()返回false
                 // No touch targets so treat this as an ordinary view.
+                //因为第三个参数view传递的是null，所以就把当做一个普通的View进行看待了
                 handled = dispatchTransformedTouchEvent(ev, canceled, null, TouchTarget.ALL_POINTER_IDS);
             } else {
                 // Dispatch to touch targets, excluding the new touch target if we already
@@ -2209,6 +2214,7 @@ public abstract class ViewGroup extends View implements ViewParent, ViewManager 
      */
     private TouchTarget addTouchTarget(View child, int pointerIdBits) {
         TouchTarget target = TouchTarget.obtain(child, pointerIdBits);
+        //采用的单链表结构
         target.next = mFirstTouchTarget;
         mFirstTouchTarget = target;
         return target;
