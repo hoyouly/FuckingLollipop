@@ -4801,7 +4801,7 @@ public class View implements Drawable.Callback, KeyEvent.Callback, Accessibility
 			if (mAttachInfo != null) {
 				mAttachInfo.mTreeObserver.dispatchOnGlobalFocusChange(oldFocus, this);
 			}
-			//这个函数很重要，编辑类view(比如TextEditor)和普通view的差别就在此和输入法相关的处理也在此
+			//这个函数很重要，编辑类view(比如TextEditor)和普通view的差别就在此,和输入法相关的处理也在此
 			onFocusChanged(true, direction, previouslyFocusedRect);
 			refreshDrawableState();
 		}

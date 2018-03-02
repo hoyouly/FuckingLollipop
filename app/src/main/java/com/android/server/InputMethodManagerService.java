@@ -843,8 +843,8 @@ public class InputMethodManagerService extends IInputMethodManager.Stub implemen
 			if (DEBUG) {
 				Slog.d(TAG, "--- systemReady");
 			}
-			if (!mSystemReady) {
-				mSystemReady = true;
+			if (!mSystemReady) {//系统启动，执行该方法，mSystemReady 默认为false,所以会执行，
+				mSystemReady = true;//标志设置为true ,所以该方法只执行一次
 				mKeyguardManager = (KeyguardManager) mContext.getSystemService(Context.KEYGUARD_SERVICE);
 				mNotificationManager = (NotificationManager) mContext.getSystemService(Context.NOTIFICATION_SERVICE);
 				mStatusBar = statusBar;
@@ -1715,9 +1715,8 @@ public class InputMethodManagerService extends IInputMethodManager.Stub implemen
 			synchronized (mMethodMap) {
 				if (mCurClient == null || client == null || mCurClient.client.asBinder() != client.asBinder()) {
 					try {
-						// We need to check if this is the current client with
-						// focus in the window manager, to allow this call to
-						// be made before input is started in it.
+						// We need to check if this is the current client with focus in the window manager, to allow this call to be made before input is started in it.
+						//我们需要检查这是否是焦点在窗口管理器中的当前客户端，以便在输入启动之前进行此调用。
 						if (!mIWindowManager.inputMethodClientHasFocus(client)) {
 							Slog.w(TAG, "Ignoring showSoftInput of uid " + uid + ": " + client);
 							return false;
@@ -2489,6 +2488,7 @@ public class InputMethodManagerService extends IInputMethodManager.Stub implemen
 			ResolveInfo ri = services.get(i);
 			ServiceInfo si = ri.serviceInfo;
 			ComponentName compName = new ComponentName(si.packageName, si.name);
+			//只允许系统通过BIND_INPUT_METHOD权限直接访问IME的InputMethod接口
 			if (!android.Manifest.permission.BIND_INPUT_METHOD.equals(si.permission)) {
 				Slog.w(TAG, "Skipping input method " + compName + ": it does not require the permission " + android.Manifest.permission.BIND_INPUT_METHOD);
 				continue;

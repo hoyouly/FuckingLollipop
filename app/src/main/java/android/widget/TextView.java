@@ -7661,7 +7661,7 @@ public class TextView extends View implements ViewTreeObserver.OnPreDrawListener
 			}
 
 			if (touchIsFinished && (isTextEditable() || textIsSelectable)) {
-				// Show the IME, except when selecting in read-only text.
+				// Show the IME, except when selecting in read-only text.  显示IME，除非选择只读文本。
 				final InputMethodManager imm = InputMethodManager.peekInstance();
 				viewClicked(imm);
 					//这个是真正显示输入法的调用
