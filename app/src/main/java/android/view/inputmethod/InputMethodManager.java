@@ -290,11 +290,13 @@ public final class InputMethodManager {
 	/**
 	 * This is the view that should currently be served by an input method,
 	 * regardless of the state of setting that up.
+     * 这是当前应该由输入方法提供的视图，而不考虑设置的状态。
 	 */
 	View mServedView;
 	/**
 	 * This is then next view that will be served by the input method, when
 	 * we get around to updating things.
+     * 这是下一个视图，当我们进行更新时，它将被输入方法服务。
 	 */
 	View mNextServedView;
 	/**
@@ -603,7 +605,7 @@ public final class InputMethodManager {
 	final InputConnection mDummyInputConnection = new BaseInputConnection(this, false);
 
 	InputMethodManager(IInputMethodManager service, Looper looper) {
-		mService = service;//实质上就是一个IMMS对象
+		mService = service;//实质上就是一个IMMS的代理对象
 		mMainLooper = looper;
 		mH = new H(looper);
 		mIInputContext = new ControlledInputConnectionWrapper(looper, mDummyInputConnection, this);
@@ -620,7 +622,7 @@ public final class InputMethodManager {
 			if (sInstance == null) {
 				// InputMethodManager其实就是一个Binder service的proxy
 				IBinder b = ServiceManager.getService(Context.INPUT_METHOD_SERVICE);
-				//这个service 其实就是IMMS
+				//这个service 其实就是IMMS的代理对象
 				IInputMethodManager service = IInputMethodManager.Stub.asInterface(b);
 				sInstance = new InputMethodManager(service, Looper.getMainLooper());
 			}
@@ -1365,7 +1367,8 @@ public final class InputMethodManager {
 				return false;
 			}
 			if (DEBUG)
-				Log.v(TAG, "checkFocus: view=" + mServedView + " next=" + mNextServedView + " forceNewFocus=" + forceNewFocus + " package=" + (mServedView != null ? mServedView.getContext().getPackageName() : "<none>"));
+				Log.v(TAG, "checkFocus: view=" + mServedView + " next=" + mNextServedView + " forceNewFocus=" + //
+                        forceNewFocus + " package=" + (mServedView != null ? mServedView.getContext().getPackageName() : "<none>"));
 
 			if (mNextServedView == null) {
 				finishInputLocked();
@@ -1504,12 +1507,15 @@ public final class InputMethodManager {
 
 	/**
 	 * Notify the event when the user tapped or clicked the text view.
+     * 当用户点击或单击文本视图时通知事件
 	 */
 	public void viewClicked(View view) {
+	    //focusChanged 为fasle,因为他们两个相等的，
 		final boolean focusChanged = mServedView != mNextServedView;
 		checkFocus();
 		synchronized (mH) {
-			if ((mServedView != view && (mServedView == null || !mServedView.checkInputConnectionProxy(view))) || mCurrentTextBoxAttribute == null || mCurMethod == null) {
+			if ((mServedView != view && (mServedView == null || !mServedView.checkInputConnectionProxy(view))) //
+                    || mCurrentTextBoxAttribute == null || mCurMethod == null) {
 				return;
 			}
 			try {

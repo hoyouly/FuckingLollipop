@@ -583,7 +583,8 @@ public class TextView extends View implements ViewTreeObserver.OnPreDrawListener
 
 	/**
 	 * EditText specific data, created on demand when one of the Editor fields is used.
-	 * See {@link #createEditorIfNeeded()}.
+     * EditText特定数据，在使用编辑器字段时创建。
+     * See {@link #createEditorIfNeeded()}.
 	 */
 	private Editor mEditor;
 

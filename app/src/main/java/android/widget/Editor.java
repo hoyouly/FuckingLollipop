@@ -113,6 +113,7 @@ import java.util.HashMap;
 
 /**
  * Helper class used by TextView to handle editable text views.
+ * TextView用于处理可编辑文本视图的助手类。
  *
  * @hide
  */
