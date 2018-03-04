@@ -1268,9 +1268,9 @@ final class WindowState implements WindowManagerPolicy.WindowState {
      */
     public void reportFocusChangedSerialized(boolean focused, boolean inTouchMode) {
         try {
-            //这个就是通过Binder告知client其获得或失去了焦点 其实这个mClient 就是ViewRootImpl中的W实例mWindow
-            //具体就是在VIewRootImpl中setView()方法中 mWindowSession.addToDisplay()中把mWindow传递过去,
-            //然后在Session的addToDisplay 中通过mService.addWindow（）通过mWindow创建WindowState对象，然后mClient接受这个mWidow对象
+            //这个就是通过Binder告知client其获得或失去了焦点 其实这个mClient 就是ViewRootImpl中的 W 实例mWindow
+            //具体就是在VewRootImpl中setView()方法中 mWindowSession.addToDisplay()中把mWindow传递过去,
+            //然后在Session的addToDisplay 中通过mService.addWindow() 通过mWindow创建WindowState对象，然后mClient接受这个mWidow对象
             mClient.windowFocusChanged(focused, inTouchMode);
         } catch (RemoteException e) {
         }

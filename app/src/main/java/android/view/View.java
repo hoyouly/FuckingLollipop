@@ -8372,7 +8372,7 @@ public class View implements Drawable.Callback, KeyEvent.Callback, Accessibility
 	 * @param hasWindowFocus True if the window containing this view now has
 	 *                       focus, false otherwise.
 	 */
-	public void onWindowFocusChanged(boolean hasWindowFocus) {
+	public void onWindowFocusChanged(boolean hasWindowFocus) {//hasWindowFocus 传递过来的是true   newFocus.reportFocusChangedSerialized(true, mInTouchMode);
 		InputMethodManager imm = InputMethodManager.peekInstance();
 		if (!hasWindowFocus) {
 			if (isPressed()) {

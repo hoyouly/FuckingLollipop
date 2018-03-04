@@ -9758,7 +9758,7 @@ public class WindowManagerService extends IWindowManager.Stub implements Watchdo
 
     private boolean updateFocusedWindowLocked(int mode, boolean updateInputWindows) {
         //计算焦点window
-        WindowState newFocus = computeFocusedWindowLocked();
+        WindowState newFocus = computeFocusedWindowLocked();// IN
         if (mCurrentFocus != newFocus) {//说明焦点window发生变化了
             Trace.traceBegin(Trace.TRACE_TAG_WINDOW_MANAGER, "wmUpdateFocus");
             // This check makes sure that we don't already have the focus
@@ -9855,7 +9855,7 @@ public class WindowManagerService extends IWindowManager.Stub implements Watchdo
 
             // Descend through all of the app tokens and find the first that either matches
             // win.mAppToken (return win) or mFocusedApp (return null).
-            // 通过所有应用程序令牌下载并找到第一个匹配win.mAppToken（返回win）或mFocusedApp（返回null）的第一个。
+            // 通过所有 app tokens 下载并找到第一个匹配win.mAppToken（返回win）或mFocusedApp（返回null）的第一个。
 
             // mFocusedApp是最top的activity ，下面逻辑是为了确保焦点window的app必须是焦点程序之上，
             // 所以这个逻辑其实并没有多大作用，只是为了检测出错误

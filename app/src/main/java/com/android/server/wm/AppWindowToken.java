@@ -38,6 +38,7 @@ class AppTokenList extends ArrayList<AppWindowToken> {
 /**
  * Version of WindowToken that is specifically for a particular application (or
  * really activity) that is displaying windows.
+ * WindowToken的版本，专门用于显示窗口的特定应用程序（或真正的活动）。
  */
 class AppWindowToken extends WindowToken {
     // Non-null only for application tokens.
