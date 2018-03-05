@@ -1189,7 +1189,7 @@ public final class InputMethodManager {
 		EditorInfo tba = new EditorInfo();
 		tba.packageName = view.getContext().getPackageName();
 		tba.fieldId = view.getId();
-		//创建数据通信连接接口，这个会传送到InputMethodService
+		//创建数据通信连接接口，这个会传送到 InputMethodService
 		//InputMethodService后面就通过这个connection将输入法的字符传递给该view
 		//由具体的view创建,比如TextView创建的
 		InputConnection ic = view.onCreateInputConnection(tba);
@@ -1380,7 +1380,7 @@ public final class InputMethodManager {
 			}
 
 			ic = mServedInputConnection;
-
+            //下一个视图变成当前视图
 			mServedView = mNextServedView;
 			mCurrentTextBoxAttribute = null;
 			mCompletions = null;

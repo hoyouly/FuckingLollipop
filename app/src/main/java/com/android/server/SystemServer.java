@@ -455,12 +455,15 @@ public final class SystemServer {
 			Slog.i(TAG, "Window Manager");
 			wm = WindowManagerService.main(context, inputManager, mFactoryTestMode != FactoryTest.FACTORY_TEST_LOW_LEVEL, !mFirstBoot, mOnlyCore);
 			ServiceManager.addService(Context.WINDOW_SERVICE, wm);
-			ServiceManager.addService(Context.INPUT_SERVICE, inputManager);
+
+            // 将IMS发布给ServiceManager，以便其他人可以访问IMS提供的接口
+            ServiceManager.addService(Context.INPUT_SERVICE, inputManager);
 
 			mActivityManagerService.setWindowManager(wm);
-
+            // 设置向WMS发起回调的callback对象
 			inputManager.setWindowManagerCallbacks(wm.getInputMonitor());
-			inputManager.start();
+            // **② 正式启动IMS**
+            inputManager.start();
 
 			// TODO: Use service dependencies instead.
 			mDisplayManagerService.windowManagerAndInputReady();

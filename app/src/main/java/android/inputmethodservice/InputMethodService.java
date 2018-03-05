@@ -343,7 +343,8 @@ public class InputMethodService extends AbstractInputMethodService {
 	 * Concrete implementation of
 	 * {@link AbstractInputMethodImpl} that provides
 	 * all of the standard behavior for an input method.
-	 */
+     * 提供 输入方法的所有标准行为。
+     */
 	public class InputMethodImpl extends AbstractInputMethodImpl {
 		/**
 		 * Take care of attaching the given window token provided by the system.

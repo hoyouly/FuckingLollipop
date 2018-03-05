@@ -347,6 +347,7 @@ public class InputMethodManagerService extends IInputMethodManager.Stub implemen
 	/**
 	 * The token we have made for the currently active input method, to
 	 * identify it in the future.
+     * 我们为当前有效的输入法所做的token，以便将来识别它。
 	 */
 	IBinder mCurToken;
 
