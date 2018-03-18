@@ -744,6 +744,7 @@ public final class ActivityManagerService extends ActivityManagerNative implemen
 	 */
 	final SparseArray<ArrayMap<String, ArrayList<Intent>>> mStickyBroadcasts = new SparseArray<ArrayMap<String, ArrayList<Intent>>>();
 
+	//辅助AMS进行Service管理的类，包括Service的启动，绑定，和停止等
 	final ActiveServices mServices;
 
 	final static class Association {

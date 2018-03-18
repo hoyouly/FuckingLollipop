@@ -2642,6 +2642,7 @@ public final class ActivityThread {
 		LoadedApk packageInfo = getPackageInfoNoCheck(data.info.applicationInfo, data.compatInfo);
 		Service service = null;
 		try {
+		    //通过类加载器创建Service实例，
 			ClassLoader cl = packageInfo.getClassLoader();
 			service = (Service) cl.loadClass(data.info.name).newInstance();
 		} catch (Exception e) {
@@ -2652,13 +2653,15 @@ public final class ActivityThread {
 
 		try {
 			if (localLOGV) Slog.v(TAG, "Creating service " + data.info.name);
-
+            //创建ContextImpl对象，
 			ContextImpl context = ContextImpl.createAppContext(this, packageInfo);
 			context.setOuterContext(service);
-
+            //创建Application对象，并且调用onCreat()方法，当然，Application只创建一次
 			Application app = packageInfo.makeApplication(false, mInstrumentation);
+			//通过attach方法，把ContextImpl和Application连接起来
 			service.attach(context, this, data.info.name, data.token, app, ActivityManagerNative.getDefault());
 			service.onCreate();
+			//将Service存储到ActivityThread中的一个列表中
 			mServices.put(data.token, service);
 			try {
 				ActivityManagerNative.getDefault().serviceDoneExecuting(data.token, SERVICE_DONE_EXECUTING_ANON, 0, 0);

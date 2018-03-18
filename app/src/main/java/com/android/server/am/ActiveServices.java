@@ -1346,6 +1346,7 @@ public final class ActiveServices {
             }
             mAm.ensurePackageDexOpt(r.serviceInfo.packageName);
             app.forceProcessStateUpTo(ActivityManager.PROCESS_STATE_SERVICE);
+            //创建Service对象，并且调用onCreat()
             app.thread.scheduleCreateService(r, r.serviceInfo, mAm.compatibilityInfoForPackageLocked(r.serviceInfo.applicationInfo), app.repProcState);
             r.postNotification();
             created = true;
@@ -1371,7 +1372,7 @@ public final class ActiveServices {
         if (r.startRequested && r.callStart && r.pendingStarts.size() == 0) {
             r.pendingStarts.add(new ServiceRecord.StartItem(r, false, r.makeNextStartId(), null, null));
         }
-
+        //通过sendServiceArgsLocked（）调用Service的其他方法，比如onStatCommand()
         sendServiceArgsLocked(r, execInFg, true);
 
         if (r.delayed) {
