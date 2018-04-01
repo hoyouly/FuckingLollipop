@@ -24,6 +24,7 @@ import android.content.IntentFilter;
 import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
 import android.hardware.input.InputManager;
+import android.os.Binder;
 import android.os.Bundle;
 import android.os.Debug;
 import android.os.IBinder;
@@ -1410,6 +1411,8 @@ public class Instrumentation {
 
 
 	public ActivityResult execStartActivity(Context who, IBinder contextThread, IBinder token, Activity target, Intent intent, int requestCode, Bundle options) {
+	    // contextThread 就是传递过来的 mMainThread.getApplicationThread()，也就是ActivityThread的内部类，ApplicationThread 继承 ApplicationThreadNative，
+        // ApplicationThreadNative extends Binder implements IApplicationThread
 		IApplicationThread whoThread = (IApplicationThread) contextThread;
 		if (mActivityMonitors != null) {
 			synchronized (mSync) {
@@ -1430,6 +1433,7 @@ public class Instrumentation {
 			intent.migrateExtraStreamToClipData();
 			intent.prepareToLeaveProcess();
 			//ActivityManagerNative.getDefault()其实是一个IActivityManager类型的Binder对象，因此它的具体实现是AMS。
+            //who.getBasePackageName() 就是包名
 			int result = ActivityManagerNative.getDefault().startActivity(whoThread, who.getBasePackageName(), intent, intent.resolveTypeIfNeeded(who.getContentResolver()), token, target != null ? target.mEmbeddedID : null, requestCode, 0, null, options);
 			//检查启动Activity的结果（抛出异常，例如清单文件未注册Activity）
 			checkStartActivityResult(result, intent);

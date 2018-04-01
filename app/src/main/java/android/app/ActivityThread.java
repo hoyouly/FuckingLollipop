@@ -766,6 +766,7 @@ public final class ActivityThread {
 			}
 			//给data设置参数...
 			AppBindData data = new AppBindData();
+			//就是包名
 			data.processName = processName;
 			data.appInfo = appInfo;
 			data.providers = providers;

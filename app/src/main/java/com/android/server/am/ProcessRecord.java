@@ -47,6 +47,7 @@ import java.util.ArrayList;
 /**
  * Full information about a particular process that
  * is currently running.
+ * 有关当前正在运行的特定进程的完整信息。
  */
 final class ProcessRecord {
 	private final BatteryStatsImpl mBatteryStats; // where to collect runtime statistics
