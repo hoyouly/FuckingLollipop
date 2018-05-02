@@ -1915,7 +1915,7 @@ public abstract class ViewGroup extends View implements ViewParent, ViewManager 
                 // The framework may have dropped the up or cancel event for the previous gesture
                 // due to an app switch, ANR, or some other state change.
                 cancelAndClearTouchTargets(ev);
-                //重置FLAG_DISALLOW_INTERCEPT，因此子View调用requestDisallowInterceptTouchEvent（）在ACTION_DOWN并不能影响
+                //重置FLAG_DISALLOW_INTERCEPT，因此子View调用requestDisallowInterceptTouchEvent() 在ACTION_DOWN并不能影响
                 resetTouchState();
             }
 
@@ -2008,8 +2008,9 @@ public abstract class ViewGroup extends View implements ViewParent, ViewManager 
                             }
 
                             resetCancelNextUpFlag(child);
+                            //dispatchTransformedTouchEvent()实际上就是 子元素的dispatchTouchEvent（），
+                            // 如果子元素的dispatchTouchEvent()返回的是true,mFirstTouchTarget 就会赋值，并且跳出循环
                             if (dispatchTransformedTouchEvent(ev, false, child, idBitsToAssign)) {
-                                //子元素的dispatchTouchEvent（）返回的是true
                                 // Child wants to receive touch within its bounds.
                                 mLastTouchDownTime = ev.getDownTime();
                                 if (preorderedList != null) {
