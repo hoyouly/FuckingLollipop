@@ -655,6 +655,7 @@ class ContextImpl extends Context {
             }
         });
 
+        //注册WindowManager服务。
         registerService(WINDOW_SERVICE, new ServiceFetcher() {
             Display mDefaultDisplay;
 

@@ -150,6 +150,7 @@ public final class WindowManagerGlobal {
 	public static IWindowManager getWindowManagerService() {
 		synchronized (WindowManagerGlobal.class) {
 			if (sWindowManagerService == null) {
+			    //通过ServiceManager.getService()获取WMS，并且将WMS转换为IWindowManager类型，
 				sWindowManagerService = IWindowManager.Stub.asInterface(ServiceManager.getService("window"));
 				try {
 					sWindowManagerService = getWindowManagerService();
@@ -168,7 +169,9 @@ public final class WindowManagerGlobal {
 				try {
 					//创建InputMethodManager实例
 					InputMethodManager imm = InputMethodManager.getInstance();
+					//获取WMS
 					IWindowManager windowManager = getWindowManagerService();
+					//与WMS建立一个Session
 					sWindowSession = windowManager.openSession(new IWindowSessionCallback.Stub() {
 						@Override
 						public void onAnimatorScaleChanged(float scale) {

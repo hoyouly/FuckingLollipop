@@ -351,12 +351,15 @@ public final class ViewRootImpl implements ViewParent, View.AttachInfo.Callbacks
 
     public ViewRootImpl(Context context, Display display) {
         mContext = context;
+        //获取WIndow Session，也就是与WindowManagerService建立连接
         mWindowSession = WindowManagerGlobal.getWindowSession();
         mDisplay = display;
         mBasePackageName = context.getBasePackageName();
 
         mDisplayAdjustments = display.getDisplayAdjustments();
 
+        //保存当前线程，更新UI的线程只能是创建ViewRootImpl时的线程，
+        // 我们在应用开发中，如果在子线程中更新UI会抛出异常，但并不是因为只有UI线程才能更UI，而是因为ViewRootImpl是在UI线程中创建的
         mThread = Thread.currentThread();
         mLocation = new WindowLeaked(null);
         mLocation.fillInStackTrace();
@@ -2211,6 +2214,7 @@ public final class ViewRootImpl implements ViewParent, View.AttachInfo.Callbacks
     }
 
     private void draw(boolean fullRedrawNeeded) {
+        //获取绘制表面
         Surface surface = mSurface;
         if (!surface.isValid()) {
             return;
@@ -2317,7 +2321,9 @@ public final class ViewRootImpl implements ViewParent, View.AttachInfo.Callbacks
             }
         }
 
+        //绘图表面需要更新
         if (!dirty.isEmpty() || mIsAnimating || accessibilityFocusDirty) {
+            //使用GPU绘制，也就是硬件加速
             if (mAttachInfo.mHardwareRenderer != null && mAttachInfo.mHardwareRenderer.isEnabled()) {
                 // If accessibility focus moved, always invalidate the root.
                 boolean invalidateRoot = accessibilityFocusDirty;
@@ -2339,6 +2345,7 @@ public final class ViewRootImpl implements ViewParent, View.AttachInfo.Callbacks
                 dirty.setEmpty();
 
                 mBlockResizeBuffer = false;
+                //使用硬件渲染器绘制
                 mAttachInfo.mHardwareRenderer.draw(mView, mAttachInfo, this);
             } else {
                 // If we get here with a disabled & requested hardware renderer, something went
@@ -2362,7 +2369,7 @@ public final class ViewRootImpl implements ViewParent, View.AttachInfo.Callbacks
                     scheduleTraversals();
                     return;
                 }
-                // 重绘区域、动画判断  硬件渲染判断
+                // 重绘区域、动画判断  硬件渲染判断，使用CPU绘制图形
                 if (!drawSoftware(surface, mAttachInfo, xOffset, yOffset, scalingRequired, dirty)) {
                     return;
                 }
@@ -2388,6 +2395,7 @@ public final class ViewRootImpl implements ViewParent, View.AttachInfo.Callbacks
             final int right = dirty.right;
             final int bottom = dirty.bottom;
 
+            //获取指定区域的Canvas对象，用于Framework层绘制
             canvas = mSurface.lockCanvas(dirty);
 
             // The dirty rectangle can be modified by Surface.lockCanvas()
@@ -2457,6 +2465,7 @@ public final class ViewRootImpl implements ViewParent, View.AttachInfo.Callbacks
             }
         } finally {
             try {
+                //使用Canvas锁，然后通知SurfaceFlinger更新这块区域
                 surface.unlockCanvasAndPost(canvas);
             } catch (IllegalArgumentException e) {
                 Log.e(TAG, "Could not unlock surface", e);

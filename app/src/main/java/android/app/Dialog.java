@@ -259,7 +259,7 @@ public class Dialog implements DialogInterface, Window.Callback, KeyEvent.Callba
 	 * that in {@link #onStart}.
 	 */
 	public void show() {
-		if (mShowing) {
+		if (mShowing) {//已经显示状态，则return
 			if (mDecor != null) {
 				if (mWindow.hasFeature(Window.FEATURE_ACTION_BAR)) {
 					mWindow.invalidatePanelMenu(Window.FEATURE_ACTION_BAR);
@@ -271,11 +271,12 @@ public class Dialog implements DialogInterface, Window.Callback, KeyEvent.Callba
 
 		mCanceled = false;
 
-		if (!mCreated) {
+		if (!mCreated) {//调用onCreate
 			dispatchOnCreate(null);
 		}
 
-		onStart();
+		onStart();//调用onStrat
+        //获取Decorview
 		mDecor = mWindow.getDecorView();
 
 		if (mActionBar == null && mWindow.hasFeature(Window.FEATURE_ACTION_BAR)) {
@@ -285,6 +286,7 @@ public class Dialog implements DialogInterface, Window.Callback, KeyEvent.Callba
 			mActionBar = new WindowDecorActionBar(this);
 		}
 
+		//获取布局参数
 		WindowManager.LayoutParams l = mWindow.getAttributes();
 		if ((l.softInputMode & WindowManager.LayoutParams.SOFT_INPUT_IS_FORWARD_NAVIGATION) == 0) {
 			WindowManager.LayoutParams nl = new WindowManager.LayoutParams();
