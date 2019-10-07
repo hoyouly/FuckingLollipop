@@ -17,6 +17,7 @@
 package android.view;
 
 import android.animation.LayoutTransition;
+import android.app.PendingIntent;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
@@ -2053,8 +2054,7 @@ public abstract class ViewGroup extends View implements ViewParent, ViewManager 
 
             // Dispatch to touch targets.
             //按照冒泡法，将触摸事件传递给每个child处理
-            if (mFirstTouchTarget == null)
-            {//遍历所有的子元素最后都没有被处理，一种是ViewGroup没有子元素，二是子元素的dispatchTouchEvent()返回的是false,
+            if (mFirstTouchTarget == null) {//遍历所有的子元素最后都没有被处理，一种是ViewGroup没有子元素，二是子元素的dispatchTouchEvent()返回的是false,
                 // 一般这种情况都是子元素的onTouchEvent()返回false
                 // No touch targets so treat this as an ordinary view.
                 //因为第三个参数view传递的是null，所以就把当做一个普通的View进行看待了
@@ -4763,6 +4763,7 @@ public abstract class ViewGroup extends View implements ViewParent, ViewManager 
                 }
             } while (parent != null);
         }
+
     }
 
     /**
